@@ -27,7 +27,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>httploadbalancer</artifactId>
+    <artifactId>wso2httploadbalancer</artifactId>
     <packaging>pom</packaging>
     <name>WSO2 HTTP Load Balancer - Distribution</name>
     <description>WSO2 Load Balancer - Distribution</description>
