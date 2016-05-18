@@ -5,5 +5,8 @@ This is a Google Summer of Code (GSoC 2016) Project.
 
 **Proposal:** http://docs.google.com/document/d/1Agl-Y_UKM5eMon8IDZa02aDGj0Yh_vZ7kFC2b1IzFI4/edit?usp=sharing
 
+## Building Product
+mvn install
+
 
 
