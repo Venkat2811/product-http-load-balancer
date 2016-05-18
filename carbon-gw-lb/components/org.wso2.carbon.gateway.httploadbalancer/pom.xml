@@ -14,7 +14,7 @@
     <artifactId>org.wso2.carbon.gateway.httploadbalancer</artifactId>
     <name>WSO2 Carbon - Gateway HTTP Load Balancer Core</name>
     <description>WSO2 Carbon Gateway HTTP Load Balancer</description>
-    <version>1.0.0</version>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
     <dependencies>
@@ -82,7 +82,7 @@
     <properties>
         <bundle.activator>org.wso2.carbon.gateway.httploadbalancer.core.Activator</bundle.activator>
         <export.package>
-            org.wso2.carbon.gateway.httploadbalancer.core;version"1.0.0"
+            org.wso2.carbon.gateway.httploadbalancer.core;version="1.0.0-SNAPSHOT"
         </export.package>
         <import.package>
             org.osgi.framework.*;version="${osgi.framework.import.version.range}",

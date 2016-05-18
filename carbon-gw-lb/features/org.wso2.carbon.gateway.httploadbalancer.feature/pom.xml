@@ -15,7 +15,7 @@
     <artifactId>org.wso2.carbon.gateway.httploadbalancer.feature</artifactId>
     <name>WSO2 Carbon - Gateway HTTP Load Balancer feature</name>
     <description>WSO2 Carbon Gateway HTTP Load Balancer feature</description>
-    <version>1.0.0</version>
+    <version>${carbon.gw.lb.version}</version>
     <packaging>carbon-feature</packaging>
 
     <dependencies>
@@ -24,7 +24,7 @@
         <dependency>
             <groupId>org.wso2.carbon.gateway.httploadbalancer</groupId>
             <artifactId>org.wso2.carbon.gateway.httploadbalancer</artifactId>
-            <version>${carbon.gw.lb.version}</version>
+            <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
