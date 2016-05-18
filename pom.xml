@@ -25,11 +25,11 @@
         <version>3</version>
     </parent>
 
-    <groupId>org.wso2.carbon.httploadbalancer</groupId>
-    <artifactId>org.wso2.carbon.httploadbalancer.parent</artifactId>
+    <groupId>org.wso2.carbon.gateway.httploadbalancer</groupId>
+    <artifactId>org.wso2.carbon.gateway.httploadbalancer.parent</artifactId>
     <packaging>pom</packaging>
     <version>1.0.0-SNAPSHOT</version>
-    <name>WSO2 Carbon - Product HTTP Load Balancer</name>
+    <name>WSO2 Carbon - Product HTTP Load Balancer on WSO2 Gateway Parent</name>
 
     <scm>
         <url>https://github.com/Venkat2811/product-http-load-balancer.git</url>
@@ -109,6 +109,12 @@
                 <type>zip</type>
             </dependency>
             <dependency>
+                <groupId>org.wso2.carbon.gateway.httploadbalancer</groupId>
+                <artifactId>org.wso2.carbon.gateway.httploadbalancer</artifactId>
+                <version>${carbon.gw.lb.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
                 <groupId>org.osgi</groupId>
                 <artifactId>org.osgi.core</artifactId>
                 <version>${osgi.api.version}</version>
@@ -181,6 +187,7 @@
         <carbon.kernel.package.import.version.range>[5.0.0, 6.0.0)</carbon.kernel.package.import.version.range>
 
         <carbon.gw.version>1.0.0-SNAPSHOT</carbon.gw.version>
+        <carbon.gw.lb.version>1.0.0</carbon.gw.lb.version>
         <carbon.gw.package.export.version>1.0.0</carbon.gw.package.export.version>
 
         <osgi.api.version>6.0.0</osgi.api.version>
@@ -212,6 +219,8 @@
     </properties>
 
     <modules>
+        <module>carbon-gw-lb/components/org.wso2.carbon.gateway.httploadbalancer</module>
+        <module>carbon-gw-lb/features/org.wso2.carbon.gateway.httploadbalancer.feature</module>
         <module>product</module>
     </modules>
 </project>

@@ -21,16 +21,16 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.wso2.carbon.httploadbalancer</groupId>
-        <artifactId>org.wso2.carbon.httploadbalancer.parent</artifactId>
+        <groupId>org.wso2.carbon.gateway.httploadbalancer</groupId>
+        <artifactId>org.wso2.carbon.gateway.httploadbalancer.parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>wso2httploadbalancer</artifactId>
+    <artifactId>wso2gwlbserver</artifactId>
     <packaging>pom</packaging>
-    <name>WSO2 HTTP Load Balancer - Distribution</name>
-    <description>WSO2 Load Balancer - Distribution</description>
+    <name>WSO2 Gateway HTTP Load Balancer Server - Distribution</name>
+    <description>WSO2 Gateway Load Balancer Server - Distribution</description>
     <url>http://wso2.org</url>
 
     <dependencies>
@@ -112,6 +112,12 @@
             <groupId>org.wso2.carbon.gateway.converters</groupId>
             <artifactId>org.wso2.carbon.gateway.converters.jsontoxml.feature</artifactId>
             <version>${carbon.gw.version}</version>
+            <type>zip</type>
+        </dependency>
+       <dependency>
+            <groupId>org.wso2.carbon.gateway.httploadbalancer</groupId>
+            <artifactId>org.wso2.carbon.gateway.httploadbalancer.feature</artifactId>
+            <version>${carbon.gw.lb.version}</version>
             <type>zip</type>
         </dependency>
     </dependencies>
@@ -206,6 +212,10 @@
                                 <feature>
                                     <id>org.wso2.carbon.gateway.converters.jsontoxml.feature</id>
                                     <version>${carbon.gw.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.gateway.httploadbalancer.feature</id>
+                                    <version>${carbon.gw.lb.version}</version>
                                 </feature>
                             </features>
                         </configuration>
@@ -302,6 +312,10 @@
                                 <feature>
                                     <id>org.wso2.carbon.gateway.converters.jsontoxml.feature</id>
                                     <version>${carbon.gw.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.gateway.httploadbalancer.feature</id>
+                                    <version>${carbon.gw.lb.version}</version>
                                 </feature>
                             </features>
                         </configuration>

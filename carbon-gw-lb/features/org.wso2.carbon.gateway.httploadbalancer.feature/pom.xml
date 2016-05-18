@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.wso2.carbon.gateway.httploadbalancer</groupId>
+        <artifactId>org.wso2.carbon.gateway.httploadbalancer.parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../../../pom.xml</relativePath>
+    </parent>
+
+
+    <artifactId>org.wso2.carbon.gateway.httploadbalancer.feature</artifactId>
+    <name>WSO2 Carbon - Gateway HTTP Load Balancer feature</name>
+    <description>WSO2 Carbon Gateway HTTP Load Balancer feature</description>
+    <version>1.0.0</version>
+    <packaging>carbon-feature</packaging>
+
+    <dependencies>
+        <!-- Netty transport should be a feature of its own -->
+
+        <dependency>
+            <groupId>org.wso2.carbon.gateway.httploadbalancer</groupId>
+            <artifactId>org.wso2.carbon.gateway.httploadbalancer</artifactId>
+            <version>${carbon.gw.lb.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.eclipse.osgi</groupId>
+            <artifactId>org.eclipse.osgi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.eclipse.osgi</groupId>
+            <artifactId>org.eclipse.osgi.services</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.gateway</groupId>
+            <artifactId>org.wso2.carbon.gateway.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.gateway.inbounds</groupId>
+            <artifactId>org.wso2.carbon.gateway.inbounds.http</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.gateway.outbounds</groupId>
+            <artifactId>org.wso2.carbon.gateway.outbounds.http</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.messaging</groupId>
+            <artifactId>org.wso2.carbon.messaging</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.wso2.carbon.maven</groupId>
+                <artifactId>carbon-feature-plugin</artifactId>
+                <version>${carbon.feature.plugin.version}</version>
+                <extensions>true</extensions>
+                <executions>
+                    <execution>
+                        <id>1-p2-feature-generation</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+
+                            <propertyFile>../etc/feature.properties</propertyFile>
+                            <adviceFileContents>
+                                <advice>
+                                    <name>org.wso2.carbon.p2.category.type</name>
+                                    <value>server</value>
+                                </advice>
+                                <advice>
+                                    <name>org.eclipse.equinox.p2.type.group</name>
+                                    <value>false</value>
+                                </advice>
+                            </adviceFileContents>
+                            <bundles>
+                                <bundle>
+                                    <symbolicName>org.eclipse.osgi</symbolicName>
+                                    <version>${equinox.osgi.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.eclipse.osgi.services</symbolicName>
+                                    <version>${equinox.osgi.services.version}</version>
+                                </bundle>
+
+                                <bundle>
+                                    <symbolicName>org.wso2.carbon.gateway.core</symbolicName>
+                                    <version>${carbon.gw.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.wso2.carbon.gateway.inbounds.http</symbolicName>
+                                    <version>${carbon.gw.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.wso2.carbon.gateway.outbounds.http</symbolicName>
+                                    <version>${carbon.gw.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.wso2.carbon.gateway.httploadbalancer</symbolicName>
+                                    <version>${carbon.gw.lb.version}</version>
+                                </bundle>
+                            </bundles>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

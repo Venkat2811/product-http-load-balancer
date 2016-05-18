@@ -17,7 +17,7 @@
   -->
 <assembly>
     <includeBaseDirectory>true</includeBaseDirectory>
-    <baseDirectory>wso2httploadbalancer-${project.version}</baseDirectory>
+    <baseDirectory>wso2gwlbserver-${project.version}</baseDirectory>
     <id>WSO2 HTTP Load Balancer</id>
     <formats>
         <format>zip</format>
