@@ -6,7 +6,7 @@ participant StocksPipeline : Pipeline("Stocks_Flow")
 
 participant NYSEOutbound : OutboundEndpoint(protocol("http"),host("http://localhost:8080/stockquote/all"))
 
-participant NASDAQOutbound : OutboundEndpoint(protocol("http"),host("http://localhost:8081/stockquote/all"))
+participant NASDAQOutbound : OutboundEndpoint(protocol("http"),host("http://localhost:8082/stockquote/all"))
 
 StocksInbound -> StocksPipeline : "client request"
 
