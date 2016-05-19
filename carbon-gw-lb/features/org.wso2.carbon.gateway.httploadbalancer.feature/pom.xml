@@ -15,7 +15,7 @@
     <artifactId>org.wso2.carbon.gateway.httploadbalancer.feature</artifactId>
     <name>WSO2 Carbon - Gateway HTTP Load Balancer feature</name>
     <description>WSO2 Carbon Gateway HTTP Load Balancer feature</description>
-    <version>${carbon.gw.lb.version}</version>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>carbon-feature</packaging>
 
     <dependencies>
@@ -53,6 +53,14 @@
         <dependency>
             <groupId>org.wso2.carbon.messaging</groupId>
             <artifactId>org.wso2.carbon.messaging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
         </dependency>
     </dependencies>
 
@@ -107,6 +115,14 @@
                                 <bundle>
                                     <symbolicName>org.wso2.carbon.gateway.httploadbalancer</symbolicName>
                                     <version>${carbon.gw.lb.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>slf4j.api</symbolicName>
+                                    <version>${slf4j.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>slf4j.log4j12</symbolicName>
+                                    <version>${slf4j.version}</version>
                                 </bundle>
                             </bundles>
                         </configuration>

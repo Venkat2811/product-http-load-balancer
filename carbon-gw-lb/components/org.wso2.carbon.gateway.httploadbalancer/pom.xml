@@ -49,6 +49,16 @@
             <groupId>org.wso2.carbon.messaging</groupId>
             <artifactId>org.wso2.carbon.messaging</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -80,9 +90,9 @@
     </build>
 
     <properties>
-        <bundle.activator>org.wso2.carbon.gateway.httploadbalancer.core.Activator</bundle.activator>
+
         <export.package>
-            org.wso2.carbon.gateway.httploadbalancer.core;version="1.0.0-SNAPSHOT"
+            org.wso2.carbon.gateway.httploadbalancer.*;version="1.0.0-SNAPSHOT"
         </export.package>
         <import.package>
             org.osgi.framework.*;version="${osgi.framework.import.version.range}",
@@ -92,6 +102,7 @@
             org.wso2.carbon.gateway.inbounds.http,
             org.wso2.carbon.gateway.outbounds.http,
             org.wso2.carbon.gateway.outbounds.http.builder,
+            org.slf4j.*
         </import.package>
 
         <osgi.framework.import.version.range>[1.8.0, 2.0.0)</osgi.framework.import.version.range>

@@ -12,20 +12,11 @@ StocksInbound -> StocksPipeline : "client request"
 
 StocksPipeline::log("Before filter statement")
 
-if with condition(source("$header.exchange"),pattern("nyse"))
-    StocksPipeline::log("Filter condition is true")
-    StocksPipeline -> NYSEOutbound : "Request to New York Stock Exchange"
-    NYSEOutbound -> StocksPipeline : "StockQuotes from New York Stock Exchange"
-
-else
-    StocksPipeline::log("Filter condition is false")
-    StocksPipeline -> NASDAQOutbound : "Request to NASDAQ"
-    NASDAQOutbound -> StocksPipeline : "StockQuotes from NASDAQ"
-end
+LoadBalancer(algorithm(name(ROUND_ROBIN)),persistence(type(LB_COOKIE),sessionTimeOut(10m)),SSL(type(SSL_OFFLOAD)),healthCheck(type(PASSIVE),requestTimeout(1m),unHealthyRetries(5times),healthyRetries(1time),healthyCheckInterval(5m)))
 
 StocksPipeline::log("After filter statement")
 
 StocksPipeline -> StocksInbound : "Final Response"
 
-
 @enduml
+
