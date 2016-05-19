@@ -16,7 +16,7 @@ public class LoadBalancerConstants {
     public static final String PERSISTENCE_TYPE = "persistencetype";
     public static final String NO_PERSISTENCE = "NO_PERSISTENCE";
     public static final String APPLICATION_COOKIE = "APPLICATION_COOKIE";
-    public static final String LB_COOKIE= "LB_COOKIE";
+    public static final String LB_COOKIE = "LB_COOKIE";
     public static final String CLIENT_IP_ADDRESS = "CLIENT_IP_ADDRESS";
 
     // SSL Support related Constants.

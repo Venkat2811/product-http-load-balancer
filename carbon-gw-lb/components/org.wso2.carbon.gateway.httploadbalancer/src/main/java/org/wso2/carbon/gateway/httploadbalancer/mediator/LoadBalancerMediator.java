@@ -1,8 +1,6 @@
 package org.wso2.carbon.gateway.httploadbalancer.mediator;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.wso2.carbon.gateway.core.config.GWConfigHolder;
+
 import org.wso2.carbon.gateway.core.flow.AbstractMediator;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -11,9 +9,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
  * LoadBalancerMediator.
  * TODO: To be implemented.
  */
-public class LoadBalancerMediator extends AbstractMediator{
-
-    private static final Logger log = LoggerFactory.getLogger(LoadBalancerMediator.class);
+public class LoadBalancerMediator extends AbstractMediator {
 
 
     @Override
