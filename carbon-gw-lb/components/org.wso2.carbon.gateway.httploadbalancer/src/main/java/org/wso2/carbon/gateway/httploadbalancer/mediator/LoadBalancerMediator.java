@@ -13,7 +13,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
  */
 public class LoadBalancerMediator extends AbstractMediator{
 
-    private static final Logger logger = LoggerFactory.getLogger(LoadBalancerMediator.class);
+    private static final Logger log = LoggerFactory.getLogger(LoadBalancerMediator.class);
 
 
     @Override
