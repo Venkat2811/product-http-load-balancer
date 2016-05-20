@@ -39,7 +39,7 @@ public class LoadBalancerConfigHolder {
 
     /**
      * This method validates a given configuration, if anything is missing default value will be added.
-     * TODO: Decide and implement validation rules, devault values etc.,
+     * TODO: Decide and implement validation rules, default values etc.,
      */
     public void validateConfig() {
 
