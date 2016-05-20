@@ -24,7 +24,7 @@
         <dependency>
             <groupId>org.wso2.carbon.gateway.httploadbalancer</groupId>
             <artifactId>org.wso2.carbon.gateway.httploadbalancer</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>${carbon.gw.lb.version}</version>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
