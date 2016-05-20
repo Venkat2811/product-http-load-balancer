@@ -1,6 +1,8 @@
 package org.wso2.carbon.gateway.httploadbalancer.mediator;
 
 
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.wso2.carbon.gateway.core.flow.Mediator;
 import org.wso2.carbon.gateway.core.flow.MediatorProvider;
@@ -15,6 +17,10 @@ import org.wso2.carbon.gateway.core.flow.MediatorProvider;
         service = MediatorProvider.class
 )
 public class LoadBalancerMediatorProvider implements MediatorProvider {
+
+    @Activate
+    protected void start(BundleContext bundleContext) {
+    }
 
     @Override
     public String getName() {
