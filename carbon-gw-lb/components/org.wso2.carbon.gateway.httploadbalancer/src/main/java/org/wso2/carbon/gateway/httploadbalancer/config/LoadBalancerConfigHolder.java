@@ -2,6 +2,7 @@ package org.wso2.carbon.gateway.httploadbalancer.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.gateway.core.config.GWConfigHolder;
 import org.wso2.carbon.gateway.core.config.Parameter;
 import org.wso2.carbon.gateway.core.config.ParameterHolder;
 
@@ -13,10 +14,29 @@ public class LoadBalancerConfigHolder {
 
     private static final Logger log = LoggerFactory.getLogger(LoadBalancerConfigHolder.class);
 
-    ParameterHolder loadbalancerConfigs;
+    private ParameterHolder loadbalancerConfigs;
+
+    private GWConfigHolder gwConfigHolder;
 
     public LoadBalancerConfigHolder() {
+
         this.loadbalancerConfigs = new ParameterHolder();
+    }
+
+    public ParameterHolder getLoadbalancerConfigs() {
+        return loadbalancerConfigs;
+    }
+
+    public void setLoadbalancerConfigs(ParameterHolder loadbalancerConfigs) {
+        this.loadbalancerConfigs = loadbalancerConfigs;
+    }
+
+    public GWConfigHolder getGwConfigHolder() {
+        return gwConfigHolder;
+    }
+
+    public void setGwConfigHolder(GWConfigHolder gwConfigHolder) {
+        this.gwConfigHolder = gwConfigHolder;
     }
 
     public void addToConfig(Parameter param) {
@@ -26,14 +46,17 @@ public class LoadBalancerConfigHolder {
     }
 
     public void removeFromConfig(String paramName) {
+
         loadbalancerConfigs.removeParameter(paramName);
     }
 
     public ParameterHolder getAllConfigs() {
+
         return loadbalancerConfigs;
     }
 
     public Parameter getFromConfig(String paramName) {
+
         return loadbalancerConfigs.getParameter(paramName);
     }
 
