@@ -13,6 +13,6 @@ public class MapToListConverter {
 
     public static List<OutboundEndpoint> getOutboundEndpointsList(Map<String, OutboundEndpoint> map) {
 
-        return new ArrayList<OutboundEndpoint>(map.values());
+        return new ArrayList<>(map.values());
     }
 }

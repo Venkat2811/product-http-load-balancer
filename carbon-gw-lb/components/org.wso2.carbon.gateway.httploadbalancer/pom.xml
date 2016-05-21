@@ -64,6 +64,7 @@
     <build>
         <pluginManagement>
             <plugins>
+
                 <!-- Compiler -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -86,15 +87,20 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.3</version>
             </plugin>
+
         </plugins>
+
     </build>
 
     <properties>
-
+        <private.package>
+            org.wso2.carbon.gateway.httploadbalancer.algorithm,
+            org.wso2.carbon.gateway.httploadbalancer.mediator,
+            org.wso2.carbon.gateway.httploadbalancer.utils
+        </private.package>
         <export.package>
             org.wso2.carbon.gateway.httploadbalancer.config,
-            org.wso2.carbon.gateway.httploadbalancer.constants,
-
+            org.wso2.carbon.gateway.httploadbalancer.constants
         </export.package>
         <import.package>
             org.osgi.framework.*;version="${osgi.framework.import.version.range}",

@@ -5,10 +5,10 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.core.config.GWConfigHolder;
 import org.wso2.carbon.gateway.core.config.Parameter;
 import org.wso2.carbon.gateway.core.config.ParameterHolder;
+import org.wso2.carbon.gateway.httploadbalancer.mediator.LoadBalancerMediatorBuilder;
 
 /**
  * A Class responsible for loading LB config from WUMLBaseListenerImpl.java to LoadBalancer mediator.
- *
  */
 public class LoadBalancerConfigHolder {
 
@@ -58,6 +58,13 @@ public class LoadBalancerConfigHolder {
     public Parameter getFromConfig(String paramName) {
 
         return loadbalancerConfigs.getParameter(paramName);
+    }
+
+
+    public void configureLoadBalancerMediator(GWConfigHolder gwConfigHolder) {
+
+        this.gwConfigHolder = gwConfigHolder;
+        LoadBalancerMediatorBuilder.configure(gwConfigHolder, loadbalancerConfigs);
     }
 
     /**
