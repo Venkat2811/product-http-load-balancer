@@ -92,11 +92,13 @@
     <properties>
 
         <export.package>
-            org.wso2.carbon.gateway.httploadbalancer.*;version="1.0.0-SNAPSHOT"
+            org.wso2.carbon.gateway.httploadbalancer.config,
+            org.wso2.carbon.gateway.httploadbalancer.constants,
+
         </export.package>
         <import.package>
             org.osgi.framework.*;version="${osgi.framework.import.version.range}",
-            org.wso2.carbon.gateway.core.config.dsl.internal.*,
+            <!--org.wso2.carbon.gateway.core.config.dsl.internal.*,-->
             org.wso2.carbon.gateway.core.*,
             org.wso2.carbon.gateway.inbounds.http.builder,
             org.wso2.carbon.gateway.inbounds.http,
