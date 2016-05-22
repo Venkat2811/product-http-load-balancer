@@ -7,13 +7,13 @@ This is a Google Summer of Code (GSoC 2016) Project.
 
 ## Building Product
 
--Clone and do 'mvn install' on https://github.com/wso2/carbon-gateway-framework.git as this product is dependent on it.
+-Clone and do `mvn install` on https://github.com/wso2/carbon-gateway-framework.git as this product is dependent on it.
 
--Then do 'mvn install' on this product.
+-Then do `mvn install` on this product.
 
--Now Clone and do 'mvn install' on https://github.com/Venkat2811/carbon-gateway-framework.git as it has support for LB.
+-Now Clone and do `mvn install` on https://github.com/Venkat2811/carbon-gateway-framework.git as it has support for LB.
 
--Again do 'mvn install' on this product.
+-Again do `mvn install` on this product.
 
 
 
