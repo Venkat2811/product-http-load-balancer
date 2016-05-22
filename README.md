@@ -11,7 +11,7 @@ This is a Google Summer of Code (GSoC 2016) Project.
 
 -Then install this product.
 
--Now Clone and do 'mvn install' on https://github.com/Venkat2811/carbon-gateway-framework.git as it has support for LB
+-Now Clone and do 'mvn install' on https://github.com/Venkat2811/carbon-gateway-framework.git as it has support for LB.
 
 -Again do 'mvn install' on this product.
 
