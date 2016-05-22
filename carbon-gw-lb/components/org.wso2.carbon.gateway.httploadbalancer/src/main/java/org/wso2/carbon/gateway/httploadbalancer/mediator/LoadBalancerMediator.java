@@ -49,7 +49,8 @@ public class LoadBalancerMediator extends AbstractMediator {
     @Override
     public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback) throws Exception {
         log.info(logMessage);
-        //OutboundEndpoint endpoint = lbAlgorithm.getNextOutboundEndpoint(carbonMessage);
+        OutboundEndpoint endpoint = lbAlgorithm.getNextOutboundEndpoint(carbonMessage);
+        log.info("Chosen endpoint by LB is.." + endpoint.getName());
         //TODO: Call and respond mediator.
         return false;
     }
