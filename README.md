@@ -19,7 +19,7 @@ Building Product
 - Again do `mvn install` on this product.
 
 - Goto `<CARBON_HOME>\product-http-load-balancer\product\target\` and 
-  `extract wso2gwlbserver-1.0.0-SNAPSHOT.zip`.
+  extract `wso2gwlbserver-1.0.0-SNAPSHOT.zip`.
 
 - Then goto `<CARBON_HOME>\product-http-load-balancer\product\target\wso2gwlbserver-1.0.0-SNAPSHOT\wso2gwlbserver-1.0.0-SNAPSHOT\bin` and start `carbon.bat` or `carbon.sh` accordingly. 
 
