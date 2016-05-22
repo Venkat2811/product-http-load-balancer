@@ -94,7 +94,7 @@
 
     <properties>
         <export.package>
-            org.wso2.carbon.gateway.httploadbalancer.*;version="${carbon.gw.lb.version}"
+            org.wso2.carbon.gateway.httploadbalancer.*;-split-package:=merge-first;version="${carbon.gw.lb.version}"
         </export.package>
         <import.package>
             org.osgi.framework.*;version="${osgi.framework.import.version.range}",

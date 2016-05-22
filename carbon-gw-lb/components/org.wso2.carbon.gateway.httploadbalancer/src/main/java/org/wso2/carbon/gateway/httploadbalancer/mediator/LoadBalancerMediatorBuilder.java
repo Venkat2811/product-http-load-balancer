@@ -18,6 +18,9 @@ public class LoadBalancerMediatorBuilder {
                 MapToListConverter.getOutboundEndpointsList(gwConfigHolder.getOutboundEndpoints()),
                 parameterHolder.getParameter(LoadBalancerConstants.ALGORITHM_NAME).getValue());
 
+        gwConfigHolder.getPipeline(gwConfigHolder.getInboundEndpoint().getPipeline()).addMediator(lbMediator);
+
+
         return lbMediator;
     }
 }

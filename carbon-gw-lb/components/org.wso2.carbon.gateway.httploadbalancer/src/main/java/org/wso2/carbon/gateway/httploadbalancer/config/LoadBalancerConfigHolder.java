@@ -2,9 +2,9 @@ package org.wso2.carbon.gateway.httploadbalancer.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.gateway.core.config.GWConfigHolder;
 import org.wso2.carbon.gateway.core.config.Parameter;
 import org.wso2.carbon.gateway.core.config.ParameterHolder;
+import org.wso2.carbon.gateway.core.config.dsl.external.WUMLConfigurationBuilder;
 import org.wso2.carbon.gateway.httploadbalancer.mediator.LoadBalancerMediatorBuilder;
 
 /**
@@ -16,7 +16,7 @@ public class LoadBalancerConfigHolder {
 
     private ParameterHolder loadbalancerConfigs;
 
-    private GWConfigHolder gwConfigHolder;
+    private WUMLConfigurationBuilder.IntegrationFlow integrationFlow;
 
     public LoadBalancerConfigHolder() {
 
@@ -31,12 +31,12 @@ public class LoadBalancerConfigHolder {
         this.loadbalancerConfigs = loadbalancerConfigs;
     }
 
-    public GWConfigHolder getGwConfigHolder() {
-        return gwConfigHolder;
+    public WUMLConfigurationBuilder.IntegrationFlow getIntegrationFlow() {
+        return integrationFlow;
     }
 
-    public void setGwConfigHolder(GWConfigHolder gwConfigHolder) {
-        this.gwConfigHolder = gwConfigHolder;
+    public void setIntegrationFlow(WUMLConfigurationBuilder.IntegrationFlow integrationFlow) {
+        this.integrationFlow = integrationFlow;
     }
 
     public void addToConfig(Parameter param) {
@@ -61,10 +61,10 @@ public class LoadBalancerConfigHolder {
     }
 
 
-    public void configureLoadBalancerMediator(GWConfigHolder gwConfigHolder) {
+    public void configureLoadBalancerMediator(WUMLConfigurationBuilder.IntegrationFlow integrationFlow) {
 
-        this.gwConfigHolder = gwConfigHolder;
-        LoadBalancerMediatorBuilder.configure(gwConfigHolder, loadbalancerConfigs);
+        this.integrationFlow = integrationFlow;
+        LoadBalancerMediatorBuilder.configure(this.integrationFlow.getGWConfigHolder(), loadbalancerConfigs);
     }
 
     /**

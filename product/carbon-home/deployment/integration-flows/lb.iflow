@@ -10,11 +10,11 @@ participant NASDAQOutbound : OutboundEndpoint(protocol("http"),host("http://loca
 
 StocksInbound -> StocksPipeline : "client request"
 
-StocksPipeline::log("Before filter statement")
+StocksPipeline::log("Before load balancing...")
 
 LoadBalancer(algorithm(name(ROUND_ROBIN)),persistence(type(LB_COOKIE),sessionTimeOut(10m)),SSL(type(SSL_OFFLOAD)),healthCheck(type(PASSIVE),requestTimeout(1m),unHealthyRetries(5times),healthyRetries(1time),healthyCheckInterval(5m)))
 
-StocksPipeline::log("After filter statement")
+StocksPipeline::log("After load balancing...")
 
 StocksPipeline -> StocksInbound : "Final Response"
 
