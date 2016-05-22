@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * All LB algorithms must implement this interface.
  */
-public interface LoadBalanceAlgorithm {
+public interface LoadBalancingAlgorithm {
 
     /**
      * @return the name of implemented LB algorithm.

@@ -5,7 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.core.flow.AbstractMediator;
 import org.wso2.carbon.gateway.core.outbound.OutboundEndpoint;
-import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalanceAlgorithm;
+import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancingAlgorithm;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.RoundRobin;
 import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 import org.wso2.carbon.messaging.CarbonCallback;
@@ -22,7 +22,7 @@ public class LoadBalancerMediator extends AbstractMediator {
     private static final Logger log = LoggerFactory.getLogger(LoadBalancerMediator.class);
     private String logMessage = "Message received at Load Balancer Mediator";
 
-    private LoadBalanceAlgorithm lbAlgorithm;
+    private LoadBalancingAlgorithm lbAlgorithm;
 
     @Override
     public String getName() {

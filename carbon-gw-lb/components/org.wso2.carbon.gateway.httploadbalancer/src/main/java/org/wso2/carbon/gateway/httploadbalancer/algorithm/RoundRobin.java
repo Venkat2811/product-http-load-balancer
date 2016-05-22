@@ -13,7 +13,7 @@ import java.util.List;
  * All Endpoints are assumed to have equal weights.
  * TODO: Check whether this is thread safe.  Think about groups also.
  */
-public class RoundRobin implements LoadBalanceAlgorithm {
+public class RoundRobin implements LoadBalancingAlgorithm {
 
     private static final Logger log = LoggerFactory.getLogger(RoundRobin.class);
 
