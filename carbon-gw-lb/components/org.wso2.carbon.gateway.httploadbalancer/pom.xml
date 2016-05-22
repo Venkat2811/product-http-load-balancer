@@ -93,25 +93,23 @@
     </build>
 
     <properties>
-        <private.package>
-            org.wso2.carbon.gateway.httploadbalancer.algorithm,
-            org.wso2.carbon.gateway.httploadbalancer.mediator,
-            org.wso2.carbon.gateway.httploadbalancer.utils
-        </private.package>
         <export.package>
-            org.wso2.carbon.gateway.httploadbalancer.config,
-            org.wso2.carbon.gateway.httploadbalancer.constants
+            org.wso2.carbon.gateway.httploadbalancer.*;version="${carbon.gw.lb.version}"
         </export.package>
         <import.package>
             org.osgi.framework.*;version="${osgi.framework.import.version.range}",
             <!--org.wso2.carbon.gateway.core.config.dsl.internal.*,-->
-            org.wso2.carbon.gateway.core.*,
             org.wso2.carbon.gateway.inbounds.http.builder,
             org.wso2.carbon.gateway.inbounds.http,
             org.wso2.carbon.gateway.outbounds.http,
             org.wso2.carbon.gateway.outbounds.http.builder,
+            org.wso2.carbon.gateway.core.*,
             org.slf4j.*
         </import.package>
+      <!--  <Require-Bundle>
+            org.wso2.carbon.gateway.core.*;
+        </Require-Bundle>-->
+
 
         <osgi.framework.import.version.range>[1.8.0, 2.0.0)</osgi.framework.import.version.range>
     </properties>
