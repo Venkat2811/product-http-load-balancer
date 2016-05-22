@@ -9,13 +9,11 @@ Building Product
 ----------------
 
 - Clone and do `mvn install` on https://github.com/wso2/carbon-gateway-framework.git as this product is dependent on it.
-
 - Then do `mvn install` on this product.
-
 - Now Clone and do `mvn install` on https://github.com/Venkat2811/carbon-gateway-framework.git as it has support for LB.
-
 - Again do `mvn install` on this product.
-
+- Goto `<CARBON_HOME>\product-http-load-balancer\product\target\` and `extract wso2gwlbserver-1.0.0-SNAPSHOT.zip`.
+- Then goto `<CARBON_HOME>\product-http-load-balancer\product\target\wso2gwlbserver-1.0.0-SNAPSHOT\wso2gwlbserver-1.0.0-SNAPSHOT\bin` and start `carbon.bat` or `carbon.sh` accordingly. 
 
 
 
