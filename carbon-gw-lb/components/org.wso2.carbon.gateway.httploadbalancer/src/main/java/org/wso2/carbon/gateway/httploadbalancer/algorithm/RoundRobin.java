@@ -48,6 +48,15 @@ public class RoundRobin implements LoadBalancingAlgorithm {
     }
 
     /**
+     *  For getting next OutboundEndpoinnt.
+     */
+    private void incrementIndex() {
+
+        index++;
+        index %= endPointsCount;
+    }
+
+    /**
      * @param cMsg Carbon Message has all headers required to make decision.
      * @return chosen Outboundendpoint
      * <p>
@@ -62,8 +71,7 @@ public class RoundRobin implements LoadBalancingAlgorithm {
         if (outboundEndpoints != null && outboundEndpoints.size() > 0) {
 
             endPoint = outboundEndpoints.get(index);
-            index++;
-            index %= endPointsCount;
+            incrementIndex();
 
         } else {
 
