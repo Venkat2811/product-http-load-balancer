@@ -1,5 +1,5 @@
 # product-http-load-balancer
-This is a Google Summer of Code (GSoC 2016) Project.
+This is a Google Summer of Code (GSoC 2016) Project.  It is under development.
 
  `Abstract:` http://summerofcode.withgoogle.com/projects/#6175096838291456
 
