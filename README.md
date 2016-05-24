@@ -24,5 +24,31 @@ Building Product
 - Then goto `<CARBON_HOME>\product-http-load-balancer\product\target\wso2gwlbserver-1.0.0-SNAPSHOT\wso2gwlbserver-1.0.0-SNAPSHOT\bin` and start `carbon.bat` or `carbon.sh` accordingly. 
 
 
+Sample Configuration
+--------------------
+
+```
+@startuml
+
+participant StocksInbound : InboundEndpoint(protocol("http"),port("8290"),context("/stocks"))
+
+participant StocksPipeline : Pipeline("Stocks_Flow")
+
+participant NYSEOutbound : OutboundEndpoint(protocol("http"),host("http://localhost:8080/stockquote/all"))
+
+participant NASDAQOutbound : OutboundEndpoint(protocol("http"),host("http://localhost:8082/stockquote/all"))
+
+StocksInbound -> StocksPipeline : "client request"
+
+LoadBalancer(algorithm(name(ROUND_ROBIN)),persistence(type(LB_COOKIE),sessionTimeOut(10m)),SSL(type(SSL_OFFLOAD)),healthCheck(type(PASSIVE),requestTimeout(1m),unHealthyRetries(5times),healthyRetries(1time),healthyCheckInterval(5m)))
+
+StocksPipeline -> StocksInbound : "Final Response"
+
+@enduml
+
+```
+
+
+
 
 
