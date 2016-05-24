@@ -51,6 +51,7 @@ public class LoadBalancerMediator extends AbstractMediator {
         log.info(logMessage);
         OutboundEndpoint endpoint = lbAlgorithm.getNextOutboundEndpoint(carbonMessage);
         log.info("Chosen endpoint by LB is.." + endpoint.getName());
+        log.info("Mediation Work is under progress :) ");
         //TODO: Call and respond mediator.
         return false;
     }
