@@ -28,7 +28,7 @@ public interface LoadBalancingAlgorithm {
 
     /**
      * Each implementation of LB algorithm will have certain values pertained to it.
-     * (Eg: Round robin keeps track of index outboundEP).
+     * (Eg: Round robin keeps track of index of OutboundEndpoint).
      * Implementation of this method will reset them.
      */
     void reset();
