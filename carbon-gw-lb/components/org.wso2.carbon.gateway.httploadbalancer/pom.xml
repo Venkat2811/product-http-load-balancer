@@ -34,6 +34,10 @@
             <version>3.4.0.v20140312-2051</version>
         </dependency>
         <dependency>
+            <groupId>org.wso2.carbon.messaging</groupId>
+            <artifactId>org.wso2.carbon.messaging</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.wso2.carbon.gateway</groupId>
             <artifactId>org.wso2.carbon.gateway.core</artifactId>
         </dependency>
@@ -104,11 +108,12 @@
             org.wso2.carbon.gateway.outbounds.http,
             org.wso2.carbon.gateway.outbounds.http.builder,
             org.wso2.carbon.gateway.core.*,
+            org.wso2.carbon.messaging.*,
             org.slf4j.*
         </import.package>
-      <!--  <Require-Bundle>
-            org.wso2.carbon.gateway.core.*;
-        </Require-Bundle>-->
+        <!--  <Require-Bundle>
+              org.wso2.carbon.gateway.core.*;
+          </Require-Bundle>-->
 
 
         <osgi.framework.import.version.range>[1.8.0, 2.0.0)</osgi.framework.import.version.range>
