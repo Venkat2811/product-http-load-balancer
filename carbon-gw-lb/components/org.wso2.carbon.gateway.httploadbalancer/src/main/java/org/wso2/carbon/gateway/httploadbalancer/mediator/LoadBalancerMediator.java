@@ -66,7 +66,7 @@ public class LoadBalancerMediator extends AbstractMediator {
         lbMediatorMap.get(endpoint.getName()).
                 receive(carbonMessage, new LoadBalancerMediatorCallBack(carbonCallback, this));
 
-        log.info("Inside end of LoadBalancerMediator receive..");
+
         return true;
     }
 }

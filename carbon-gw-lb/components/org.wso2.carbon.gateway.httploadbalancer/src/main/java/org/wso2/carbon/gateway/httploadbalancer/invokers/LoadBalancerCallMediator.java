@@ -26,20 +26,20 @@ public class LoadBalancerCallMediator extends AbstractMediator {
     }
 
     public LoadBalancerCallMediator(String outboundEPKey) {
-        log.info("Inside LoadBalancerCallMediator.." + outboundEPKey);
+
 
         this.outboundEPKey = outboundEPKey;
     }
 
     public LoadBalancerCallMediator(OutboundEndpoint outboundEndpoint) {
-        log.info("Inside LoadBalancerCallMediator.." + outboundEndpoint.getName());
+
 
         this.outboundEndpoint = outboundEndpoint;
     }
 
     public void setParameters(ParameterHolder parameterHolder) {
         outboundEPKey = parameterHolder.getParameter("endpointKey").getValue();
-        log.info("Inside CallMediator setParameter().." + outboundEPKey);
+
 
     }
 
@@ -52,7 +52,7 @@ public class LoadBalancerCallMediator extends AbstractMediator {
     public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback)
             throws Exception {
 
-        log.info("Inside LoadBalancerCallMediator receive()..");
+
 
         OutboundEndpoint endpoint = outboundEndpoint;
         if (endpoint == null) {
@@ -69,7 +69,7 @@ public class LoadBalancerCallMediator extends AbstractMediator {
 
         endpoint.receive(carbonMessage, callback);
 
-        log.info("Inside end of LoadBalancerCallMediator receive()..");
+
         return false;
     }
 }

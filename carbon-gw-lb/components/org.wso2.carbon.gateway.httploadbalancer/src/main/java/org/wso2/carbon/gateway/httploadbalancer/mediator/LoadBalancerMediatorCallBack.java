@@ -23,13 +23,12 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
     public LoadBalancerMediatorCallBack(CarbonCallback parentCallback, Mediator mediator) {
         this.parentCallback = parentCallback;
         this.mediator = mediator;
-        log.info("Inside LoadBalancerMediatorCallBack constructor");
+
     }
 
     @Override
     public void done(CarbonMessage carbonMessage) {
 
-        log.info("Inside LoadBalancerMediatorCallBack done...");
 
         if (parentCallback instanceof LoadBalancerMediatorCallBack) {
             parentCallback.done(carbonMessage);
@@ -39,8 +38,6 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
             } catch (Exception e) {
                 log.error("Error while mediating from Callback", e);
             }
-        } else {
-            log.info("something went wrong...");
         }
 
     }

@@ -24,7 +24,7 @@ public class LoadBalancerMediatorBuilder {
 
         gwConfigHolder.getPipeline(gwConfigHolder.getInboundEndpoint().getPipeline()).addMediator(lbMediator);
 
-        log.info("Inside LBMediatorBuilder configure()...");
+
         return lbMediator;
     }
 }
