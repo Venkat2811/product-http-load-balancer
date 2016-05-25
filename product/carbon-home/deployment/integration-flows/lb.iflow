@@ -4,9 +4,9 @@ participant StocksInbound : InboundEndpoint(protocol("http"),port("8290"),contex
 
 participant StocksPipeline : Pipeline("Stocks_Flow")
 
-participant NYSEOutbound : OutboundEndpoint(protocol("http"),host("http://localhost:8080/stockquote/all"))
+participant Endpoint1 : OutboundEndpoint(protocol("http"),host("http://localhost:8080/stockquote/all"))
 
-participant NASDAQOutbound : OutboundEndpoint(protocol("http"),host("http://localhost:8082/stockquote/all"))
+participant Endpoint2 : OutboundEndpoint(protocol("http"),host("http://localhost:8082/stockquote/all"))
 
 StocksInbound -> StocksPipeline : "client request"
 
