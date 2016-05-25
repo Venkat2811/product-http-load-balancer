@@ -7,15 +7,18 @@ import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Implementation of Round Robin Algorithm.
  * All Endpoints are assumed to have equal weights.
- * TODO: Check whether this is thread safe.  Think about groups also.
+ * TODO: Is re-entrant lock okay..?  Think about groups also.
  */
 public class RoundRobin implements LoadBalancingAlgorithm {
 
     private static final Logger log = LoggerFactory.getLogger(RoundRobin.class);
+    private final Lock lock = new ReentrantLock();
 
     private int index = 0;
     private int endPointsCount = 0;
@@ -48,7 +51,7 @@ public class RoundRobin implements LoadBalancingAlgorithm {
     }
 
     /**
-     *  For getting next OutboundEndpoinnt.
+     * For getting next OutboundEndpoinnt.
      */
     private void incrementIndex() {
 
@@ -68,16 +71,21 @@ public class RoundRobin implements LoadBalancingAlgorithm {
 
         OutboundEndpoint endPoint = null;
 
-        if (outboundEndpoints != null && outboundEndpoints.size() > 0) {
+        lock.lock();
+        try {
+            if (outboundEndpoints != null && outboundEndpoints.size() > 0) {
 
-            endPoint = outboundEndpoints.get(index);
-            incrementIndex();
+                endPoint = outboundEndpoints.get(index);
+                incrementIndex();
 
-        } else {
+            } else {
 
-            log.error("No outbound end point is available..");
-            //TODO: throw appropriate exceptions also.
+                log.error("No outbound end point is available..");
+                //TODO: throw appropriate exceptions also.
 
+            }
+        } finally {
+            lock.unlock();
         }
 
 

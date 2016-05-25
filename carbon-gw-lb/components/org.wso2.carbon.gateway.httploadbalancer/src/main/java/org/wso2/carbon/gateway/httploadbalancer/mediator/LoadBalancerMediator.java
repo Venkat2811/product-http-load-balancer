@@ -12,9 +12,10 @@ import org.wso2.carbon.gateway.httploadbalancer.invokers.LoadBalancerCallMediato
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
-import java.util.HashMap;
+
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * LoadBalancerMediator.
@@ -38,7 +39,7 @@ public class LoadBalancerMediator extends AbstractMediator {
 
     public LoadBalancerMediator(List<OutboundEndpoint> outboundEndpoints, String algoName) {
 
-        lbMediatorMap = new HashMap<>();
+        lbMediatorMap = new ConcurrentHashMap<>();
 
         if (algoName.equals(LoadBalancerConstants.ROUND_ROBIN)) {
 
