@@ -53,17 +53,28 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>org.wso2.carbon.gateway.httploadbalancer</groupId>
+                <artifactId>org.wso2.carbon.gateway.httploadbalancer</artifactId>
+                <version>${carbon.gw.lb.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.launcher</artifactId>
                 <version>${carbon.kernel.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
-                <artifactId>wso2carbon-kernel</artifactId>
-				<version>${carbon.kernel.version}</version>
-				 <type>zip</type>
+                <artifactId>org.wso2.carbon.kernel.feature</artifactId>
+                <version>${carbon.kernel.version}</version>
+                <type>zip</type>
             </dependency>
-
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.runtime.feature</artifactId>
+                <version>${carbon.kernel.version}</version>
+                <type>zip</type>
+            </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.gateway</groupId>
                 <artifactId>org.wso2.carbon.gateway.core</artifactId>
@@ -72,8 +83,8 @@
             <dependency>
                 <groupId>org.wso2.carbon.gateway</groupId>
                 <artifactId>org.wso2.carbon.gateway.core.feature</artifactId>
-				<version>${carbon.gw.version}</version>
-				 <type>zip</type>
+                <version>${carbon.gw.version}</version>
+                <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.gateway.inbounds</groupId>
@@ -106,12 +117,6 @@
                 <groupId>org.wso2.carbon.gateway.mediators</groupId>
                 <artifactId>org.wso2.carbon.gateway.mediators.samplemediator.feature</artifactId>
                 <version>${carbon.gw.version}</version>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.gateway.httploadbalancer</groupId>
-                <artifactId>org.wso2.carbon.gateway.httploadbalancer</artifactId>
-                <version>${carbon.gw.lb.version}</version>
                 <type>zip</type>
             </dependency>
             <dependency>
@@ -181,15 +186,16 @@
 
     <properties>
         <!-- Maven plugins -->
+        <carbon.gw.lb.version>1.0.0-SNAPSHOT</carbon.gw.lb.version>
         <maven.checkstyleplugin.version>2.16</maven.checkstyleplugin.version>
         <maven.findbugsplugin.version>3.0.3</maven.findbugsplugin.version>
 
         <!-- Dependencies -->
-        <carbon.kernel.version>5.0.0</carbon.kernel.version>
+        <carbon.kernel.version>5.1.0-beta</carbon.kernel.version>
+        <carbon.kernel.product.version>5.1.0</carbon.kernel.product.version>
         <carbon.kernel.package.import.version.range>[5.0.0, 6.0.0)</carbon.kernel.package.import.version.range>
 
         <carbon.gw.version>1.0.0-SNAPSHOT</carbon.gw.version>
-        <carbon.gw.lb.version>1.0.0-SNAPSHOT</carbon.gw.lb.version>
         <carbon.gw.package.export.version>1.0.0</carbon.gw.package.export.version>
 
         <osgi.api.version>6.0.0</osgi.api.version>
@@ -203,10 +209,12 @@
         <slf4j.version>1.7.5</slf4j.version>
         <slf4j.logging.package.import.version.range>[1.7.1, 2.0.0)</slf4j.logging.package.import.version.range>
         <!--TODO: Check why we need to depend on SNAPSHOT -->
-        <carbon.transport.version>2.0.2-SNAPSHOT</carbon.transport.version>
-        <carbon.transport.package.import.version.range>[2.0.0, 2.1.0)</carbon.transport.package.import.version.range>
 
-        <carbon.messaging.version>1.0.3-SNAPSHOT</carbon.messaging.version>
+        <carbon.transport.version>2.1.1-SNAPSHOT</carbon.transport.version>
+        <carbon.transport.package.import.version.range>[2.0.0, 2.2.0)</carbon.transport.package.import.version.range>
+
+        <carbon.messaging.version>1.0.4-SNAPSHOT</carbon.messaging.version>
+
 
         <carbon.messaging.package.import.version.range>[0.0.0, 2.0.0)</carbon.messaging.package.import.version.range>
 
@@ -219,6 +227,7 @@
         <antlr4.runtime.version>4.5.1.wso2v1</antlr4.runtime.version>
         <plugin.version.antlr>4.5.1</plugin.version.antlr>
     </properties>
+
 
     <modules>
         <module>carbon-gw-lb/components/org.wso2.carbon.gateway.httploadbalancer</module>
