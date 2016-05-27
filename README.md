@@ -48,7 +48,10 @@ StocksPipeline -> StocksInbound : "Final Response"
 
 ```
 
+More Samples
+------------
 
+You can find more samples in `/product/carbon-home/samples/`.
 
 
 
