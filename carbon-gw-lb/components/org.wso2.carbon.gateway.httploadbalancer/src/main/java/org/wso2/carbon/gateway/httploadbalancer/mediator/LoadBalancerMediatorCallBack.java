@@ -3,6 +3,7 @@ package org.wso2.carbon.gateway.httploadbalancer.mediator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.core.flow.Mediator;
+import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancerConfigContext;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -15,14 +16,20 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
     private static final Logger log = LoggerFactory.getLogger(LoadBalancerMediatorCallBack.class);
 
     //Incoming callback.
-    CarbonCallback parentCallback;
+    private CarbonCallback parentCallback;
 
     //LoadBalancer Mediator.
-    Mediator mediator;
+    private Mediator mediator;
 
-    public LoadBalancerMediatorCallBack(CarbonCallback parentCallback, Mediator mediator) {
+    //LoadBalancerConfigContext context.
+    private LoadBalancerConfigContext context;
+
+    public LoadBalancerMediatorCallBack(CarbonCallback parentCallback,
+                                        Mediator mediator, LoadBalancerConfigContext context) {
+
         this.parentCallback = parentCallback;
         this.mediator = mediator;
+        this.context = context;
 
     }
 

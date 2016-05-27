@@ -51,7 +51,7 @@ public class LoadBalancerMediator extends AbstractMediator {
 
         // Creating LoadBalancerCallMediators for OutboundEndpoints...
         for (OutboundEndpoint outboundEPs : outboundEndpoints) {
-            lbMediatorMap.put(outboundEPs.getName(), new LoadBalancerCallMediator(outboundEPs));
+            lbMediatorMap.put(outboundEPs.getName(), new LoadBalancerCallMediator(outboundEPs, context));
         }
 
     }
@@ -65,7 +65,7 @@ public class LoadBalancerMediator extends AbstractMediator {
 
         // Calling chosen OutboundEndpoint's LoadBalancerCallMediator's receive...
         lbMediatorMap.get(endpoint.getName()).
-                receive(carbonMessage, new LoadBalancerMediatorCallBack(carbonCallback, this));
+                receive(carbonMessage, new LoadBalancerMediatorCallBack(carbonCallback, this, context));
 
 
         return true;

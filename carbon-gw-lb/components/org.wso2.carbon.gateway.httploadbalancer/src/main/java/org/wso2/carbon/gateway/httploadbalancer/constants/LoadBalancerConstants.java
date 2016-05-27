@@ -60,4 +60,13 @@ public class LoadBalancerConstants {
      * Health Checking related Constants.
      */
     public static final String PASSIVE_HEALTH_CHECK = "PASSIVE";
+
+    /**
+     * TODO: Check these values with mentor. Should there be specific values based on type..?
+     */
+    public static final int MAX_TIMEOUT_VAL = 18000000; //5 hours.
+
+    public static final int DEFAULT_TIMEOUT = 120000; //2 mins
+
+    public static final int DEFAULT_RETRIES = 3;
 }

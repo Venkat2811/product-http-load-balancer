@@ -3,9 +3,9 @@ package org.wso2.carbon.gateway.httploadbalancer.invokers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.core.config.ConfigRegistry;
-import org.wso2.carbon.gateway.core.config.ParameterHolder;
 import org.wso2.carbon.gateway.core.flow.AbstractMediator;
 import org.wso2.carbon.gateway.core.outbound.OutboundEndpoint;
+import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.mediator.LoadBalancerMediatorCallBack;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -21,6 +21,8 @@ public class LoadBalancerCallMediator extends AbstractMediator {
 
     private static final Logger log = LoggerFactory.getLogger(LoadBalancerCallMediator.class);
 
+    private LoadBalancerConfigContext context;
+
     public LoadBalancerCallMediator() {
         log.info("Inside LoadBalancerCallMediator..");
     }
@@ -31,17 +33,14 @@ public class LoadBalancerCallMediator extends AbstractMediator {
         this.outboundEPKey = outboundEPKey;
     }
 
-    public LoadBalancerCallMediator(OutboundEndpoint outboundEndpoint) {
+    public LoadBalancerCallMediator(OutboundEndpoint outboundEndpoint,
+                                    LoadBalancerConfigContext context) {
 
 
         this.outboundEndpoint = outboundEndpoint;
+        this.context = context;
     }
 
-    public void setParameters(ParameterHolder parameterHolder) {
-        outboundEPKey = parameterHolder.getParameter("endpointKey").getValue();
-
-
-    }
 
     @Override
     public String getName() {
@@ -51,7 +50,6 @@ public class LoadBalancerCallMediator extends AbstractMediator {
     @Override
     public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback)
             throws Exception {
-
 
 
         OutboundEndpoint endpoint = outboundEndpoint;
@@ -65,7 +63,7 @@ public class LoadBalancerCallMediator extends AbstractMediator {
         }
 
         //Using separate LBMediatorCallBack because, we need to add special headers for session persistence...
-        CarbonCallback callback = new LoadBalancerMediatorCallBack(carbonCallback, this);
+        CarbonCallback callback = new LoadBalancerMediatorCallBack(carbonCallback, this, context);
 
         endpoint.receive(carbonMessage, callback);
 

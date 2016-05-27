@@ -1,5 +1,6 @@
 package org.wso2.carbon.gateway.httploadbalancer.algorithm;
 
+
 /**
  * Holds LB Configuration context.
  */
@@ -8,15 +9,18 @@ public class LoadBalancerConfigContext {
     private String algorithm;
 
     private String persistence;
-    private int sessionPersistenceTimeout; // TODO: decide int or long
+    private int sessionPersistenceTimeout;
 
     private String sslType;
 
     private String healthCheck;
-    private int reqTimeout; // TODO: decide int or long
+    private int reqTimeout;
     private int unHealthyRetries;
     private int healthyRetries;
-    private int healthycheckInterval; // TODO: decide int or long
+    private int healthycheckInterval;
+
+    //Used to identify corresponding BackEnd Endpoint.
+    //private Map<String,String> persistenceCookie;
 
 
     public String getAlgorithm() {
