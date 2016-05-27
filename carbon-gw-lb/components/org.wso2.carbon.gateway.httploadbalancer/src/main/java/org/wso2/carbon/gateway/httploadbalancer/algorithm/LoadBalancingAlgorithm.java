@@ -1,5 +1,6 @@
 package org.wso2.carbon.gateway.httploadbalancer.algorithm;
 
+
 import org.wso2.carbon.gateway.core.outbound.OutboundEndpoint;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -24,7 +25,7 @@ public interface LoadBalancingAlgorithm {
      * @param cMsg Carbon Message has all headers required to make decision.
      * @return the next OutboundEndpoint according to implemented LB algorithm.
      */
-    OutboundEndpoint getNextOutboundEndpoint(CarbonMessage cMsg);
+    OutboundEndpoint getNextOutboundEndpoint(CarbonMessage cMsg, LoadBalancerConfigContext context);
 
     /**
      * Each implementation of LB algorithm will have certain values pertained to it.

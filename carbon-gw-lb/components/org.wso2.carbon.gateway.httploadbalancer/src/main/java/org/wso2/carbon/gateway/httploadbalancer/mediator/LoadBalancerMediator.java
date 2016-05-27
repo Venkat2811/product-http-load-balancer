@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.core.flow.AbstractMediator;
 import org.wso2.carbon.gateway.core.outbound.OutboundEndpoint;
+import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancingAlgorithm;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.RoundRobin;
 import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
@@ -29,6 +30,7 @@ public class LoadBalancerMediator extends AbstractMediator {
     private Map<String, LoadBalancerCallMediator> lbMediatorMap;
 
     private LoadBalancingAlgorithm lbAlgorithm;
+    private LoadBalancerConfigContext context;
 
     @Override
     public String getName() {
@@ -37,16 +39,14 @@ public class LoadBalancerMediator extends AbstractMediator {
     }
 
 
-    public LoadBalancerMediator(List<OutboundEndpoint> outboundEndpoints, String algoName) {
+    public LoadBalancerMediator(List<OutboundEndpoint> outboundEndpoints, LoadBalancerConfigContext context) {
 
+        this.context = context;
         lbMediatorMap = new ConcurrentHashMap<>();
 
-        if (algoName.equals(LoadBalancerConstants.ROUND_ROBIN)) {
+        if (context.getAlgorithm().equals(LoadBalancerConstants.ROUND_ROBIN)) {
 
             lbAlgorithm = new RoundRobin(outboundEndpoints);
-        } else {
-            log.error("This algorithm is not supported as of now...");
-            //TODO: Throw appropriate exception...
         }
 
         // Creating LoadBalancerCallMediators for OutboundEndpoints...
@@ -60,7 +60,7 @@ public class LoadBalancerMediator extends AbstractMediator {
     public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback) throws Exception {
 
         log.info(logMessage);
-        OutboundEndpoint endpoint = lbAlgorithm.getNextOutboundEndpoint(carbonMessage);
+        OutboundEndpoint endpoint = lbAlgorithm.getNextOutboundEndpoint(carbonMessage, context);
         log.info("Chosen endpoint by LB is.." + endpoint.getName());
 
         // Calling chosen OutboundEndpoint's LoadBalancerCallMediator's receive...

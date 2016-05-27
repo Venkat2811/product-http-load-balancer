@@ -5,11 +5,14 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.core.config.Parameter;
 import org.wso2.carbon.gateway.core.config.ParameterHolder;
 import org.wso2.carbon.gateway.core.config.dsl.external.WUMLConfigurationBuilder;
+import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 import org.wso2.carbon.gateway.httploadbalancer.mediator.LoadBalancerMediatorBuilder;
+import org.wso2.carbon.gateway.httploadbalancer.utils.ConverterUtil;
 
 /**
- * A Class responsible for loading LB config from WUMLBaseListenerImpl.java to LoadBalancer mediator.
+ * A Class responsible for loading LB config from WUMLBaseListenerImpl.java to LoadBalancerConfigContext.
+ * All validations and conversions are done here.
  */
 public class LoadBalancerConfigHolder {
 
@@ -19,9 +22,13 @@ public class LoadBalancerConfigHolder {
 
     private WUMLConfigurationBuilder.IntegrationFlow integrationFlow;
 
+    private LoadBalancerConfigContext context;
+
     public LoadBalancerConfigHolder() {
 
         this.loadbalancerConfigs = new ParameterHolder();
+        this.context = new LoadBalancerConfigContext();
+
     }
 
     public ParameterHolder getLoadbalancerConfigs() {
@@ -67,7 +74,7 @@ public class LoadBalancerConfigHolder {
 
         this.integrationFlow = integrationFlow;
         validateConfig();
-        LoadBalancerMediatorBuilder.configure(this.integrationFlow.getGWConfigHolder(), loadbalancerConfigs);
+        LoadBalancerMediatorBuilder.configure(this.integrationFlow.getGWConfigHolder(), context);
     }
 
     /**
@@ -77,43 +84,67 @@ public class LoadBalancerConfigHolder {
 
     public void validateConfig() {
 
-
         /**Algorithm related validations.*/
 
         if (this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue().
                 equals(LoadBalancerConstants.ROUND_ROBIN)) {
-            //TODO: for future use.
-            log.info("Algorithm : " + this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue());
+
+            context.setAlgorithm(this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue());
+            log.info("Algorithm : " + context.getAlgorithm());
+
         } else {
             log.info("Currently this algorithm type is not supported...");
             //TODO: throw error or exception.
         }
 
         /**Session persistence related validations.*/
+
         String persistenceType = this.getFromConfig(LoadBalancerConstants.PERSISTENCE_TYPE).getValue();
 
         if (persistenceType.equals(LoadBalancerConstants.NO_PERSISTENCE)) {
-            log.info("Persistence : " + persistenceType);
-            //TODO: for future use.
+
+            context.setPersistence(persistenceType);
+            log.info("Persistence : " + context.getPersistence());
+
         } else if (persistenceType.equals(LoadBalancerConstants.APPLICATION_COOKIE)) {
-            log.info("Persistence : " + persistenceType);
-            //TODO: for future use.
+
+            context.setPersistence(persistenceType);
+            log.info("Persistence : " + context.getPersistence());
+
         } else if (persistenceType.equals(LoadBalancerConstants.LB_COOKIE)) {
-            log.info("Persistence : " + persistenceType);
+
+            context.setPersistence(persistenceType);
+            log.info("Persistence : " + context.getPersistence());
+
             if (loadbalancerConfigs.getParameter(LoadBalancerConstants.PERSISTENCE_SESSION_TIME_OUT) != null) {
 
                 String sessionTimeout = this.getFromConfig
                         (LoadBalancerConstants.PERSISTENCE_SESSION_TIME_OUT).getValue();
-                //TODO: timeout value limit check, string to long milliseconds type conversion.
+                //TODO: timeout value limit check, string to long or int milliseconds type conversion.
+                //TODO: set value in context.
                 log.info("Persistence SESSION_TIME_OUT : " + sessionTimeout);
+
             } else {
+
                 log.info("For LB_COOKIE session cookie time out has to be specified...");
                 //TODO: Throw error or exception / log error message and load default value.
 
             }
         }
 
-        /**TODO:SSL related validations.**/
+        /**SSL related validations.**/
+
+        if (this.getFromConfig(LoadBalancerConstants.SSL_TYPE).getValue().
+                equals(LoadBalancerConstants.NO_SSL)) {
+
+            context.setSslType(this.getFromConfig(LoadBalancerConstants.SSL_TYPE).getValue());
+            log.info("SSL Support : " + context.getSslType());
+
+        } else {
+
+            log.info("Currently this type of SSL is not supported..");
+            //TODO: throw error or exception.
+        }
 
 
         /**HealthCheck related validations.*/
@@ -124,12 +155,16 @@ public class LoadBalancerConfigHolder {
          */
         if (this.getFromConfig(LoadBalancerConstants.HEALTH_CHECK_TYPE).getValue().
                 equals(LoadBalancerConstants.PASSIVE_HEALTH_CHECK)) {
-            log.info("Passive health check...");
+
+            context.setHealthCheck(this.getFromConfig(LoadBalancerConstants.HEALTH_CHECK_TYPE).getValue());
+            log.info("HEALTH CHECK TYPE : " + context.getHealthCheck());
+
             if (this.getFromConfig(LoadBalancerConstants.HEALTH_CHECK_REQUEST_TIMEOUT) != null) {
 
                 String hcReqTimeOut = this.getFromConfig
                         (LoadBalancerConstants.HEALTH_CHECK_REQUEST_TIMEOUT).getValue();
                 //TODO: timeout value limit check, string to long milliseconds type conversion.
+                //TODO: set value in context.
                 log.info(LoadBalancerConstants.HEALTH_CHECK_REQUEST_TIMEOUT + " : " + hcReqTimeOut);
 
             } else {
@@ -141,8 +176,11 @@ public class LoadBalancerConfigHolder {
 
                 String hcUHRetries = this.getFromConfig
                         (LoadBalancerConstants.HEALTH_CHECK_UNHEALTHY_RETRIES).getValue();
-                //TODO: value limit check, string to int retries type conversion.
-                log.info(LoadBalancerConstants.HEALTH_CHECK_UNHEALTHY_RETRIES + " : " + hcUHRetries);
+
+                //TODO: value limit check.
+                int uhRetries = ConverterUtil.getRetriesCount(hcUHRetries);
+                context.setUnHealthyRetries(uhRetries);
+                log.info(LoadBalancerConstants.HEALTH_CHECK_UNHEALTHY_RETRIES + " : " + context.getUnHealthyRetries());
 
             } else {
 
@@ -156,8 +194,11 @@ public class LoadBalancerConfigHolder {
 
                 String hcHRetries = this.getFromConfig
                         (LoadBalancerConstants.HEALTH_CHECK_HEALTHY_RETRIES).getValue();
-                //TODO: value limit check, string to int retries type conversion.
-                log.info(LoadBalancerConstants.HEALTH_CHECK_HEALTHY_RETRIES + " : " + hcHRetries);
+
+                //TODO: value limit check.
+                int hRetries = ConverterUtil.getRetriesCount(hcHRetries);
+                context.setHealthyRetries(hRetries);
+                log.info(LoadBalancerConstants.HEALTH_CHECK_HEALTHY_RETRIES + " : " + context.getHealthyRetries());
 
             } else {
 
@@ -169,7 +210,8 @@ public class LoadBalancerConfigHolder {
 
                 String hcHCInterval = this.getFromConfig
                         (LoadBalancerConstants.HEALTH_CHECK_HEALTHY_CHECK_INTERVAL).getValue();
-                //TODO: timeout interval limit check, string to long milliseconds type conversion.
+                //TODO: timeout interval limit check, string to long or milliseconds type conversion.
+                //TODO: set value in context.
                 log.info(LoadBalancerConstants.HEALTH_CHECK_HEALTHY_CHECK_INTERVAL + " : " + hcHCInterval);
 
             } else {

@@ -3,11 +3,10 @@ package org.wso2.carbon.gateway.httploadbalancer.mediator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.core.config.GWConfigHolder;
-import org.wso2.carbon.gateway.core.config.ParameterHolder;
 import org.wso2.carbon.gateway.core.flow.Group;
 import org.wso2.carbon.gateway.core.flow.Pipeline;
-import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
-import org.wso2.carbon.gateway.httploadbalancer.utils.MapToListConverter;
+import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancerConfigContext;
+import org.wso2.carbon.gateway.httploadbalancer.utils.ConverterUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,11 +22,10 @@ public class LoadBalancerMediatorBuilder {
 
     private static LoadBalancerMediator lbMediator;
 
-    public static LoadBalancerMediator configure(GWConfigHolder gwConfigHolder, ParameterHolder parameterHolder) {
+    public static LoadBalancerMediator configure(GWConfigHolder gwConfigHolder, LoadBalancerConfigContext context) {
 
         lbMediator = new LoadBalancerMediator(
-                MapToListConverter.getOutboundEndpointsList(gwConfigHolder.getOutboundEndpoints()),
-                parameterHolder.getParameter(LoadBalancerConstants.ALGORITHM_NAME).getValue());
+                ConverterUtil.getOutboundEndpointsList(gwConfigHolder.getOutboundEndpoints()), context);
 
         if (gwConfigHolder.hasGroups()) {
 
