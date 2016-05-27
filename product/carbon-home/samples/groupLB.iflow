@@ -1,6 +1,6 @@
 @startuml
 
-participant StocksInbound : InboundEndpoint(protocol("http"),port("8291"),context("/stocks"))
+participant StocksInbound : InboundEndpoint(protocol("http"),port("8290"),context("/stocks"))
 
 participant StocksPipeline : Pipeline("Stocks_Flow")
 

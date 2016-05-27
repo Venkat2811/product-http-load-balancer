@@ -79,7 +79,6 @@
                 <exclude>empty.txt</exclude>
             </excludes>
         </fileSet>
-
     </fileSets>
 
     <files>
