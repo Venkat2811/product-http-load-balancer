@@ -1,13 +1,18 @@
 package org.wso2.carbon.gateway.httploadbalancer.mediator;
 
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.core.flow.Mediator;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
+
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.Constants;
+
+//import javax.servlet.http.Cookie;
+import java.net.HttpCookie;
 
 
 /**
@@ -60,12 +65,26 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
                 String port = carbonMessage.getProperty(Constants.PORT).toString();
 
 
-                String cookie = context.getCookieFromOutboundEP(
-                        host + ":" + port);
+                String cookieValue = context.getCookieFromOutboundEP(host + ":" + port);
 
-                //TODO: update cookie of carbon message..
-                log.info("Cookie to be inserted is : " + cookie);
+                log.info("Cookie to be inserted is : " + cookieValue);
 
+                //TODO: Is this HttpCookie okay or should we use javax.servlet.http.Cookie ..?
+                HttpCookie cookie = new HttpCookie(LoadBalancerConstants.LB_COOKIE_NAME, cookieValue);
+
+                //If SSL is enabled, it should be encrypted.
+                if (context.getSslType().equals(LoadBalancerConstants.END_TO_END) ||
+                        context.getSslType().equals(LoadBalancerConstants.SSL_OFFLOAD)) {
+                    cookie.setSecure(true);
+                } else {
+                    cookie.setSecure(false);
+                }
+
+                //It cannot be accessed through Javascript.
+                cookie.setHttpOnly(true);
+                carbonMessage.setHeader(LoadBalancerConstants.SET_COOKIE, cookie.toString());
+
+                log.info(cookie.toString());
                 parentCallback.done(carbonMessage);
 
             } else {

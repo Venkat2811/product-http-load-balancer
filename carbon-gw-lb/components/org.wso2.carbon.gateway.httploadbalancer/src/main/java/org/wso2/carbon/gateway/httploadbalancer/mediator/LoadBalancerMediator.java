@@ -60,7 +60,78 @@ public class LoadBalancerMediator extends AbstractMediator {
     public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback) throws Exception {
 
         log.info(logMessage);
-        OutboundEndpoint endpoint = lbAlgorithm.getNextOutboundEndpoint(carbonMessage, context);
+        OutboundEndpoint endpoint = null;
+        final String persistenceType = context.getPersistence();
+
+        if (persistenceType.equals(LoadBalancerConstants.APPLICATION_COOKIE)
+                || persistenceType.equals(LoadBalancerConstants.LB_COOKIE)) {
+
+            String cookie = null;
+            cookie = carbonMessage.getHeader(LoadBalancerConstants.COOKIE);
+
+            // If There is no cookie of any kind and no LB specific cookie.
+            if (cookie == null || !(cookie.contains(LoadBalancerConstants.COOKIE_PREFIX))) {
+
+                //Fetching endpoint according to algorithm.
+                endpoint = lbAlgorithm.getNextOutboundEndpoint(carbonMessage, context);
+
+            } else { //There is a LB specific cookie.
+
+                String cookieName = null;
+
+                //You are safe there is no other string similar to LoadBalancerConstants.COOKIE_PREFIX in this cookie.
+                if (cookie.indexOf(LoadBalancerConstants.COOKIE_PREFIX) ==
+                        cookie.lastIndexOf(LoadBalancerConstants.COOKIE_PREFIX)) {
+
+                    int index = cookie.indexOf(LoadBalancerConstants.COOKIE_PREFIX);
+
+                    //TODO: this logic is not safe.
+                    cookieName = cookie.substring(index, index + 3);
+
+                    String outboundEPKey = context.getOutboundEPKeyFromCookie(cookieName);
+
+
+                    //TODO: For LB_COOKIE persistence type we have to check session timeout also.
+                    //TODO: Remove LB specific cookie before forwarding req to server.
+
+
+                    if (outboundEPKey != null) {
+
+                        //Choosing endpoint based on persistence.
+                        endpoint = context.getOutboundEndpoint(outboundEPKey);
+
+
+                    } else {
+
+                        log.error("Something went wrong. Persistence cannot be maintained.."
+                                + "Choosing Endpoint based on algorithm");
+
+                        //Fetching endpoint according to algorithm.
+                        endpoint = lbAlgorithm.getNextOutboundEndpoint(carbonMessage, context);
+
+                    }
+
+                } else { //Be careful some similar string is found. TODO: parsing logic.
+
+                    //TODO: Change later.
+                    //Fetching endpoint according to algorithm.
+                    endpoint = lbAlgorithm.getNextOutboundEndpoint(carbonMessage, context);
+                }
+
+            }
+
+        } else if (persistenceType.equals(LoadBalancerConstants.CLIENT_IP_ADDRESS)) {
+
+            log.info("Work in progress for this type...");
+            //Fetching endpoint according to algorithm.
+            endpoint = lbAlgorithm.getNextOutboundEndpoint(carbonMessage, context);
+
+        } else { //Policy is NO_PERSISTENCE
+
+            //Fetching endpoint according to algorithm.
+            endpoint = lbAlgorithm.getNextOutboundEndpoint(carbonMessage, context);
+        }
+
         log.info("Chosen endpoint by LB is.." + endpoint.getName());
 
         // Calling chosen OutboundEndpoint's LoadBalancerCallMediator's receive...

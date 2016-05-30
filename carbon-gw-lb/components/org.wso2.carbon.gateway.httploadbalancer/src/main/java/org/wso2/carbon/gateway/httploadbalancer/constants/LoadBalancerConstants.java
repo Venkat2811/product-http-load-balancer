@@ -48,8 +48,20 @@ public class LoadBalancerConstants {
     public static final String APPLICATION_COOKIE = "APPLICATION_COOKIE";
     public static final String LB_COOKIE = "LB_COOKIE";
     public static final String CLIENT_IP_ADDRESS = "CLIENT_IP_ADDRESS";
+
     //This will be used in cookie to OutboundEndpoint maps.
+    // TODO:If there is any security concern, ObjectID or any other meaningless
+    // TODO:string can be stored instead of EP1,EP2 etc.
     public static final String COOKIE_PREFIX = "EP";
+
+    //This will be used as cookie name.
+    public static final String LB_COOKIE_NAME = "LB_COOKIE";
+
+    //This will be used to write cookie in response header.
+    public static final String SET_COOKIE = "Set-Cookie";
+    //This will be used to read cookie if any from request header.
+    public static final String COOKIE = "Cookie";
+
 
     /**
      * SSL Support related Constants.

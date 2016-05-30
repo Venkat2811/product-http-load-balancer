@@ -3,6 +3,7 @@ package org.wso2.carbon.gateway.httploadbalancer.algorithm;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.gateway.core.outbound.OutboundEndpoint;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,11 +28,16 @@ public class LoadBalancerConfigContext {
     private int healthyRetries;
     private int healthycheckInterval;
 
-    //TODO: Is this idea okay.?
+    private Map<String, OutboundEndpoint> outboundEndpoints;
+
+    //TODO: Is this HashMap idea okay.?
     /**
      * Used to identify corresponding BackEnd Endpoint Key for a given cookie.
      * This map will be used when request comes from Client -> LB
      * and based on cookie, BE endpoint will be chosen.
+     * Each cookie value will point to BE. Eg: EP1,EP2 etc.,
+     * TODO:If there is any security concern, ObjectID or any other meaningless string
+     * TODO:can be stored instead of EP1,EP2 etc.
      */
     private Map<String, String> cookieToEPKeyMap;
 
@@ -128,7 +134,6 @@ public class LoadBalancerConfigContext {
      */
     public void addToCookieToOutboundEPKeyMap(String cookieName, String outboundEPKey) {
 
-        log.info(cookieName + " : " + outboundEPKey);
         cookieToEPKeyMap.put(cookieName, outboundEPKey);
 
     }
@@ -150,7 +155,6 @@ public class LoadBalancerConfigContext {
      */
     public void addToOutboundEPTOCookieMap(String endpoint, String cookieName) {
 
-        log.info(endpoint + " : " + cookieName);
         endpointToCookieMap.put(endpoint, cookieName);
 
     }
@@ -163,5 +167,17 @@ public class LoadBalancerConfigContext {
     public String getCookieFromOutboundEP(String endpoint) {
 
         return endpointToCookieMap.get(endpoint);
+    }
+
+    public Map<String, OutboundEndpoint> getOutboundEndpoints() {
+        return outboundEndpoints;
+    }
+
+    public void setOutboundEndpoints(Map<String, OutboundEndpoint> outboundEndpoints) {
+        this.outboundEndpoints = outboundEndpoints;
+    }
+
+    public OutboundEndpoint getOutboundEndpoint(String name) {
+        return this.outboundEndpoints.get(name);
     }
 }

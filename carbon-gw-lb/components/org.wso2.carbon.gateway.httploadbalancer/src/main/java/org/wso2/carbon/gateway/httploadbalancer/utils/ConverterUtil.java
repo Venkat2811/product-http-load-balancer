@@ -87,4 +87,17 @@ public class ConverterUtil {
         return host + ":" + String.valueOf(port);
     }
 
+    public static String getUrlPath(String uri) {
+
+        URL url = null;
+        try {
+            url = new URL(uri);
+        } catch (MalformedURLException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+
+        return url.getPath();
+
+    }
 }

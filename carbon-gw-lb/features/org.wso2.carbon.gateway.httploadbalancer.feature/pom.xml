@@ -26,6 +26,11 @@
             <artifactId>org.wso2.carbon.gateway.httploadbalancer</artifactId>
             <version>${carbon.gw.lb.version}</version>
         </dependency>
+      <!--  <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>${javax.servlet.version}</version>
+        </dependency> -->
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
@@ -124,6 +129,10 @@
                                     <symbolicName>slf4j.log4j12</symbolicName>
                                     <version>${slf4j.version}</version>
                                 </bundle>
+                              <!--  <bundle>
+                                    <symbolicName>javax.servlet-api</symbolicName>
+                                    <version>${javax.servlet.version}</version>
+                                </bundle> -->
                             </bundles>
                         </configuration>
                     </execution>

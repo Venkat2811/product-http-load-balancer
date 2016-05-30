@@ -120,6 +120,7 @@
             <version>${carbon.gw.version}</version>
             <type>zip</type>
         </dependency>
+       
     </dependencies>
 
     <build>

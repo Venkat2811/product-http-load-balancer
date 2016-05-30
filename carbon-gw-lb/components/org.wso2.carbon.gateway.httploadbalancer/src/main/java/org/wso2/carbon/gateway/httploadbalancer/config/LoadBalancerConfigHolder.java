@@ -78,6 +78,7 @@ public class LoadBalancerConfigHolder {
 
         this.integrationFlow = integrationFlow;
         validateConfig();
+        context.setOutboundEndpoints(integrationFlow.getGWConfigHolder().getOutboundEndpoints());
         LoadBalancerMediatorBuilder.configure(this.integrationFlow.getGWConfigHolder(), context);
     }
 

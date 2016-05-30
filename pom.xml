@@ -179,6 +179,11 @@
                 <artifactId>org.wso2.carbon.gateway.converters.jsontoxml.feature</artifactId>
                 <version>${carbon.gw.version}</version>
             </dependency>
+         <!--   <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>${javax.servlet.version}</version>
+            </dependency> -->
         </dependencies>
     </dependencyManagement>
 
@@ -186,7 +191,7 @@
 
     <properties>
         <!-- Maven plugins -->
-        <carbon.gw.lb.version>1.0.0-SNAPSHOT</carbon.gw.lb.version>
+
         <maven.checkstyleplugin.version>2.16</maven.checkstyleplugin.version>
         <maven.findbugsplugin.version>3.0.3</maven.findbugsplugin.version>
 
@@ -195,6 +200,8 @@
         <carbon.kernel.product.version>5.1.0</carbon.kernel.product.version>
         <carbon.kernel.package.import.version.range>[5.0.0, 6.0.0)</carbon.kernel.package.import.version.range>
 
+        <!--<javax.servlet.version>3.0.1</javax.servlet.version> -->
+        <carbon.gw.lb.version>1.0.0-SNAPSHOT</carbon.gw.lb.version>
         <carbon.gw.version>1.0.0-SNAPSHOT</carbon.gw.version>
         <carbon.gw.package.export.version>1.0.0</carbon.gw.package.export.version>
 
