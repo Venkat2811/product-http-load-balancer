@@ -5,10 +5,14 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.core.config.Parameter;
 import org.wso2.carbon.gateway.core.config.ParameterHolder;
 import org.wso2.carbon.gateway.core.config.dsl.external.WUMLConfigurationBuilder;
+import org.wso2.carbon.gateway.core.outbound.OutboundEndpoint;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 import org.wso2.carbon.gateway.httploadbalancer.mediator.LoadBalancerMediatorBuilder;
 import org.wso2.carbon.gateway.httploadbalancer.utils.ConverterUtil;
+
+import java.util.Map;
+import java.util.Set;
 
 /**
  * A Class responsible for loading LB config from WUMLBaseListenerImpl.java to LoadBalancerConfigContext.
@@ -77,6 +81,12 @@ public class LoadBalancerConfigHolder {
         LoadBalancerMediatorBuilder.configure(this.integrationFlow.getGWConfigHolder(), context);
     }
 
+    /**
+     * @param timeOut
+     * @return boolean
+     * <p>
+     * This method is used to check whether timeout is within limit or not.
+     */
     public boolean isWithInLimit(int timeOut) {
 
         if (timeOut <= LoadBalancerConstants.MAX_TIMEOUT_VAL) {
@@ -84,6 +94,33 @@ public class LoadBalancerConfigHolder {
         } else {
             return false;
         }
+    }
+
+    /**
+     * @param endpoints <p>
+     *                  Populates cookie handling maps.
+     */
+    public void populateCookieMaps(Map<String, OutboundEndpoint> endpoints) {
+
+        //Initializing cookie maps.
+        context.init();
+        int index = 1;
+
+        Set<Map.Entry<String, OutboundEndpoint>> entrySet = endpoints.entrySet();
+        for (Map.Entry entry : entrySet) {
+
+            context.addToCookieToOutboundEPKeyMap(
+                    LoadBalancerConstants.COOKIE_PREFIX + String.valueOf(index),
+                    entry.getKey().toString());
+
+            context.addToOutboundEPTOCookieMap(
+                    ConverterUtil.getHostAndPort(((OutboundEndpoint) entry.getValue()).getUri()),
+                    LoadBalancerConstants.COOKIE_PREFIX + String.valueOf(index));
+
+
+            index++;
+        }
+
     }
 
     /**
@@ -118,9 +155,12 @@ public class LoadBalancerConfigHolder {
 
             context.setPersistence(persistenceType);
             log.info("Persistence : " + context.getPersistence());
+            populateCookieMaps(integrationFlow.getGWConfigHolder().getOutboundEndpoints());
+
 
         } else if (persistenceType.equals(LoadBalancerConstants.LB_COOKIE)) {
 
+            //TODO: Populate cookie map.
             context.setPersistence(persistenceType);
             log.info("Persistence : " + context.getPersistence());
 

@@ -2,6 +2,8 @@ package org.wso2.carbon.gateway.httploadbalancer.utils;
 
 import org.wso2.carbon.gateway.core.outbound.OutboundEndpoint;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +66,25 @@ public class ConverterUtil {
         }
 
         return val;
+    }
+
+    /**
+     * @param uri OutboundEndpoint's Uri.
+     * @return <String> of form 'hostname:port'
+     */
+    public static String getHostAndPort(String uri) {
+
+        URL url = null;
+        try {
+            url = new URL(uri);
+        } catch (MalformedURLException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+        String host = url.getHost();
+        int port = (url.getPort() == -1) ? 80 : url.getPort();
+
+        return host + ":" + String.valueOf(port);
     }
 
 }

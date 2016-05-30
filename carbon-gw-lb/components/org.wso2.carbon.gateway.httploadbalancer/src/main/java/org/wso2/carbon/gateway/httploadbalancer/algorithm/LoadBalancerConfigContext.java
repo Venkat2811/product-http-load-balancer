@@ -1,10 +1,18 @@
 package org.wso2.carbon.gateway.httploadbalancer.algorithm;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * Holds LB Configuration context.
  */
 public class LoadBalancerConfigContext {
+
+    private static final Logger log = LoggerFactory.getLogger(LoadBalancerConfigContext.class);
 
     private String algorithm;
 
@@ -19,8 +27,21 @@ public class LoadBalancerConfigContext {
     private int healthyRetries;
     private int healthycheckInterval;
 
-    //Used to identify corresponding BackEnd Endpoint.
-    //private Map<String,String> persistenceCookie;
+    //TODO: Is this idea okay.?
+    /**
+     * Used to identify corresponding BackEnd Endpoint Key for a given cookie.
+     * This map will be used when request comes from Client -> LB
+     * and based on cookie, BE endpoint will be chosen.
+     */
+    private Map<String, String> cookieToEPKeyMap;
+
+    /**
+     * Used to identify corresponding Cookie for a given BackEnd Endpoint.
+     * This map will be used once response arrives from BE and
+     * to use appropriate cookie for the endpoint.
+     * NOTE: EndpointName will be of the form <hostName:port>
+     */
+    private Map<String, String> endpointToCookieMap;
 
 
     public String getAlgorithm() {
@@ -93,5 +114,54 @@ public class LoadBalancerConfigContext {
 
     public void setHealthycheckInterval(int healthycheckInterval) {
         this.healthycheckInterval = healthycheckInterval;
+    }
+
+    public void init() {
+
+        cookieToEPKeyMap = new ConcurrentHashMap<>();
+        endpointToCookieMap = new ConcurrentHashMap<>();
+    }
+
+    /**
+     * @param cookieName
+     * @param outboundEPKey Maps cookie to an outbound EP.
+     */
+    public void addToCookieToOutboundEPKeyMap(String cookieName, String outboundEPKey) {
+
+        log.info(cookieName + " : " + outboundEPKey);
+        cookieToEPKeyMap.put(cookieName, outboundEPKey);
+
+    }
+
+    /**
+     * @param cookieName
+     * @return OutboundEndpointKey.
+     * Returns an OutboundEndpointKey for a given cookieName.
+     */
+    public String getOutboundEPKeyFromCookie(String cookieName) {
+
+        return cookieToEPKeyMap.get(cookieName);
+    }
+
+
+    /**
+     * @param endpoint
+     * @param cookieName Maps OutboundEP to a cookieName.
+     */
+    public void addToOutboundEPTOCookieMap(String endpoint, String cookieName) {
+
+        log.info(endpoint + " : " + cookieName);
+        endpointToCookieMap.put(endpoint, cookieName);
+
+    }
+
+    /**
+     * @param endpoint
+     * @return CookieName.
+     * Returns a cookie for a given OutboundEP.
+     */
+    public String getCookieFromOutboundEP(String endpoint) {
+
+        return endpointToCookieMap.get(endpoint);
     }
 }
