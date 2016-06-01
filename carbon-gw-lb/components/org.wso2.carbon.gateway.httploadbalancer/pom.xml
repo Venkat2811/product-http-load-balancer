@@ -64,6 +64,13 @@
             <artifactId>javax.servlet-api</artifactId>
             <version>${javax.servlet.version}</version>
         </dependency> -->
+        <!-- http://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient-osgi</artifactId>
+            <version>${org.apache.httpcomponents.httpclient.version}</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -112,6 +119,7 @@
             org.wso2.carbon.messaging.*,
             org.slf4j.*,
            <!-- javax.servlet.*;version="${javax.servlet.version}" -->
+            org.apache.*;version=${org.apache.httpcomponents.httpclient.version}
         </import.package>
         <!--  <Require-Bundle>
               org.wso2.carbon.gateway.core.*;

@@ -16,7 +16,8 @@
   ~ * limitations under the License.
   ~ */
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -179,14 +180,29 @@
                 <artifactId>org.wso2.carbon.gateway.converters.jsontoxml.feature</artifactId>
                 <version>${carbon.gw.version}</version>
             </dependency>
-         <!--   <dependency>
-                <groupId>javax.servlet</groupId>
-                <artifactId>javax.servlet-api</artifactId>
-                <version>${javax.servlet.version}</version>
-            </dependency> -->
+            <!--   <dependency>
+                   <groupId>javax.servlet</groupId>
+                   <artifactId>javax.servlet-api</artifactId>
+                   <version>${javax.servlet.version}</version>
+               </dependency> -->
+
+
+             <dependency>
+                 <groupId>org.apache.httpcomponents</groupId>
+                 <artifactId>httpcore-osgi</artifactId>
+                 <version>${org.apache.httpcomponents.httpcore.version}</version>
+             </dependency>
+
+
+             <dependency>
+                 <groupId>org.apache.httpcomponents</groupId>
+                 <artifactId>httpclient-osgi</artifactId>
+                 <version>${org.apache.httpcomponents.httpclient.version}</version>
+             </dependency>
+
+
         </dependencies>
     </dependencyManagement>
-
 
 
     <properties>
@@ -201,6 +217,8 @@
         <carbon.kernel.package.import.version.range>[5.0.0, 6.0.0)</carbon.kernel.package.import.version.range>
 
         <!--<javax.servlet.version>3.0.1</javax.servlet.version> -->
+        <org.apache.httpcomponents.httpclient.version>4.5.2</org.apache.httpcomponents.httpclient.version>
+         <org.apache.httpcomponents.httpcore.version>4.4.4</org.apache.httpcomponents.httpcore.version>
         <carbon.gw.lb.version>1.0.0-SNAPSHOT</carbon.gw.lb.version>
         <carbon.gw.version>1.0.0-SNAPSHOT</carbon.gw.version>
         <carbon.gw.package.export.version>1.0.0</carbon.gw.package.export.version>

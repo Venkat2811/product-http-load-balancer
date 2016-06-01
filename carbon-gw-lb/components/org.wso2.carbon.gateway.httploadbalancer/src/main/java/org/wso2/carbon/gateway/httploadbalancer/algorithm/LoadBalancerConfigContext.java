@@ -18,7 +18,7 @@ public class LoadBalancerConfigContext {
     private String algorithm;
 
     private String persistence;
-    private int sessionPersistenceTimeout;
+    // private int sessionPersistenceTimeout; //TODO: Discuss.
 
     private String sslType;
 
@@ -66,13 +66,16 @@ public class LoadBalancerConfigContext {
         this.persistence = persistence;
     }
 
-    public int getSessionPersistenceTimeout() {
-        return sessionPersistenceTimeout;
-    }
-
-    public void setSessionPersistenceTimeout(int sessionPersistenceTimeout) {
-        this.sessionPersistenceTimeout = sessionPersistenceTimeout;
-    }
+    /**
+     * TODO:Discuss.
+     * public int getSessionPersistenceTimeout() {
+     * return sessionPersistenceTimeout;
+     * }
+     * <p>
+     * public void setSessionPersistenceTimeout(int sessionPersistenceTimeout) {
+     * this.sessionPersistenceTimeout = sessionPersistenceTimeout;
+     * }
+     **/
 
     public String getSslType() {
         return sslType;

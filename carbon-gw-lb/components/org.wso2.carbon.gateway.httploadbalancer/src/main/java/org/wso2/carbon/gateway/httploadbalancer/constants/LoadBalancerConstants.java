@@ -45,8 +45,14 @@ public class LoadBalancerConstants {
      * Session Persistence related Constants.
      */
     public static final String NO_PERSISTENCE = "NO_PERSISTENCE";
+
+    //Session Timeout is handled by application cookie.
     public static final String APPLICATION_COOKIE = "APPLICATION_COOKIE";
+
+    //Session Timeout is handled by LB_COOKIE.
+    // Use this mode ONLY if application doesn't use its own cookies.
     public static final String LB_COOKIE = "LB_COOKIE";
+
     public static final String CLIENT_IP_ADDRESS = "CLIENT_IP_ADDRESS";
 
     //This will be used in cookie to OutboundEndpoint maps.
@@ -58,9 +64,24 @@ public class LoadBalancerConstants {
     public static final String LB_COOKIE_NAME = "LB_COOKIE";
 
     //This will be used to write cookie in response header.
-    public static final String SET_COOKIE = "Set-Cookie";
+    public static final String SET_COOKIE_HEADER = "Set-Cookie";
+
     //This will be used to read cookie if any from request header.
-    public static final String COOKIE = "Cookie";
+    public static final String COOKIE_HEADER = "Cookie";
+
+    //This will be used as delimiter between Existing cookies & LB_COOKIE.
+    public static final String LB_COOKIE_DELIMITER = "---";
+
+    // eg: LB_COOKIE:EP1.
+    public static final String COOKIE_NAME_VALUE_SEPARATOR = ":";
+
+    //Cookie HttpOnly.
+    public static final String HTTP_ONLY = "HttpOnly";
+
+    //Cookie Secure.
+    public static final String SECURE = "secure";
+
+
 
 
     /**

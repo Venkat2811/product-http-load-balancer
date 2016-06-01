@@ -26,11 +26,21 @@
             <artifactId>org.wso2.carbon.gateway.httploadbalancer</artifactId>
             <version>${carbon.gw.lb.version}</version>
         </dependency>
-      <!--  <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>${javax.servlet.version}</version>
-        </dependency> -->
+        <!--  <dependency>
+              <groupId>javax.servlet</groupId>
+              <artifactId>javax.servlet-api</artifactId>
+              <version>${javax.servlet.version}</version>
+          </dependency> -->
+         <dependency>
+             <groupId>org.apache.httpcomponents</groupId>
+             <artifactId>httpcore-osgi</artifactId>
+             <version>${org.apache.httpcomponents.httpcore.version}</version>
+         </dependency>
+         <dependency>
+             <groupId>org.apache.httpcomponents</groupId>
+             <artifactId>httpclient-osgi</artifactId>
+             <version>${org.apache.httpcomponents.httpclient.version}</version>
+         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
@@ -129,10 +139,18 @@
                                     <symbolicName>slf4j.log4j12</symbolicName>
                                     <version>${slf4j.version}</version>
                                 </bundle>
-                              <!--  <bundle>
-                                    <symbolicName>javax.servlet-api</symbolicName>
-                                    <version>${javax.servlet.version}</version>
-                                </bundle> -->
+                                <!--  <bundle>
+                                      <symbolicName>javax.servlet-api</symbolicName>
+                                      <version>${javax.servlet.version}</version>
+                                  </bundle> -->
+                                  <bundle>
+                                       <symbolicName>org.apache.httpcomponents.httpcore</symbolicName>
+                                       <version>${org.apache.httpcomponents.httpcore.version}</version>
+                                   </bundle>
+                                   <bundle>
+                                       <symbolicName>org.apache.httpcomponents.httpclient</symbolicName>
+                                       <version>${org.apache.httpcomponents.httpclient.version}</version>
+                                   </bundle>
                             </bundles>
                         </configuration>
                     </execution>

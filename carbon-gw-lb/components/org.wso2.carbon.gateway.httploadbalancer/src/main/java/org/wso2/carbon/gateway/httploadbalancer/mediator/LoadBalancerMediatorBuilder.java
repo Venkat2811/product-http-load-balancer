@@ -6,7 +6,7 @@ import org.wso2.carbon.gateway.core.config.GWConfigHolder;
 import org.wso2.carbon.gateway.core.flow.Group;
 import org.wso2.carbon.gateway.core.flow.Pipeline;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancerConfigContext;
-import org.wso2.carbon.gateway.httploadbalancer.utils.ConverterUtil;
+import org.wso2.carbon.gateway.httploadbalancer.utils.CommonUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +25,7 @@ public class LoadBalancerMediatorBuilder {
     public static LoadBalancerMediator configure(GWConfigHolder gwConfigHolder, LoadBalancerConfigContext context) {
 
         lbMediator = new LoadBalancerMediator(
-                ConverterUtil.getOutboundEndpointsList(gwConfigHolder.getOutboundEndpoints()), context);
+                CommonUtil.getOutboundEndpointsList(gwConfigHolder.getOutboundEndpoints()), context);
 
         if (gwConfigHolder.hasGroups()) {
 

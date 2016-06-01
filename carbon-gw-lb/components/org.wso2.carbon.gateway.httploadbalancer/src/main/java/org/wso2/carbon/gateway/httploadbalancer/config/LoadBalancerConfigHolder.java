@@ -9,7 +9,7 @@ import org.wso2.carbon.gateway.core.outbound.OutboundEndpoint;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 import org.wso2.carbon.gateway.httploadbalancer.mediator.LoadBalancerMediatorBuilder;
-import org.wso2.carbon.gateway.httploadbalancer.utils.ConverterUtil;
+import org.wso2.carbon.gateway.httploadbalancer.utils.CommonUtil;
 
 import java.util.Map;
 import java.util.Set;
@@ -115,7 +115,7 @@ public class LoadBalancerConfigHolder {
                     entry.getKey().toString());
 
             context.addToOutboundEPTOCookieMap(
-                    ConverterUtil.getHostAndPort(((OutboundEndpoint) entry.getValue()).getUri()),
+                    CommonUtil.getHostAndPort(((OutboundEndpoint) entry.getValue()).getUri()),
                     LoadBalancerConstants.COOKIE_PREFIX + String.valueOf(index));
 
 
@@ -165,12 +165,13 @@ public class LoadBalancerConfigHolder {
             context.setPersistence(persistenceType);
             log.info("Persistence : " + context.getPersistence());
 
+            /** TODO: Discuss this.
             if (loadbalancerConfigs.getParameter(LoadBalancerConstants.PERSISTENCE_SESSION_TIME_OUT) != null) {
 
                 String sessionTimeout = this.getFromConfig
                         (LoadBalancerConstants.PERSISTENCE_SESSION_TIME_OUT).getValue();
 
-                int sessTimeout = ConverterUtil.getTimeInMilliSeconds(sessionTimeout);
+                int sessTimeout = CommonUtil.getTimeInMilliSeconds(sessionTimeout);
 
                 if (isWithInLimit(sessTimeout)) {
 
@@ -192,7 +193,8 @@ public class LoadBalancerConfigHolder {
                 log.error("For LB_COOKIE session cookie time out has to be specified.. Loading default value..." +
                         "Persistence Timeout :  " + context.getSessionPersistenceTimeout());
 
-            }
+            }**/
+            populateCookieMaps(integrationFlow.getGWConfigHolder().getOutboundEndpoints());
         }
 
         /**SSL related validations.**/
@@ -227,7 +229,7 @@ public class LoadBalancerConfigHolder {
                 String hcReqTimeOut = this.getFromConfig
                         (LoadBalancerConstants.HEALTH_CHECK_REQUEST_TIMEOUT).getValue();
 
-                int timeout = ConverterUtil.getTimeInMilliSeconds(hcReqTimeOut);
+                int timeout = CommonUtil.getTimeInMilliSeconds(hcReqTimeOut);
 
                 if (isWithInLimit(timeout)) {
                     context.setReqTimeout(timeout);
@@ -253,7 +255,7 @@ public class LoadBalancerConfigHolder {
                         (LoadBalancerConstants.HEALTH_CHECK_UNHEALTHY_RETRIES).getValue();
 
 
-                int uhRetries = ConverterUtil.getRetriesCount(hcUHRetries);
+                int uhRetries = CommonUtil.getRetriesCount(hcUHRetries);
                 context.setUnHealthyRetries(uhRetries);
                 log.info(LoadBalancerConstants.HEALTH_CHECK_UNHEALTHY_RETRIES + " : " + context.getUnHealthyRetries());
 
@@ -271,7 +273,7 @@ public class LoadBalancerConfigHolder {
                 String hcHRetries = this.getFromConfig
                         (LoadBalancerConstants.HEALTH_CHECK_HEALTHY_RETRIES).getValue();
 
-                int hRetries = ConverterUtil.getRetriesCount(hcHRetries);
+                int hRetries = CommonUtil.getRetriesCount(hcHRetries);
                 context.setHealthyRetries(hRetries);
                 log.info(LoadBalancerConstants.HEALTH_CHECK_HEALTHY_RETRIES + " : " + context.getHealthyRetries());
 
@@ -287,7 +289,7 @@ public class LoadBalancerConfigHolder {
                 String hcHCInterval = this.getFromConfig
                         (LoadBalancerConstants.HEALTH_CHECK_HEALTHY_CHECK_INTERVAL).getValue();
 
-                int interval = ConverterUtil.getTimeInMilliSeconds(hcHCInterval);
+                int interval = CommonUtil.getTimeInMilliSeconds(hcHCInterval);
 
                 if (isWithInLimit(interval)) {
 

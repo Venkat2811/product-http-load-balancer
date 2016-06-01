@@ -1,23 +1,22 @@
 package org.wso2.carbon.gateway.httploadbalancer.mediator;
 
 
+//import org.apache.http.impl.cookie.BasicClientCookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.core.flow.Mediator;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
-
+import org.wso2.carbon.gateway.httploadbalancer.utils.CommonUtil;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.Constants;
 
-//import javax.servlet.http.Cookie;
-import java.net.HttpCookie;
+//import java.util.Date;
 
 
 /**
  * Callback related to LoadBalancerMediator.
- * TODO: In case of cookie persistence, appropriate cookie will be appended with response here.
+ * In case of cookie persistence, appropriate cookie will be appended with response here.
  */
 public class LoadBalancerMediatorCallBack implements CarbonCallback {
 
@@ -44,7 +43,6 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
     @Override
     public void done(CarbonMessage carbonMessage) {
 
-
         /**
          log.info("Inside LB mediator call back...");
          Map<String, String> transHeaders = carbonMessage.getHeaders();
@@ -58,40 +56,94 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
 
         if (parentCallback instanceof LoadBalancerMediatorCallBack) {
 
-            if (context.getPersistence().equals(LoadBalancerConstants.APPLICATION_COOKIE) ||
-                    context.getPersistence().equals(LoadBalancerConstants.LB_COOKIE)) {
+            if (context.getPersistence().equals(LoadBalancerConstants.APPLICATION_COOKIE)) {
 
-                String host = carbonMessage.getProperty(Constants.HOST).toString();
-                String port = carbonMessage.getProperty(Constants.PORT).toString();
+                /**
+                 ///////////////////////////////////////////////////////////////////////////////////
+                 //TODO: Just for testing. Remove this block later.
+                 BasicClientCookie serverCookie = new BasicClientCookie("JSESSIONID", "ghsgsdgsg");
+
+                 Date expiration = new Date(new Date().getTime() + 3600 * 1000);
+
+                 serverCookie.setExpiryDate(expiration);
+
+                 String finalCookie =
+                 serverCookie.getName() + "=" + serverCookie.getValue()
+                 +
+                 "; expires =" + serverCookie.getExpiryDate() +
+                 "; HTTPOnly";
+                 carbonMessage.setHeader(LoadBalancerConstants.SET_COOKIE_HEADER, finalCookie);
+
+                 ///////////////////////////////////////////////////////////////////////////////////////
+                 **/
 
 
-                String cookieValue = context.getCookieFromOutboundEP(host + ":" + port);
+                /**Checking if there is any cookie already available in response from BE. **/
 
-                log.info("Cookie to be inserted is : " + cookieValue);
+                if (carbonMessage.getHeader(LoadBalancerConstants.SET_COOKIE_HEADER) != null) { //Cookie exists.
 
-                //TODO: Is this HttpCookie okay or should we use javax.servlet.http.Cookie ..?
-                HttpCookie cookie = new HttpCookie(LoadBalancerConstants.LB_COOKIE_NAME, cookieValue);
+                    //Appending LB_COOKIE along with existing cookie.
+                    carbonMessage.setHeader(LoadBalancerConstants.SET_COOKIE_HEADER,
+                            CommonUtil.addLBCookieToExistingCookie(
+                                    carbonMessage.getHeader(LoadBalancerConstants.SET_COOKIE_HEADER),
+                                    CommonUtil.getCookieValue(carbonMessage, context)));
 
-                //If SSL is enabled, it should be encrypted.
-                if (context.getSslType().equals(LoadBalancerConstants.END_TO_END) ||
-                        context.getSslType().equals(LoadBalancerConstants.SSL_OFFLOAD)) {
-                    cookie.setSecure(true);
-                } else {
-                    cookie.setSecure(false);
+                } else { //There is no cookie in response from BE.
+
+                    //Adding LB specific cookie.
+                    log.error("BE endpoint doesn't has it's own cookie. LB will insert it's own cookie for" +
+                            "the sake of maintaining persistence. ");
+
+                    carbonMessage.setHeader(LoadBalancerConstants.SET_COOKIE_HEADER,
+                            CommonUtil.getSessionCookie(CommonUtil.
+                                    getCookieValue(carbonMessage, context), false));
+
                 }
 
-                //It cannot be accessed through Javascript.
-                cookie.setHttpOnly(true);
-                carbonMessage.setHeader(LoadBalancerConstants.SET_COOKIE, cookie.toString());
-
-                log.info(cookie.toString());
                 parentCallback.done(carbonMessage);
 
-            } else {
+            } else if (context.getPersistence().equals(LoadBalancerConstants.LB_COOKIE)) {
+
+                /**
+                 ///////////////////////////////////////////////////////////////////////////////////
+                 //TODO: Just for testing. Remove this block later.
+                 BasicClientCookie serverCookie = new BasicClientCookie("JSESSIONID", "ghsgsdgsg");
+
+                 Date expiration = new Date(new Date().getTime() + 3600 * 1000);
+
+                 serverCookie.setExpiryDate(expiration);
+
+                 String finalCookie =
+                 serverCookie.getName() + "=" + serverCookie.getValue();
+                 // +
+                 //   "; expires =" + serverCookie.getExpiryDate() +
+                 //  "; HTTPOnly";
+                 carbonMessage.setHeader(LoadBalancerConstants.SET_COOKIE_HEADER, finalCookie);
+
+                 ///////////////////////////////////////////////////////////////////////////////////////
+                 **/
+
+                if (carbonMessage.getHeader(LoadBalancerConstants.SET_COOKIE_HEADER) != null) { //Cookie exists.
+
+                    log.error("BE endpoint has it's own cookie, LB will DISCARD this. If" +
+                            "you want your application cookie to be used, please choose " +
+                            LoadBalancerConstants.APPLICATION_COOKIE +
+                            " mode of persistence");
+                }
+
+                //Adding LB specific cookie.
+                carbonMessage.setHeader(LoadBalancerConstants.SET_COOKIE_HEADER,
+                        CommonUtil.getSessionCookie(CommonUtil.getCookieValue(carbonMessage, context), false));
+
+                parentCallback.done(carbonMessage);
+
+            } else { //for NO_PERSISTENCE and IP BASED as of now.
 
                 parentCallback.done(carbonMessage);
             }
+
         } else if (mediator.hasNext()) { // If Mediator has a sibling after this
+
             try {
                 mediator.next(carbonMessage, parentCallback);
             } catch (Exception e) {

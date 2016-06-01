@@ -10,8 +10,6 @@ import org.wso2.carbon.gateway.httploadbalancer.mediator.LoadBalancerMediatorCal
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
-import java.util.Map;
-
 
 /**
  * CallMediator for LoadBalancer.
@@ -64,16 +62,6 @@ public class LoadBalancerCallMediator extends AbstractMediator {
                 return false;
             }
         }
-
-
-         log.info("Inside LB call mediator...");
-         Map<String, String> transHeaders = carbonMessage.getHeaders();
-         log.info("Transport Headers...");
-         log.info(transHeaders.toString() + "\n\n");
-
-         Map<String, Object> prop = carbonMessage.getProperties();
-         log.info("Properties...");
-         log.info(prop.toString() + "\n\n");
 
 
         //Using separate LBMediatorCallBack because, we need to add special headers for session persistence...
