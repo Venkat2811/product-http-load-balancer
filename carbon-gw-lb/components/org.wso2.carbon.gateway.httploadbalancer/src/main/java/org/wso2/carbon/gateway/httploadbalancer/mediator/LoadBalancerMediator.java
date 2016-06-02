@@ -13,7 +13,6 @@ import org.wso2.carbon.gateway.httploadbalancer.invokers.LoadBalancerCallMediato
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
-
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -60,16 +59,19 @@ public class LoadBalancerMediator extends AbstractMediator {
     @Override
     public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback) throws Exception {
 
-        log.info("\n\n" + logMessage);
-        log.info("Inside LB mediator...");
-        Map<String, String> transHeaders = carbonMessage.getHeaders();
-        log.info("Transport Headers...");
-        log.info(transHeaders.toString() + "\n\n");
+        /**
+         log.info("\n\n" + logMessage);
+         log.info("Inside LB mediator...");
+         Map<String, String> transHeaders = carbonMessage.getHeaders();
+         log.info("Transport Headers...");
+         log.info(transHeaders.toString() + "\n\n");
 
-        Map<String, Object> prop = carbonMessage.getProperties();
-        log.info("Properties...");
-        log.info(prop.toString() + "\n\n");
+         Map<String, Object> prop = carbonMessage.getProperties();
+         log.info("Properties...");
+         log.info(prop.toString() + "\n\n");
+         **/
 
+        //log.info(" LB Mediator Cookie Header : " + carbonMessage.getHeader(LoadBalancerConstants.COOKIE_HEADER));
 
         OutboundEndpoint nextEndpoint = null;
         final String persistenceType = context.getPersistence();
