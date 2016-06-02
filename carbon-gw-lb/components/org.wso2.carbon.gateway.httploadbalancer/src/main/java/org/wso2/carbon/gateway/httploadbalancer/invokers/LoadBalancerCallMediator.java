@@ -6,7 +6,7 @@ import org.wso2.carbon.gateway.core.config.ConfigRegistry;
 import org.wso2.carbon.gateway.core.flow.AbstractMediator;
 import org.wso2.carbon.gateway.core.outbound.OutboundEndpoint;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancerConfigContext;
-import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
+//import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 import org.wso2.carbon.gateway.httploadbalancer.mediator.LoadBalancerMediatorCallBack;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
