@@ -104,7 +104,7 @@ public class LoadBalancerConfigHolder {
     public void populateCookieMaps(Map<String, OutboundEndpoint> endpoints) {
 
         //Initializing cookie maps.
-        context.init();
+        context.initCookieMaps();
         int index = 1;
 
         Set<Map.Entry<String, OutboundEndpoint>> entrySet = endpoints.entrySet();

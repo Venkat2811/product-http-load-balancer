@@ -125,7 +125,7 @@ public class LoadBalancerConfigContext {
         this.healthycheckInterval = healthycheckInterval;
     }
 
-    public void init() {
+    public void initCookieMaps() {
 
         cookieToEPKeyMap = new ConcurrentHashMap<>();
         endpointToCookieMap = new ConcurrentHashMap<>();
