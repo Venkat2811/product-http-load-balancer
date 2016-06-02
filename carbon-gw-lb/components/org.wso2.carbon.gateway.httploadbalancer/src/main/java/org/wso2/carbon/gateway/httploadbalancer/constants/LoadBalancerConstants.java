@@ -37,7 +37,7 @@ public class LoadBalancerConstants {
      */
 
     public static final String ROUND_ROBIN = "ROUND_ROBIN";
-    public static final String LEAST_CONNECTIONS = "LEAST_CONNECTIONS";
+    public static final String IP_HASHING = "IP_HASHING";
     public static final String LEAST_RESPONSE_TIME = "LEAST_RESPONSE_TIME";
 
 
@@ -53,7 +53,6 @@ public class LoadBalancerConstants {
     // Use this mode ONLY if application doesn't use its own cookies.
     public static final String LB_COOKIE = "LB_COOKIE";
 
-    public static final String CLIENT_IP_ADDRESS = "CLIENT_IP_ADDRESS";
 
     //This will be used in cookie to OutboundEndpoint maps.
     // TODO:If there is any security concern, ObjectID or any other meaningless
