@@ -80,7 +80,7 @@ public class ClientIPHashing implements LoadBalancingAlgorithm {
 
     /**
      * @param outboundEndpoint outboundEndpoint to be removed from existing list.
-     *                         TODO: logic.
+     *
      */
     @Override
     public void removeOutboundEndpoint(OutboundEndpoint outboundEndpoint) {
