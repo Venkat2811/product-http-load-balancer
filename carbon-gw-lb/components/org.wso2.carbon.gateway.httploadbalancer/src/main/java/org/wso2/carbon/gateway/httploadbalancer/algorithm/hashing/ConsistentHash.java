@@ -10,7 +10,23 @@ import java.util.TreeMap;
 
 /**
  * Implementation of Consistent Hash for ClientIPHashing based Load balancing.
- * TODO: explanation and reference urls.
+ * <p>
+ * This implementation is done in reference with the following articles:
+ * 1) http://www.tom-e-white.com/2007/11/consistent-hashing.html
+ * 2) http://www.mikeperham.com/2009/01/14/consistent-hashing-in-memcache-client/
+ * <p>
+ * By ConsistentHashing, changes to endpoints can be made with minimal effect on hash results.
+ * (i.e) only clients that were mapped to that endpoint are to be re-shuffled, while removing
+ * an unhealthy endpoint.
+ * Also, while adding a new endpoint, very few clients with a small range are alone affected.
+ * The above mentioned articles have clear explanation and logic behind this.
+ * <p>
+ * Regarding HashFunctions, MD5 is suggested. Simple hashcode implementation is also
+ * provided.  But, MD5 has better distribution than hashcode. Custom implementation
+ * can also be done.
+ * <p>
+ * Regarding the replicas mentioned in article (1),
+ * "LoadBalancerConstants.NUM_OF_REPLICAS" has to be used.
  */
 public class ConsistentHash implements Hash {
 
@@ -93,7 +109,6 @@ public class ConsistentHash implements Hash {
     }
 
     /**
-     *
      * @param endpoints List of Endpoint names to be removed.
      */
     @Override

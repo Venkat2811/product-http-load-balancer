@@ -4,7 +4,11 @@ import java.util.List;
 
 /**
  * Implementation of Modulo Hash for ClientIPHashing based Load balancing.
- * TODO: Explanation.
+ * <p>
+ * This is the most basic method of hashing.  If the performance from this method
+ * is sufficient, one can go with this.
+ * <p>
+ * Changes to endpoints will have more effect on hash results.
  */
 public class ModuloHash implements Hash {
 

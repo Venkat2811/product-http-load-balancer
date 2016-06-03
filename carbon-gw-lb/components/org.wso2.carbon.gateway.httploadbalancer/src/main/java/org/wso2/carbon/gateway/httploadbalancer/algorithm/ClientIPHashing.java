@@ -17,7 +17,18 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * Implementation of Client IP based Hashing.
  * All Endpoints are assumed to have equal weights.
- * TODO: Explanation.
+ * <p>
+ * This algorithm identifies Client's IP address from HTTP header and applies a hashing method.
+ * So as long as the client's IP is same, same backend endpoint will be chosen.
+ * <p>
+ * This method is not quite effective because, clients behind a proxy (organization etc.,)
+ * will have same IP. Since all those requests will be directed to the same endpoint, there
+ * won't be effective load distribution.
+ * <p>
+ * To know more about hashing, kindly look at the comments in respective classes.
+ * <p>
+ * This algorithm by-itself maintains persistence. So, while choosing this algorithm,
+ * persistence should be specified as NO_PERSISTENCE.
  * TODO: Is re-entrant Lock okay..?
  */
 public class ClientIPHashing implements LoadBalancingAlgorithm {
@@ -80,7 +91,6 @@ public class ClientIPHashing implements LoadBalancingAlgorithm {
 
     /**
      * @param outboundEndpoint outboundEndpoint to be removed from existing list.
-     *
      */
     @Override
     public void removeOutboundEndpoint(OutboundEndpoint outboundEndpoint) {
