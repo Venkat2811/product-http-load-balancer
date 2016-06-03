@@ -33,9 +33,11 @@ public class LoadBalancerConfigContext {
     //TODO: Is this HashMap idea okay.?
     /**
      * Used to identify corresponding BackEnd Endpoint Key for a given cookie.
+     * <p>
      * This map will be used when request comes from Client -> LB
      * and based on cookie, BE endpoint will be chosen.
-     * Each cookie value will point to BE. Eg: EP1,EP2 etc.,
+     * Each cookie value will point to a BE endpoint. Eg: EP1,EP2 etc.,
+     * <p>
      * TODO:If there is any security concern, ObjectID or any other meaningless string
      * TODO:can be stored instead of EP1,EP2 etc.
      */
@@ -43,8 +45,10 @@ public class LoadBalancerConfigContext {
 
     /**
      * Used to identify corresponding Cookie for a given BackEnd Endpoint.
+     * <p>
      * This map will be used once response arrives from BE and
      * to use appropriate cookie for the endpoint.
+     * <p>
      * NOTE: EndpointName will be of the form <hostName:port>
      */
     private Map<String, String> endpointToCookieMap;
@@ -125,6 +129,9 @@ public class LoadBalancerConfigContext {
         this.healthycheckInterval = healthycheckInterval;
     }
 
+    /**
+     * This method MUST be called before accessing cookie related maps.
+     */
     public void initCookieMaps() {
 
         cookieToEPKeyMap = new ConcurrentHashMap<>();
@@ -180,7 +187,12 @@ public class LoadBalancerConfigContext {
         this.outboundEndpoints = outboundEndpoints;
     }
 
+    /**
+     * @param name OutboundEndpoint's name.
+     * @return Corresponding OutboundEndpoint object.
+     */
     public OutboundEndpoint getOutboundEndpoint(String name) {
+
         return this.outboundEndpoints.get(name);
     }
 }

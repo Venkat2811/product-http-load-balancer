@@ -37,7 +37,12 @@ public class LoadBalancerConstants {
      */
 
     public static final String ROUND_ROBIN = "ROUND_ROBIN";
+
     public static final String IP_HASHING = "IP_HASHING";
+
+    //This value will be used in ConsistentHash algorithm.
+    public static final int NUM_OF_REPLICAS = 1;
+
     public static final String LEAST_RESPONSE_TIME = "LEAST_RESPONSE_TIME";
 
 
@@ -103,4 +108,6 @@ public class LoadBalancerConstants {
     public static final int DEFAULT_TIMEOUT = 120000; //2 mins
 
     public static final int DEFAULT_RETRIES = 3;
+
+
 }

@@ -2,6 +2,7 @@ package org.wso2.carbon.gateway.httploadbalancer.mediator;
 
 
 //import org.apache.http.impl.cookie.BasicClientCookie;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.core.flow.Mediator;
@@ -31,6 +32,13 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
     //LoadBalancerConfigContext context.
     private LoadBalancerConfigContext context;
 
+    /**
+     * Constructor.
+     *
+     * @param parentCallback CarbonCallback.
+     * @param mediator       Mediator.
+     * @param context        LoadBalancerConfigContext.
+     */
     public LoadBalancerMediatorCallBack(CarbonCallback parentCallback,
                                         Mediator mediator, LoadBalancerConfigContext context) {
 

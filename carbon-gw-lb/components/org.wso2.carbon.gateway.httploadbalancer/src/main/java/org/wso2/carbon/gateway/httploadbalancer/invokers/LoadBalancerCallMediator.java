@@ -25,16 +25,26 @@ public class LoadBalancerCallMediator extends AbstractMediator {
 
     private LoadBalancerConfigContext context;
 
+    /**
+     * Default constructor.
+     */
     public LoadBalancerCallMediator() {
-        log.info("Inside LoadBalancerCallMediator..");
+
     }
 
+    /**
+     * @param outboundEPKey OutboundEndpoint Key.
+     */
     public LoadBalancerCallMediator(String outboundEPKey) {
 
 
         this.outboundEPKey = outboundEPKey;
     }
 
+    /**
+     * @param outboundEndpoint OutboundEndpoint.
+     * @param context          LoadBalancerConfigContext.
+     */
     public LoadBalancerCallMediator(OutboundEndpoint outboundEndpoint,
                                     LoadBalancerConfigContext context) {
 

@@ -22,6 +22,16 @@ public interface LoadBalancingAlgorithm {
     void setOutboundEndpoints(List<OutboundEndpoint> outboundEPs);
 
     /**
+     * @param outboundEndpoint outboundEndpoint to be added to the existing list.
+     */
+    void addOutboundEndpoint(OutboundEndpoint outboundEndpoint);
+
+    /**
+     * @param outboundEndpoint outboundEndpoint to be removed from existing list.
+     */
+    void removeOutboundEndpoint(OutboundEndpoint outboundEndpoint);
+
+    /**
      * @param cMsg Carbon Message has all headers required to make decision.
      * @return the next OutboundEndpoint according to implemented LB algorithm.
      */

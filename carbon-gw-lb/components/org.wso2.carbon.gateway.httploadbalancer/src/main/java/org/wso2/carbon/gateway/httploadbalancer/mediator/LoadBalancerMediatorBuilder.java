@@ -22,6 +22,16 @@ public class LoadBalancerMediatorBuilder {
 
     private static LoadBalancerMediator lbMediator;
 
+
+    /**
+     * @param gwConfigHolder GWConfigHolder.
+     * @param context        LoadBalancerConfigContex.
+     * @return LoadBalancerMediator Object.
+     * <p>
+     * This method is where LoadBalancerMediator is added to Pipeline.
+     * <p>
+     * Groups are also handled here.
+     */
     public static LoadBalancerMediator configure(GWConfigHolder gwConfigHolder, LoadBalancerConfigContext context) {
 
         lbMediator = new LoadBalancerMediator(

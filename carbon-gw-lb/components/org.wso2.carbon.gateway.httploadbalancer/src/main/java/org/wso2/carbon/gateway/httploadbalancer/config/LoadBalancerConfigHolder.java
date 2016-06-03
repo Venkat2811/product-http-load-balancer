@@ -28,6 +28,9 @@ public class LoadBalancerConfigHolder {
 
     private LoadBalancerConfigContext context;
 
+    /**
+     * Default Constructor.
+     */
     public LoadBalancerConfigHolder() {
 
         this.loadbalancerConfigs = new ParameterHolder();
@@ -51,28 +54,46 @@ public class LoadBalancerConfigHolder {
         this.integrationFlow = integrationFlow;
     }
 
+    /**
+     * @param param Parameter to be added to Config,
+     */
     public void addToConfig(Parameter param) {
         loadbalancerConfigs.addParameter(param);
         //Parameter addedParam = this.getFromConfig(param.getName());
         //log.info(addedParam.getName() + " : " + addedParam.getValue());
     }
 
+    /**
+     * @param paramName parameterName to be removed from config.
+     */
     public void removeFromConfig(String paramName) {
 
         loadbalancerConfigs.removeParameter(paramName);
     }
 
+    /**
+     * @return returns all configs.
+     */
     public ParameterHolder getAllConfigs() {
 
         return loadbalancerConfigs;
     }
 
+    /**
+     * @param paramName parameterName
+     * @return Parameter object corresponding to that name.
+     */
     public Parameter getFromConfig(String paramName) {
 
         return loadbalancerConfigs.getParameter(paramName);
     }
 
 
+    /**
+     * @param integrationFlow integrationFlow object.
+     *                        <p>
+     *                        It performs validation and also initializes LoadBalancerConfigHolder.
+     */
     public void configureLoadBalancerMediator(WUMLConfigurationBuilder.IntegrationFlow integrationFlow) {
 
 
@@ -166,34 +187,34 @@ public class LoadBalancerConfigHolder {
             log.info("Persistence : " + context.getPersistence());
 
             /** TODO: Discuss this.
-            if (loadbalancerConfigs.getParameter(LoadBalancerConstants.PERSISTENCE_SESSION_TIME_OUT) != null) {
+             if (loadbalancerConfigs.getParameter(LoadBalancerConstants.PERSISTENCE_SESSION_TIME_OUT) != null) {
 
-                String sessionTimeout = this.getFromConfig
-                        (LoadBalancerConstants.PERSISTENCE_SESSION_TIME_OUT).getValue();
+             String sessionTimeout = this.getFromConfig
+             (LoadBalancerConstants.PERSISTENCE_SESSION_TIME_OUT).getValue();
 
-                int sessTimeout = CommonUtil.getTimeInMilliSeconds(sessionTimeout);
+             int sessTimeout = CommonUtil.getTimeInMilliSeconds(sessionTimeout);
 
-                if (isWithInLimit(sessTimeout)) {
+             if (isWithInLimit(sessTimeout)) {
 
-                    context.setSessionPersistenceTimeout(sessTimeout);
-                    log.info("Persistence Timeout : " + context.getSessionPersistenceTimeout());
-                } else {
-                    //TODO: Is this okay..?
-                    context.setSessionPersistenceTimeout(LoadBalancerConstants.DEFAULT_TIMEOUT);
-                    log.error("Value greater than Max limit. Loading default value...Persistence Timeout :  " +
-                            context.getSessionPersistenceTimeout());
-                }
+             context.setSessionPersistenceTimeout(sessTimeout);
+             log.info("Persistence Timeout : " + context.getSessionPersistenceTimeout());
+             } else {
+             //TODO: Is this okay..?
+             context.setSessionPersistenceTimeout(LoadBalancerConstants.DEFAULT_TIMEOUT);
+             log.error("Value greater than Max limit. Loading default value...Persistence Timeout :  " +
+             context.getSessionPersistenceTimeout());
+             }
 
 
-            } else {
+             } else {
 
-                log.info("For LB_COOKIE session cookie time out has to be specified...");
-                //TODO: Is this okay..?
-                context.setSessionPersistenceTimeout(LoadBalancerConstants.DEFAULT_TIMEOUT);
-                log.error("For LB_COOKIE session cookie time out has to be specified.. Loading default value..." +
-                        "Persistence Timeout :  " + context.getSessionPersistenceTimeout());
+             log.info("For LB_COOKIE session cookie time out has to be specified...");
+             //TODO: Is this okay..?
+             context.setSessionPersistenceTimeout(LoadBalancerConstants.DEFAULT_TIMEOUT);
+             log.error("For LB_COOKIE session cookie time out has to be specified.. Loading default value..." +
+             "Persistence Timeout :  " + context.getSessionPersistenceTimeout());
 
-            }**/
+             }**/
             populateCookieMaps(integrationFlow.getGWConfigHolder().getOutboundEndpoints());
         }
 

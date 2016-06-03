@@ -39,6 +39,11 @@ public class LoadBalancerMediator extends AbstractMediator {
     }
 
 
+    /**
+     *
+     * @param outboundEndpoints OutboundEndpoints List.
+     * @param context LoadBalancerConfigContext.
+     */
     public LoadBalancerMediator(List<OutboundEndpoint> outboundEndpoints, LoadBalancerConfigContext context) {
 
         this.context = context;
@@ -219,13 +224,7 @@ public class LoadBalancerMediator extends AbstractMediator {
 
             }
 
-        } else if (persistenceType.equals(LoadBalancerConstants.CLIENT_IP_ADDRESS)) {
-
-            log.info("Work in progress for this type...");
-            //Fetching endpoint according to algorithm.
-            nextEndpoint = lbAlgorithm.getNextOutboundEndpoint(carbonMessage, context);
-
-        } else { //Policy is NO_PERSISTENCE
+        }  else { //Policy is NO_PERSISTENCE
 
             //Fetching endpoint according to algorithm.
             nextEndpoint = lbAlgorithm.getNextOutboundEndpoint(carbonMessage, context);

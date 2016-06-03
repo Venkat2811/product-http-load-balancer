@@ -13,7 +13,7 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * Implementation of Round Robin Algorithm.
  * All Endpoints are assumed to have equal weights.
- * TODO: Is re-entrant lock okay..?  Think about groups also.
+ * TODO: Is re-entrant lock okay..?
  */
 public class RoundRobin implements LoadBalancingAlgorithm {
 
@@ -26,13 +26,26 @@ public class RoundRobin implements LoadBalancingAlgorithm {
     private List<OutboundEndpoint> outboundEndpoints;
 
 
+    /**
+     * Default Constructor.
+     */
     public RoundRobin() {
 
     }
 
+    /**
+     * @param outboundEndpoints list of outboundEndpoints to be load balanced.
+     *                          <p>
+     *                          EndpointsCount is also initialized here.
+     */
     public RoundRobin(List<OutboundEndpoint> outboundEndpoints) {
-        this.outboundEndpoints = outboundEndpoints;
-        endPointsCount = outboundEndpoints.size();
+        lock.lock();
+        try {
+            this.outboundEndpoints = outboundEndpoints;
+            endPointsCount = outboundEndpoints.size();
+        } finally {
+            lock.unlock();
+        }
     }
 
 
@@ -42,16 +55,63 @@ public class RoundRobin implements LoadBalancingAlgorithm {
         return LoadBalancerConstants.ROUND_ROBIN;
     }
 
+    /**
+     * @param outboundEndpoints list of outboundEndpoints to be load balanced.
+     *                          <p>
+     *                          EndpointsCount is also initialized here.
+     */
     @Override
     public void setOutboundEndpoints(List<OutboundEndpoint> outboundEndpoints) {
 
-        this.outboundEndpoints = outboundEndpoints;
-        endPointsCount = outboundEndpoints.size();
+        lock.lock();
+        try {
+            this.outboundEndpoints = outboundEndpoints;
+            endPointsCount = outboundEndpoints.size();
+        } finally {
+            lock.unlock();
+        }
+
+    }
+
+
+    /**
+     * @param outboundEndpoint outboundEndpoint to be added to the existing list.
+     *                         <p>
+     *                         EndpointsCount is also updated here.
+     */
+    @Override
+    public void addOutboundEndpoint(OutboundEndpoint outboundEndpoint) {
+
+        lock.lock();
+        try {
+            outboundEndpoints.add(outboundEndpoint);
+            endPointsCount = outboundEndpoints.size();
+        } finally {
+            lock.unlock();
+        }
 
     }
 
     /**
+     * @param outboundEndpoint outboundEndpoint to be removed from existing list.
+     *                         <p>
+     *                         EndpointsCount is also updated here.
+     */
+    @Override
+    public void removeOutboundEndpoint(OutboundEndpoint outboundEndpoint) {
+
+        lock.lock();
+        try {
+            outboundEndpoints.remove(outboundEndpoint);
+            endPointsCount = outboundEndpoints.size();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    /**
      * For getting next OutboundEndpoinnt.
+     * This method is called after locking, so don't worry.
      */
     private void incrementIndex() {
 
@@ -95,6 +155,11 @@ public class RoundRobin implements LoadBalancingAlgorithm {
     @Override
     public void reset() {
 
-        index = 0;
+        lock.lock();
+        try {
+            index = 0;
+        } finally {
+            lock.unlock();
+        }
     }
 }
