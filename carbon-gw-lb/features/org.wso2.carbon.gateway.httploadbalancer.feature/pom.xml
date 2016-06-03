@@ -31,16 +31,16 @@
               <artifactId>javax.servlet-api</artifactId>
               <version>${javax.servlet.version}</version>
           </dependency> -->
-         <dependency>
-             <groupId>org.apache.httpcomponents</groupId>
-             <artifactId>httpcore-osgi</artifactId>
-             <version>${org.apache.httpcomponents.httpcore.version}</version>
-         </dependency>
-         <dependency>
-             <groupId>org.apache.httpcomponents</groupId>
-             <artifactId>httpclient-osgi</artifactId>
-             <version>${org.apache.httpcomponents.httpclient.version}</version>
-         </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore-osgi</artifactId>
+            <version>${org.apache.httpcomponents.httpcore.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient-osgi</artifactId>
+            <version>${org.apache.httpcomponents.httpclient.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
@@ -128,6 +128,10 @@
                                     <version>${carbon.gw.version}</version>
                                 </bundle>
                                 <bundle>
+                                    <symbolicName>org.wso2.carbon.messaging</symbolicName>
+                                    <version>${carbon.messaging.version}</version>
+                                </bundle>
+                                <bundle>
                                     <symbolicName>org.wso2.carbon.gateway.httploadbalancer</symbolicName>
                                     <version>${carbon.gw.lb.version}</version>
                                 </bundle>
@@ -143,14 +147,14 @@
                                       <symbolicName>javax.servlet-api</symbolicName>
                                       <version>${javax.servlet.version}</version>
                                   </bundle> -->
-                                  <bundle>
-                                       <symbolicName>org.apache.httpcomponents.httpcore</symbolicName>
-                                       <version>${org.apache.httpcomponents.httpcore.version}</version>
-                                   </bundle>
-                                   <bundle>
-                                       <symbolicName>org.apache.httpcomponents.httpclient</symbolicName>
-                                       <version>${org.apache.httpcomponents.httpclient.version}</version>
-                                   </bundle>
+                                <bundle>
+                                    <symbolicName>org.apache.httpcomponents.httpcore</symbolicName>
+                                    <version>${org.apache.httpcomponents.httpcore.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.apache.httpcomponents.httpclient</symbolicName>
+                                    <version>${org.apache.httpcomponents.httpclient.version}</version>
+                                </bundle>
                             </bundles>
                         </configuration>
                     </execution>

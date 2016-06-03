@@ -115,8 +115,8 @@
             org.wso2.carbon.gateway.inbounds.http,
             org.wso2.carbon.gateway.outbounds.http,
             org.wso2.carbon.gateway.outbounds.http.builder,
-            org.wso2.carbon.gateway.core.*,
-            org.wso2.carbon.messaging.*,
+            org.wso2.carbon.gateway.core.*;version="${carbon.gw.package.export.version}",
+            org.wso2.carbon.messaging.*;version="${carbon.messaging.package.import.version.range}",
             org.slf4j.*,
            <!-- javax.servlet.*;version="${javax.servlet.version}" -->
             org.apache.*;version=${org.apache.httpcomponents.httpclient.version}

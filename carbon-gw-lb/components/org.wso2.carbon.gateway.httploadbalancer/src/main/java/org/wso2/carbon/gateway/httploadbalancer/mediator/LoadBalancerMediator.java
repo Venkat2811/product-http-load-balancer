@@ -64,7 +64,7 @@ public class LoadBalancerMediator extends AbstractMediator {
     @Override
     public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback) throws Exception {
 
-        /**
+
          log.info("\n\n" + logMessage);
          log.info("Inside LB mediator...");
          Map<String, String> transHeaders = carbonMessage.getHeaders();
@@ -74,7 +74,7 @@ public class LoadBalancerMediator extends AbstractMediator {
          Map<String, Object> prop = carbonMessage.getProperties();
          log.info("Properties...");
          log.info(prop.toString() + "\n\n");
-         **/
+
 
         //log.info(" LB Mediator Cookie Header : " + carbonMessage.getHeader(LoadBalancerConstants.COOKIE_HEADER));
 

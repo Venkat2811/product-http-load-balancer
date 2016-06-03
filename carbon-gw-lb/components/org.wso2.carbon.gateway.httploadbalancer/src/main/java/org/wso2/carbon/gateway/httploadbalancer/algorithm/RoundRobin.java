@@ -49,6 +49,9 @@ public class RoundRobin implements LoadBalancingAlgorithm {
     }
 
 
+    /**
+     * @return Algorithm name.
+     */
     @Override
     public String getName() {
 
@@ -152,6 +155,9 @@ public class RoundRobin implements LoadBalancingAlgorithm {
         return endPoint;
     }
 
+    /**
+     * Resets the index.
+     */
     @Override
     public void reset() {
 

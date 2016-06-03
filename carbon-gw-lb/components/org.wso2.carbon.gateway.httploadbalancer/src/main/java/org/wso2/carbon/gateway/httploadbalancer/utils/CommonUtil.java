@@ -27,6 +27,20 @@ public class CommonUtil {
     }
 
     /**
+     * @param outboundEndpoints List of OutboundEndpoits map.
+     * @return List of OutboundEndpoint names.
+     */
+    public static List<String> getOutboundEndpointNamesList(List<OutboundEndpoint> outboundEndpoints) {
+
+        ArrayList<String> names = new ArrayList<String>();
+
+        for (OutboundEndpoint outboundEndpoint : outboundEndpoints) {
+            names.add(outboundEndpoint.getName());
+        }
+        return names;
+    }
+
+    /**
      * @param retries a string of form '<integer>times'.
      * @return <integer>.
      */
