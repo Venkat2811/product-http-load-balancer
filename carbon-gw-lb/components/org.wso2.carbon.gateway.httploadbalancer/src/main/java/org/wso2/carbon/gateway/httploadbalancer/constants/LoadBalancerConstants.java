@@ -67,8 +67,11 @@ public class LoadBalancerConstants {
     //This will be used as cookie name.
     public static final String LB_COOKIE_NAME = "LB_COOKIE";
 
-    //This will be used to write cookie in response header.
-    public static final String SET_COOKIE_HEADER = "Set-Cookie";
+
+    //These will be used to write cookie in response header.
+    public static final String SET_COOKIE_HEADER = "Set-Cookie"; //RFC 2109.
+    public static final String SET_COOKIE2_HEADER = "Set-Cookie2"; //RFC 2965.
+
 
     //This will be used to read cookie if any from request header.
     public static final String COOKIE_HEADER = "Cookie";

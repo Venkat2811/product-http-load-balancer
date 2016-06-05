@@ -88,10 +88,17 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
 
                 /**Checking if there is any cookie already available in response from BE. **/
 
-                if (carbonMessage.getHeader(LoadBalancerConstants.SET_COOKIE_HEADER) != null) { //Cookie exists.
+                if (carbonMessage.getHeader(LoadBalancerConstants.SET_COOKIE_HEADER) != null ||
+                        carbonMessage.getHeader(LoadBalancerConstants.SET_COOKIE2_HEADER) != null) {
+                    //Cookie exists.
 
                     //Appending LB_COOKIE along with existing cookie.
-                    carbonMessage.setHeader(LoadBalancerConstants.SET_COOKIE_HEADER,
+                    carbonMessage.setHeader(
+                            (//Appending to appropriate header that is present.
+                                    carbonMessage.getHeader(LoadBalancerConstants.SET_COOKIE_HEADER) != null ?
+                                            LoadBalancerConstants.SET_COOKIE_HEADER :
+                                            LoadBalancerConstants.SET_COOKIE2_HEADER
+                            ),
                             CommonUtil.addLBCookieToExistingCookie(
                                     carbonMessage.getHeader(LoadBalancerConstants.SET_COOKIE_HEADER),
                                     CommonUtil.getCookieValue(carbonMessage, context)));
@@ -99,9 +106,10 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
                 } else { //There is no cookie in response from BE.
 
                     //Adding LB specific cookie.
-                    log.error("BE endpoint doesn't has it's own cookie. LB will insert it's own cookie for" +
+                    log.error("BE endpoint doesn't has it's own cookie. LB will insert it's own cookie for " +
                             "the sake of maintaining persistence. ");
 
+                    //Here we are not looking for Set-Cookie2 header coz, it is only for LB purpose.
                     carbonMessage.setHeader(LoadBalancerConstants.SET_COOKIE_HEADER,
                             CommonUtil.getSessionCookie(CommonUtil.
                                     getCookieValue(carbonMessage, context), false));
@@ -131,7 +139,9 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
                  ///////////////////////////////////////////////////////////////////////////////////////
                  **/
 
-                if (carbonMessage.getHeader(LoadBalancerConstants.SET_COOKIE_HEADER) != null) { //Cookie exists.
+                if (carbonMessage.getHeader(LoadBalancerConstants.SET_COOKIE_HEADER) != null ||
+                        carbonMessage.getHeader(LoadBalancerConstants.SET_COOKIE2_HEADER) != null) {
+                    //Cookie exists.
 
                     log.error("BE endpoint has it's own cookie, LB will DISCARD this. If" +
                             "you want your application cookie to be used, please choose " +
@@ -145,7 +155,7 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
 
                 parentCallback.done(carbonMessage);
 
-            } else { //for NO_PERSISTENCE and IP BASED as of now.
+            } else { //for NO_PERSISTENCE type.
 
                 parentCallback.done(carbonMessage);
             }

@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.core.flow.AbstractMediator;
 import org.wso2.carbon.gateway.core.outbound.OutboundEndpoint;
+import org.wso2.carbon.gateway.httploadbalancer.algorithm.ClientIPHashing;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancingAlgorithm;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.RoundRobin;
@@ -52,6 +53,9 @@ public class LoadBalancerMediator extends AbstractMediator {
         if (context.getAlgorithm().equals(LoadBalancerConstants.ROUND_ROBIN)) {
 
             lbAlgorithm = new RoundRobin(outboundEndpoints);
+        } else if (context.getAlgorithm().equals(LoadBalancerConstants.IP_HASHING)) {
+
+            lbAlgorithm = new ClientIPHashing(outboundEndpoints);
         }
 
         // Creating LoadBalancerCallMediators for OutboundEndpoints...

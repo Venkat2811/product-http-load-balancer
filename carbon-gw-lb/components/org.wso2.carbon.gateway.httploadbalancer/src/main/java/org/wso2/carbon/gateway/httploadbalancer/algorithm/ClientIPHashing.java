@@ -40,6 +40,28 @@ public class ClientIPHashing implements LoadBalancingAlgorithm {
     private Hash hash;
 
     /**
+     * Default Constructor.
+     */
+    public ClientIPHashing() {
+
+    }
+
+    /**
+     * Constructor.
+     * @param outboundEndpoints List of OutboundEndpoints.
+     */
+    public ClientIPHashing(List<OutboundEndpoint> outboundEndpoints) {
+
+        lock.lock();
+        try {
+
+            this.outboundEndpoints = outboundEndpoints;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    /**
      * @return Algorithm name.
      */
     @Override
