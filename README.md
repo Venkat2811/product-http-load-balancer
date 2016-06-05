@@ -70,7 +70,7 @@ Traffic between `Client -> LB -> Back-End` & `Back-End -> LB -> Client` are un-e
 
 ###### SSL Offload
  - Traffic from `Client -> LB` & `LB -> Client` are encrypted.
- - Traffic from `LB -> Back-End` & `Back-End -> Lb` are un-encrypted.
+ - Traffic from `LB -> Back-End` & `Back-End -> LB` are un-encrypted.
 
 ![alt tag] (docs/SSL Offload.PNG)
 
