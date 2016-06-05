@@ -60,5 +60,19 @@ High Level Architecture
 ![alt tag] (docs/High Level Architecture.PNG)
 
 
+Traffic Flows
+-------------
+
+![alt tag] (docs/Simple HTTP.PNG)
+
+![alt tag] (docs/SSL Offload.PNG)
+
+![alt tag] (docs/SSL ReEncrypt.PNG)
+
+
+
+
+
+
 
 
