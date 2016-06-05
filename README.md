@@ -54,4 +54,11 @@ More Samples
 You can find more samples in `/product/carbon-home/samples/`.
 
 
+High Level Architecture
+-----------------------
+
+![alt tag] (docs/High Level Architecture.PNG)
+
+
+
 
