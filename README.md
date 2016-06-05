@@ -63,19 +63,19 @@ High Level Architecture
 Traffic Flows
 -------------
 
-###### Simple HTTP
-Traffic between `Client -> LB -> Back-End` & `Back-End -> LB -> Client` are un-encrypted.
+##### Simple HTTP
+Traffic between `Client -> LB -> Back-End` and `Back-End -> LB -> Client` are un-encrypted.
 
 ![alt tag] (docs/Simple HTTP.PNG)
 
-###### SSL Offload
- - Traffic from `Client -> LB` & `LB -> Client` are encrypted.
- - Traffic from `LB -> Back-End` & `Back-End -> LB` are un-encrypted.
+##### SSL Offload
+ - Traffic from `Client -> LB` and `LB -> Client` are encrypted.
+ - Traffic from `LB -> Back-End` and `Back-End -> LB` are un-encrypted.
 
 ![alt tag] (docs/SSL Offload.PNG)
 
-###### SSL Re-Encryption
-Traffic between `Client -> LB -> Back-End` & `Back-End -> LB -> Client` are encrypted.
+##### SSL Re-Encryption
+Traffic between `Client -> LB -> Back-End` and `Back-End -> LB -> Client` are encrypted.
 
 
 ![alt tag] (docs/SSL ReEncrypt.PNG)
