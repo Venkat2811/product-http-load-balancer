@@ -5,7 +5,7 @@ import java.util.List;
 
 /**
  * Interface for IPHashing.
- * All types of hashing must implement this interface.
+ * All types of hashing methods must implement this interface.
  */
 public interface Hash {
 

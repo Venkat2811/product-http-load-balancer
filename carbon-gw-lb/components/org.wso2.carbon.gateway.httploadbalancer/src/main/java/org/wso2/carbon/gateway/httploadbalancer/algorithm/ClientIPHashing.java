@@ -16,6 +16,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Implementation of Client IP based Hashing.
+ * <p>
  * All Endpoints are assumed to have equal weights.
  * <p>
  * This algorithm identifies Client's IP address from HTTP header and applies a hashing method.

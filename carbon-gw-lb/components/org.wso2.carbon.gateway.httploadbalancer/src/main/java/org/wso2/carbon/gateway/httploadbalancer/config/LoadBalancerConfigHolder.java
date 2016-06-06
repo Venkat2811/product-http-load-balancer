@@ -16,6 +16,7 @@ import java.util.Set;
 
 /**
  * A Class responsible for loading LB config from WUMLBaseListenerImpl.java to LoadBalancerConfigContext.
+ * <p>
  * All validations and conversions are done here.
  */
 public class LoadBalancerConfigHolder {

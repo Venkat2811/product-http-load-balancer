@@ -10,6 +10,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Holds LB Configuration context.
+ * <p>
+ * Context object will be passed to mediators so that they can use config whenever necessary.
  */
 public class LoadBalancerConfigContext {
 
@@ -38,7 +40,7 @@ public class LoadBalancerConfigContext {
      * and based on cookie, BE endpoint will be chosen.
      * Each cookie value will point to a BE endpoint. Eg: EP1,EP2 etc.,
      * <p>
-     * TODO:If there is any security concern, ObjectID or any other meaningless string
+     * TODO:If there is any security concern, any other meaningless string
      * TODO:can be stored instead of EP1,EP2 etc.
      */
     private Map<String, String> cookieToEPKeyMap;

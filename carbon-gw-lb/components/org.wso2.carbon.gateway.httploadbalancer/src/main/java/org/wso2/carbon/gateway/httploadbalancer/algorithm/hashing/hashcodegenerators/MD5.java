@@ -9,6 +9,8 @@ import java.security.NoSuchAlgorithmException;
 
 /**
  * Implementation of MD5.
+ * <p>
+ * HashCode generated using this provides good for effective load distribution.
  */
 public class MD5 implements HashFunction {
 

@@ -12,7 +12,9 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Implementation of Round Robin Algorithm.
+ * <p>
  * All Endpoints are assumed to have equal weights.
+ * <p>
  * TODO: Is re-entrant lock okay..?
  */
 public class RoundRobin implements LoadBalancingAlgorithm {
