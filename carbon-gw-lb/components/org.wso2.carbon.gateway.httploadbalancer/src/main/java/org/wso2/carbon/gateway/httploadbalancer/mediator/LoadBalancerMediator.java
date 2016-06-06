@@ -41,9 +41,8 @@ public class LoadBalancerMediator extends AbstractMediator {
 
 
     /**
-     *
      * @param outboundEndpoints OutboundEndpoints List.
-     * @param context LoadBalancerConfigContext.
+     * @param context           LoadBalancerConfigContext.
      */
     public LoadBalancerMediator(List<OutboundEndpoint> outboundEndpoints, LoadBalancerConfigContext context) {
 
@@ -69,15 +68,15 @@ public class LoadBalancerMediator extends AbstractMediator {
     public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback) throws Exception {
 
 
-         log.info("\n\n" + logMessage);
-         log.info("Inside LB mediator...");
-         Map<String, String> transHeaders = carbonMessage.getHeaders();
-         log.info("Transport Headers...");
-         log.info(transHeaders.toString() + "\n\n");
+        log.info("\n\n" + logMessage);
+        log.info("Inside LB mediator...");
+        Map<String, String> transHeaders = carbonMessage.getHeaders();
+        log.info("Transport Headers...");
+        log.info(transHeaders.toString() + "\n\n");
 
-         Map<String, Object> prop = carbonMessage.getProperties();
-         log.info("Properties...");
-         log.info(prop.toString() + "\n\n");
+        Map<String, Object> prop = carbonMessage.getProperties();
+        log.info("Properties...");
+        log.info(prop.toString() + "\n\n");
 
 
         //log.info(" LB Mediator Cookie Header : " + carbonMessage.getHeader(LoadBalancerConstants.COOKIE_HEADER));
@@ -228,19 +227,26 @@ public class LoadBalancerMediator extends AbstractMediator {
 
             }
 
-        }  else { //Policy is NO_PERSISTENCE
+        } else { //Policy is NO_PERSISTENCE
 
             //Fetching endpoint according to algorithm.
             nextEndpoint = lbAlgorithm.getNextOutboundEndpoint(carbonMessage, context);
         }
 
-        log.info("Chosen endpoint by LB is.." + nextEndpoint.getName());
+        if (nextEndpoint != null) {
+            log.info("Chosen endpoint by LB is.." + nextEndpoint.getName());
 
-        // Calling chosen OutboundEndpoint's LoadBalancerCallMediator's receive...
-        lbMediatorMap.get(nextEndpoint.getName()).
-                receive(carbonMessage, new LoadBalancerMediatorCallBack(carbonCallback, this, context));
+            // Calling chosen OutboundEndpoint's LoadBalancerCallMediator's receive...
+            lbMediatorMap.get(nextEndpoint.getName()).
+                    receive(carbonMessage, new LoadBalancerMediatorCallBack(carbonCallback, this, context));
+            return true;
+        } else {
+
+            log.error("Unable to choose endpoint for forwarding the request.  " +
+                    "Check logs to see what went wrong.");
+            return false;
+        }
 
 
-        return true;
     }
 }

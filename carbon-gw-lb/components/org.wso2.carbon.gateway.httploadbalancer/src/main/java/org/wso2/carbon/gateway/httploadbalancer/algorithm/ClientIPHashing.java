@@ -141,7 +141,6 @@ public class ClientIPHashing implements LoadBalancingAlgorithm {
      * @param cMsg    Carbon Message has all headers required to make decision.
      * @param context LoadBalancerConfigContext.
      * @return OutboundEndpoint Object.
-     * TODO: Identify Client IP from cMsg header .
      */
     @Override
     public OutboundEndpoint getNextOutboundEndpoint(CarbonMessage cMsg, LoadBalancerConfigContext context) {
@@ -153,13 +152,15 @@ public class ClientIPHashing implements LoadBalancingAlgorithm {
             if (outboundEndpoints != null && outboundEndpoints.size() > 0) {
 
                 String ipAddress = CommonUtil.getClientIP(cMsg);
+                log.info("IP address retrieved is : " + ipAddress);
                 if (CommonUtil.isValidIP(ipAddress)) {
 
                     endPoint = context.getOutboundEndpoint(hash.get(ipAddress));
 
                 } else {
 
-                    log.error("No Valid Client IP address could be found..");
+                    log.error("The IP Address retrieved is : " + ipAddress +
+                            " which is invalid according to our validation.");
                     //TODO: throw appropriate exceptions also.
 
                 }

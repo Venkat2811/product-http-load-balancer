@@ -133,9 +133,12 @@ public class CommonUtil {
     /**
      * @param cookieValue eg: EP1,EP2 etc.,
      * @return LB specific cookie.
+     * <p>
      * NOTE: This will be used when there is no cookie from BE.
+     * <p>
      * No timeout is specified. So, there will be persistence until browser is closed.
      * So this is a Session Cookie.
+     * <p>
      * //TODO: should we add path.?
      */
     public static String getSessionCookie(String cookieValue, boolean isSecure) {
@@ -154,7 +157,8 @@ public class CommonUtil {
      * @param existingCookie existing cookie from BE.
      * @param lbCookieValue  eg: EP1,EP2 etc.,
      * @return BE cookie value appended with LB specific cookie.
-     * The nature of this cookie (HttpOnly, Age) is purely dependant on BE application server.
+     * <p>
+     * The nature of this cookie (like HttpOnly, Age) is purely dependant on BE application server.
      * LB uses those properties on AS IS basis.
      */
 
@@ -200,13 +204,38 @@ public class CommonUtil {
     }
 
     /**
-     *
      * @param cMsg Client's request.
      * @return Client's IPAddress.
-     *
-     * TODO: to be implemented.
+     * <p>
+     * It looks for the following HTTP request headers.
+     * 1) X-Forwarded-For
+     * 2) Client-IP
+     * 3) Remote-Addr
      */
     public static String getClientIP(CarbonMessage cMsg) {
+
+        //If client is behind proxy, this gives the best Client IP.
+        if (cMsg.getHeader(LoadBalancerConstants.X_FORWARDED_FOR_HEADER) != null) {
+
+            String ipList = cMsg.getHeader(LoadBalancerConstants.X_FORWARDED_FOR_HEADER);
+            //The first IP in the list belongs to client.
+            // eg: 192.168.72.3, 10.2.53.8, ..
+            if (ipList.contains(",")) {
+
+                return ipList.split(",", 2)[0].trim();
+            } else {
+                //There is only one IP
+                return ipList;
+            }
+
+        } else if (cMsg.getHeader(LoadBalancerConstants.CLIENT_IP_HEADER) != null) {
+
+            return cMsg.getHeader(LoadBalancerConstants.CLIENT_IP_HEADER);
+
+        } else if (cMsg.getHeader(LoadBalancerConstants.REMOTE_ADDR_HEADER) != null) {
+
+            return cMsg.getHeader(LoadBalancerConstants.REMOTE_ADDR_HEADER);
+        }
 
         return null;
     }
@@ -216,10 +245,17 @@ public class CommonUtil {
      * @return IPAddress is valid or not.
      * <p>
      * It checks for both IPv4 and IPv6 addresses.
+     * <p>
+     * This validation is not costly doesn't makes any look up or connection.
+     * It is RegEx and String Validation. So don't worry.
      */
     public static boolean isValidIP(String ipAddress) {
 
-        return InetAddressValidator.getInstance().isValid(ipAddress);
+        if (ipAddress != null) {
+            return InetAddressValidator.getInstance().isValid(ipAddress);
+        } else {
+            return false;
+        }
 
     }
 }

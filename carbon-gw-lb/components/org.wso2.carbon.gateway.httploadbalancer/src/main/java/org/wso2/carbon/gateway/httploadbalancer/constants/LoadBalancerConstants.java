@@ -40,6 +40,11 @@ public class LoadBalancerConstants {
 
     public static final String IP_HASHING = "IP_HASHING";
 
+    //Common HTTP Request Headers related to Client IP address.
+    public static final String X_FORWARDED_FOR_HEADER = "X-Forwarded-For";
+    public static final String CLIENT_IP_HEADER = "Client-IP";
+    public static final String REMOTE_ADDR_HEADER = "Remote-Addr";
+
     //This value will be used in ConsistentHash algorithm.
     public static final int NUM_OF_REPLICAS = 1;
 
@@ -60,8 +65,7 @@ public class LoadBalancerConstants {
 
 
     //This will be used in cookie to OutboundEndpoint maps.
-    // TODO:If there is any security concern, ObjectID or any other meaningless
-    // TODO:string can be stored instead of EP1,EP2 etc.
+    // TODO:If there is any security concern.?
     public static final String COOKIE_PREFIX = "EP";
 
     //This will be used as cookie name.
