@@ -70,6 +70,16 @@
             <artifactId>httpclient-osgi</artifactId>
             <version>${org.apache.httpcomponents.httpclient.version}</version>
         </dependency>
+       <!-- <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.commons-validator</artifactId>
+            <version>${org.apache.servicemix.bundles.commons-validator.version}</version>
+        </dependency> -->
+        <dependency>
+            <groupId>commons-validator</groupId>
+            <artifactId>commons-validator</artifactId>
+            <version>${commons.validator.version}</version>
+        </dependency>
 
     </dependencies>
 
@@ -119,7 +129,10 @@
             org.wso2.carbon.messaging.*;version="${carbon.messaging.package.import.version.range}",
             org.slf4j.*,
            <!-- javax.servlet.*;version="${javax.servlet.version}" -->
-            org.apache.*;version=${org.apache.httpcomponents.httpclient.version}
+            org.apache.httpcomponents.httpclient.*;version="${org.apache.httpcomponents.httpclient.version}",
+            org.apache.commons.validator.*;version="${commons.validator.version}";
+           <!-- org.apache.servicemix.bundles.commons.*;version="${org.apache.servicemix.bundles.commons-validator.version}" -->
+
         </import.package>
         <!--  <Require-Bundle>
               org.wso2.carbon.gateway.core.*;

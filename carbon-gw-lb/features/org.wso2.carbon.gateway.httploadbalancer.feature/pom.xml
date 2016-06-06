@@ -41,6 +41,39 @@
             <artifactId>httpclient-osgi</artifactId>
             <version>${org.apache.httpcomponents.httpclient.version}</version>
         </dependency>
+       <!-- <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.commons-validator</artifactId>
+            <version>${org.apache.servicemix.bundles.commons-validator.version}</version>
+        </dependency> -->
+        <dependency>
+            <groupId>commons-validator</groupId>
+            <artifactId>commons-validator</artifactId>
+            <version>${commons.validator.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <version>${commons.beanutils.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <version>${commons.collections.version}</version>
+        </dependency>
+        <!-- http://mvnrepository.com/artifact/commons-digester/commons-digester -->
+        <dependency>
+            <groupId>commons-digester</groupId>
+            <artifactId>commons-digester</artifactId>
+            <version>${commons.digester.version}</version>
+        </dependency>
+
+        <!-- http://mvnrepository.com/artifact/commons-logging/commons-logging -->
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>${commons.logging.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
@@ -154,6 +187,32 @@
                                 <bundle>
                                     <symbolicName>org.apache.httpcomponents.httpclient</symbolicName>
                                     <version>${org.apache.httpcomponents.httpclient.version}</version>
+                                </bundle>
+                               <!-- <bundle>
+                                    <symbolicName>commons.validator</symbolicName>
+                                    <version>${org.apache.servicemix.bundles.commons-validator.version}</version>
+                                </bundle> -->
+                                <bundle>
+                                    <symbolicName>org.apache.commons.validator</symbolicName>
+                                    <version>${commons.validator.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.apache.commons.beanutils</symbolicName>
+                                    <version>${commons.beanutils.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.apache.commons.collections</symbolicName>
+                                    <version>${commons.collections.version}</version>
+                                </bundle>
+                                <!-- http://mvnrepository.com/artifact/commons-digester/commons-digester -->
+                                <bundle>
+                                    <symbolicName>org.apache.commons.digester</symbolicName>
+                                    <version>${commons.digester.version}</version>
+                                </bundle>
+                                <!-- http://mvnrepository.com/artifact/commons-logging/commons-logging -->
+                                <bundle>
+                                    <symbolicName>org.apache.commons.logging</symbolicName>
+                                    <version>${commons.logging.version}</version>
                                 </bundle>
                             </bundles>
                         </configuration>

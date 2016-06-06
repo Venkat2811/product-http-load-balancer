@@ -32,9 +32,11 @@ public interface LoadBalancingAlgorithm {
     void removeOutboundEndpoint(OutboundEndpoint outboundEndpoint);
 
     /**
-     * @param cMsg Carbon Message has all headers required to make decision.
+     * @param cMsg    Carbon Message has all headers required to make decision.
+     * @param context LoadBalancerConfigContext.
      * @return the next OutboundEndpoint according to implemented LB algorithm.
      */
+
     OutboundEndpoint getNextOutboundEndpoint(CarbonMessage cMsg, LoadBalancerConfigContext context);
 
     /**

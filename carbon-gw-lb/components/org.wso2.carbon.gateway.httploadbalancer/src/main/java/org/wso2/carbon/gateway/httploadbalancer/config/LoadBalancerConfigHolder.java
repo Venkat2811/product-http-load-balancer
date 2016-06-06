@@ -160,8 +160,13 @@ public class LoadBalancerConfigHolder {
             context.setAlgorithm(this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue());
             log.info("Algorithm : " + context.getAlgorithm());
 
+        } else if (this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue().
+                equals(LoadBalancerConstants.IP_HASHING)) {
+
+            context.setAlgorithm(this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue());
+            log.info("Algorithm : " + context.getAlgorithm());
         } else {
-            log.info("Currently this algorithm type is not supported...");
+            log.error("Currently this algorithm type is not supported...");
         }
 
         /**Session persistence related validations.*/

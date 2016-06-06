@@ -123,10 +123,12 @@ public class RoundRobin implements LoadBalancingAlgorithm {
     }
 
     /**
-     * @param cMsg Carbon Message has all headers required to make decision.
-     * @return chosen Outboundendpoint
+     * @param cMsg    Carbon Message has all headers required to make decision.
+     * @param context LoadBalancerConfigContext.
+     * @return chosen OutboundEndpoint
      * <p>
-     * TODO: Support persistence also. Before choosing an endpoint check whether it is healthy or not.
+     * <p>
+     * TODO: Before choosing an endpoint check whether it is healthy or not.
      */
 
     @Override

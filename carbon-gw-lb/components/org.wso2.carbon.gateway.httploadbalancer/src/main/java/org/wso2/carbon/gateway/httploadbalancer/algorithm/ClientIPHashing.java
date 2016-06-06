@@ -48,6 +48,7 @@ public class ClientIPHashing implements LoadBalancingAlgorithm {
 
     /**
      * Constructor.
+     *
      * @param outboundEndpoints List of OutboundEndpoints.
      */
     public ClientIPHashing(List<OutboundEndpoint> outboundEndpoints) {
@@ -56,6 +57,16 @@ public class ClientIPHashing implements LoadBalancingAlgorithm {
         try {
 
             this.outboundEndpoints = outboundEndpoints;
+            /**
+             * Two points are to be noted here.
+             *
+             * 1) You can also implement your own hashing mechanism. Eg: ModuloHash.
+             *
+             * 2) ConsistentHash needs a HashFunction.  We are using MD5 here. Another example is BasicHash.
+             *    You can also implement your own HashFunction.
+             */
+            this.hash = new ConsistentHash(new MD5(),
+                    CommonUtil.getOutboundEndpointNamesList(this.outboundEndpoints));
         } finally {
             lock.unlock();
         }
@@ -96,7 +107,6 @@ public class ClientIPHashing implements LoadBalancingAlgorithm {
 
     /**
      * @param outboundEndpoint outboundEndpoint to be added to the existing list.
-     *                         TODO: logic.
      */
     @Override
     public void addOutboundEndpoint(OutboundEndpoint outboundEndpoint) {
@@ -142,11 +152,17 @@ public class ClientIPHashing implements LoadBalancingAlgorithm {
         try {
             if (outboundEndpoints != null && outboundEndpoints.size() > 0) {
 
-                /** endPoint = context.getOutboundEndpoint(
-                 hash.get()
-                 );
-                 **/
-                log.info("Work in progress.");
+                String ipAddress = CommonUtil.getClientIP(cMsg);
+                if (CommonUtil.isValidIP(ipAddress)) {
+
+                    endPoint = context.getOutboundEndpoint(hash.get(ipAddress));
+
+                } else {
+
+                    log.error("No Valid Client IP address could be found..");
+                    //TODO: throw appropriate exceptions also.
+
+                }
 
             } else {
 

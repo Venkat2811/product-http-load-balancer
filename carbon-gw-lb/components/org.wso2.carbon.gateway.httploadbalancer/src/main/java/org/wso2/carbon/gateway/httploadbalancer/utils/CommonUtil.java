@@ -1,5 +1,7 @@
 package org.wso2.carbon.gateway.httploadbalancer.utils;
 
+
+import org.apache.commons.validator.routines.InetAddressValidator;
 import org.wso2.carbon.gateway.core.outbound.OutboundEndpoint;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
@@ -194,6 +196,30 @@ public class CommonUtil {
 
             return cookie.toString();
         }
+
+    }
+
+    /**
+     *
+     * @param cMsg Client's request.
+     * @return Client's IPAddress.
+     *
+     * TODO: to be implemented.
+     */
+    public static String getClientIP(CarbonMessage cMsg) {
+
+        return null;
+    }
+
+    /**
+     * @param ipAddress IPAddress retrieved from Client's request.
+     * @return IPAddress is valid or not.
+     * <p>
+     * It checks for both IPv4 and IPv6 addresses.
+     */
+    public static boolean isValidIP(String ipAddress) {
+
+        return InetAddressValidator.getInstance().isValid(ipAddress);
 
     }
 }
