@@ -168,6 +168,7 @@ public class LoadBalancerConfigHolder {
             log.info("Algorithm : " + context.getAlgorithm());
         } else {
             log.error("Currently this algorithm type is not supported...");
+            return;
         }
 
         /**Session persistence related validations.*/
