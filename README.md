@@ -4,6 +4,12 @@ This is a Google Summer of Code (GSoC 2016) Project.  It is under development.
  `Abstract:` http://summerofcode.withgoogle.com/projects/#6175096838291456
 
  `Proposal:` http://docs.google.com/document/d/1Agl-Y_UKM5eMon8IDZa02aDGj0Yh_vZ7kFC2b1IzFI4/edit?usp=sharing
+ 
+High Level Architecture
+-----------------------
+
+![alt tag] (docs/High Level Architecture.PNG)
+
 
 Building Product
 ----------------
@@ -52,12 +58,6 @@ More Samples
 ------------
 
 You can find more samples in `/product/carbon-home/samples/`.
-
-
-High Level Architecture
------------------------
-
-![alt tag] (docs/High Level Architecture.PNG)
 
 
 Traffic Flows
