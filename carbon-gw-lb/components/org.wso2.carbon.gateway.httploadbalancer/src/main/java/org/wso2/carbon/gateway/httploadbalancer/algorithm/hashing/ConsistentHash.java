@@ -35,7 +35,7 @@ public class ConsistentHash implements Hash {
 
 
     /**
-     * @param endpoints List of OutboundEndpoints.
+     * @param endpoints List of OutboundEndpoint names.
      *                  <p>
      *                  MD5 hash function will be used.
      *                  <p>
@@ -113,6 +113,7 @@ public class ConsistentHash implements Hash {
      */
     @Override
     public void removeAllEndpoints(List<String> endpoints) {
+
         endpoints.forEach(this::removeEndpoint);
     }
 

@@ -1,8 +1,6 @@
 package org.wso2.carbon.gateway.httploadbalancer.mediator;
 
 
-//import org.apache.http.impl.cookie.BasicClientCookie;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.core.flow.Mediator;
@@ -11,8 +9,9 @@ import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 import org.wso2.carbon.gateway.httploadbalancer.utils.CommonUtil;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.Constants;
 
-//import java.util.Date;
+
 
 
 /**
@@ -24,13 +23,13 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
     private static final Logger log = LoggerFactory.getLogger(LoadBalancerMediatorCallBack.class);
 
     //Incoming callback.
-    private CarbonCallback parentCallback;
+    private final CarbonCallback parentCallback;
 
     //LoadBalancer Mediator.
-    private Mediator mediator;
+    private final Mediator mediator;
 
     //LoadBalancerConfigContext context.
-    private LoadBalancerConfigContext context;
+    private final LoadBalancerConfigContext context;
 
     /**
      * Constructor.
@@ -48,21 +47,39 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
 
     }
 
+
     @Override
     public void done(CarbonMessage carbonMessage) {
 
-        /**
-         log.info("Inside LB mediator call back...");
-         Map<String, String> transHeaders = carbonMessage.getHeaders();
-         log.info("Transport Headers...");
-         log.info(transHeaders.toString() + "\n\n");
 
-         Map<String, Object> prop = carbonMessage.getProperties();
-         log.info("Properties...");
-         log.info(prop.toString());
-         **/
+        /**
+        log.info("Inside LB mediator call back...");
+        Map<String, String> transHeaders = carbonMessage.getHeaders();
+        log.info("Transport Headers...");
+        log.info(transHeaders.toString() + "\n\n");
+
+        Map<String, Object> prop = carbonMessage.getProperties();
+        log.info("Properties...");
+        log.info(prop.toString());
+        **/
 
         if (parentCallback instanceof LoadBalancerMediatorCallBack) {
+
+          //  log.info(parentCallback.toString());
+            //As we are locking only on CallBackPool object, it is efficient.
+            synchronized (this.context.getCallBackPool()) {
+
+                if (this.context.isInCallBackPool(carbonMessage.getProperty(Constants.CALL_BACK).toString())) {
+
+                    //TODO: this is wrong.
+                    this.context.removeFromCallBackPool(parentCallback.toString());
+
+                } else {
+                    log.error("Response received after removing callback from pool.." +
+                            "This response will be discarded..");
+                    return;
+                }
+            }
 
             if (context.getPersistence().equals(LoadBalancerConstants.APPLICATION_COOKIE)) {
 
@@ -110,13 +127,16 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
                             "the sake of maintaining persistence. ");
 
                     //Here we are not looking for Set-Cookie2 header coz, it is only for LB purpose.
+                    //i.e., we are only inserting cookie. So using Set-Cookie itself.
                     carbonMessage.setHeader(LoadBalancerConstants.SET_COOKIE_HEADER,
                             CommonUtil.getSessionCookie(CommonUtil.
                                     getCookieValue(carbonMessage, context), false));
 
                 }
 
+
                 parentCallback.done(carbonMessage);
+
 
             } else if (context.getPersistence().equals(LoadBalancerConstants.LB_COOKIE)) {
 

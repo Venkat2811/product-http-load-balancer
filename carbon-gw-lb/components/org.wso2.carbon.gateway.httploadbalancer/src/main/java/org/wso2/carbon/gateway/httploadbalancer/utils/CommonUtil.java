@@ -2,9 +2,9 @@ package org.wso2.carbon.gateway.httploadbalancer.utils;
 
 
 import org.apache.commons.validator.routines.InetAddressValidator;
-import org.wso2.carbon.gateway.core.outbound.OutboundEndpoint;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
+import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.Constants;
 
@@ -20,24 +20,24 @@ import java.util.Map;
 public class CommonUtil {
 
     /**
-     * @param map OutboundEndpoint map.
-     * @return list of Outboundendpoints.
+     * @param map LBOutboundEndpoint map.
+     * @return list of LBOutboundEndpoints.
      */
-    public static List<OutboundEndpoint> getOutboundEndpointsList(Map<String, OutboundEndpoint> map) {
+    public static List<LBOutboundEndpoint> getLBOutboundEndpointsList(Map<String, LBOutboundEndpoint> map) {
 
         return new ArrayList<>(map.values());
     }
 
     /**
-     * @param outboundEndpoints List of OutboundEndpoits map.
-     * @return List of OutboundEndpoint names.
+     * @param lbOutboundEndpoints List of LBOutboundEndpoints map.
+     * @return List of LBOutboundEndpoint names.
      */
-    public static List<String> getOutboundEndpointNamesList(List<OutboundEndpoint> outboundEndpoints) {
+    public static List<String> getLBOutboundEndpointNamesList(List<LBOutboundEndpoint> lbOutboundEndpoints) {
 
         ArrayList<String> names = new ArrayList<String>();
 
-        for (OutboundEndpoint outboundEndpoint : outboundEndpoints) {
-            names.add(outboundEndpoint.getName());
+        for (LBOutboundEndpoint lbOutboundEndpoint : lbOutboundEndpoints) {
+            names.add(lbOutboundEndpoint.getName());
         }
         return names;
     }
@@ -89,7 +89,7 @@ public class CommonUtil {
     }
 
     /**
-     * @param uri OutboundEndpoint's Uri.
+     * @param uri LBOutboundEndpoint's Uri.
      * @return <String> of form 'hostname:port'
      */
     public static String getHostAndPort(String uri) {
@@ -246,7 +246,7 @@ public class CommonUtil {
      * <p>
      * It checks for both IPv4 and IPv6 addresses.
      * <p>
-     * This validation is not costly doesn't makes any look up or connection.
+     * This validation is not costly as doesn't makes any lookup or connection.
      * It is RegEx and String Validation. So don't worry.
      */
     public static boolean isValidIP(String ipAddress) {

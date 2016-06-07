@@ -2,11 +2,11 @@ package org.wso2.carbon.gateway.httploadbalancer.algorithm;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.gateway.core.outbound.OutboundEndpoint;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.hashing.ConsistentHash;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.hashing.Hash;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.hashing.hashcodegenerators.MD5;
 import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
+import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 import org.wso2.carbon.gateway.httploadbalancer.utils.CommonUtil;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -35,26 +35,21 @@ public class ClientIPHashing implements LoadBalancingAlgorithm {
     private static final Logger log = LoggerFactory.getLogger(ClientIPHashing.class);
     private final Object lock = new Object();
 
-    private List<OutboundEndpoint> outboundEndpoints;
+    private List<LBOutboundEndpoint> lbOutboundEndpoints;
     private Hash hash;
 
-    /**
-     * Default Constructor.
-     */
-    public ClientIPHashing() {
 
-    }
 
     /**
      * Constructor.
      *
-     * @param outboundEndpoints List of OutboundEndpoints.
+     * @param lbOutboundEndpoints List of OutboundEndpoints.
      */
-    public ClientIPHashing(List<OutboundEndpoint> outboundEndpoints) {
+    public ClientIPHashing(List<LBOutboundEndpoint> lbOutboundEndpoints) {
 
         synchronized (lock) {
 
-            this.outboundEndpoints = outboundEndpoints;
+            this.lbOutboundEndpoints = lbOutboundEndpoints;
             /**
              * Two points are to be noted here.
              *
@@ -64,7 +59,7 @@ public class ClientIPHashing implements LoadBalancingAlgorithm {
              *    You can also implement your own HashFunction.
              */
             this.hash = new ConsistentHash(new MD5(),
-                    CommonUtil.getOutboundEndpointNamesList(this.outboundEndpoints));
+                    CommonUtil.getLBOutboundEndpointNamesList(this.lbOutboundEndpoints));
         }
     }
 
@@ -78,13 +73,13 @@ public class ClientIPHashing implements LoadBalancingAlgorithm {
     }
 
     /**
-     * @param outboundEPs list of all Outbound Endpoints to be load balanced.
+     * @param lbOutboundEPs list of all LBOutboundEndpoints to be load balanced.
      */
     @Override
-    public void setOutboundEndpoints(List<OutboundEndpoint> outboundEPs) {
+    public void setLBOutboundEndpoints(List<LBOutboundEndpoint> lbOutboundEPs) {
 
         synchronized (lock) {
-            this.outboundEndpoints = outboundEPs;
+            this.lbOutboundEndpoints = lbOutboundEPs;
             /**
              * Two points are to be noted here.
              *
@@ -94,32 +89,32 @@ public class ClientIPHashing implements LoadBalancingAlgorithm {
              *    You can also implement your own HashFunction.
              */
             this.hash = new ConsistentHash(new MD5(),
-                    CommonUtil.getOutboundEndpointNamesList(this.outboundEndpoints));
+                    CommonUtil.getLBOutboundEndpointNamesList(this.lbOutboundEndpoints));
         }
     }
 
     /**
-     * @param outboundEndpoint outboundEndpoint to be added to the existing list.
+     * @param lbOutboundEndpoint outboundEndpoint to be added to the existing list.
      */
     @Override
-    public void addOutboundEndpoint(OutboundEndpoint outboundEndpoint) {
+    public void addLBOutboundEndpoint(LBOutboundEndpoint lbOutboundEndpoint) {
 
         synchronized (lock) {
-            outboundEndpoints.add(outboundEndpoint);
-            hash.addEndpoint(outboundEndpoint.getName());
+            lbOutboundEndpoints.add(lbOutboundEndpoint);
+            hash.addEndpoint(lbOutboundEndpoint.getName());
         }
 
     }
 
     /**
-     * @param outboundEndpoint outboundEndpoint to be removed from existing list.
+     * @param lbOutboundEndpoint outboundEndpoint to be removed from existing list.
      */
     @Override
-    public void removeOutboundEndpoint(OutboundEndpoint outboundEndpoint) {
+    public void removeLBOutboundEndpoint(LBOutboundEndpoint lbOutboundEndpoint) {
 
         synchronized (lock) {
-            outboundEndpoints.remove(outboundEndpoint);
-            hash.removeEndpoint(outboundEndpoint.getName());
+            lbOutboundEndpoints.remove(lbOutboundEndpoint);
+            hash.removeEndpoint(lbOutboundEndpoint.getName());
         }
 
     }
@@ -127,15 +122,15 @@ public class ClientIPHashing implements LoadBalancingAlgorithm {
     /**
      * @param cMsg    Carbon Message has all headers required to make decision.
      * @param context LoadBalancerConfigContext.
-     * @return OutboundEndpoint Object.
+     * @return LBOutboundEndpoint Object.
      */
     @Override
-    public OutboundEndpoint getNextOutboundEndpoint(CarbonMessage cMsg, LoadBalancerConfigContext context) {
+    public LBOutboundEndpoint getNextOutboundEndpoint(CarbonMessage cMsg, LoadBalancerConfigContext context) {
 
-        OutboundEndpoint endPoint = null;
+        LBOutboundEndpoint endPoint = null;
 
         synchronized (lock) {
-            if (outboundEndpoints != null && outboundEndpoints.size() > 0) {
+            if (lbOutboundEndpoints != null && lbOutboundEndpoints.size() > 0) {
 
                 String ipAddress = CommonUtil.getClientIP(cMsg);
                 log.info("IP address retrieved is : " + ipAddress);
@@ -170,8 +165,8 @@ public class ClientIPHashing implements LoadBalancingAlgorithm {
     public void reset() {
 
         synchronized (lock) {
-            hash.removeAllEndpoints(CommonUtil.getOutboundEndpointNamesList(outboundEndpoints));
-            hash.addEndpoints(CommonUtil.getOutboundEndpointNamesList(outboundEndpoints));
+            hash.removeAllEndpoints(CommonUtil.getLBOutboundEndpointNamesList(lbOutboundEndpoints));
+            hash.addEndpoints(CommonUtil.getLBOutboundEndpointNamesList(lbOutboundEndpoints));
 
         }
     }

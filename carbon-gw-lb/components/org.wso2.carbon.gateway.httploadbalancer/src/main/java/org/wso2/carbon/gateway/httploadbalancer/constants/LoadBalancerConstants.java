@@ -28,7 +28,7 @@ public class LoadBalancerConstants {
     // no of successful responses to be received from an OutboundEndpoint to mark it as healthy again.
     public static final String HEALTH_CHECK_HEALTHY_RETRIES = "healthyRetries";
 
-    // Scheduled time interval after which LB has to check if an Outboundendpoint is healthy again.
+    // Scheduled time interval after which LB has to check if an OutboundEndpoint is healthy again.
     public static final String HEALTH_CHECK_HEALTHY_CHECK_INTERVAL = "healthyCheckInterval";
 
 
@@ -93,8 +93,6 @@ public class LoadBalancerConstants {
     public static final String SECURE = "secure";
 
 
-
-
     /**
      * SSL Support related Constants.
      */
@@ -106,15 +104,20 @@ public class LoadBalancerConstants {
      * Health Checking related Constants.
      */
     public static final String PASSIVE_HEALTH_CHECK = "PASSIVE";
+    public static final String NO_HEALTH_CHECK = "NO_HEALTH_CHECK";
+    public static final String DEFAULT_HEALTH_CHECK = "DEFAULT_HEALTH_CHECK";
 
     /**
      * TODO: Check these values with mentor. Should there be specific values based on type..?
      */
     public static final int MAX_TIMEOUT_VAL = 18000000; //5 hours.
 
-    public static final int DEFAULT_TIMEOUT = 120000; //2 mins
+    public static final int DEFAULT_TIMEOUT = 60000; //1 min.
 
     public static final int DEFAULT_RETRIES = 3;
+
+    //Time interval to be elapsed after which, LB has to check whether an endpoint is back to healthy.
+    public static final int DEFAULT_HEALTHY_CHECK_INTERVAL = 300000; //5 mins.
 
 
 }

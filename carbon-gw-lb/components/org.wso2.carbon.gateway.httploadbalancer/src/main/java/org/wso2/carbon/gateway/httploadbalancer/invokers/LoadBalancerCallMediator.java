@@ -2,54 +2,36 @@ package org.wso2.carbon.gateway.httploadbalancer.invokers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.gateway.core.config.ConfigRegistry;
 import org.wso2.carbon.gateway.core.flow.AbstractMediator;
-import org.wso2.carbon.gateway.core.outbound.OutboundEndpoint;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancerConfigContext;
-//import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 import org.wso2.carbon.gateway.httploadbalancer.mediator.LoadBalancerMediatorCallBack;
+import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
-
 
 /**
  * CallMediator for LoadBalancer.
  */
 public class LoadBalancerCallMediator extends AbstractMediator {
 
-    private String outboundEPKey;
 
-    private OutboundEndpoint outboundEndpoint;
+    private LBOutboundEndpoint lbOutboundEndpoint;
 
     private static final Logger log = LoggerFactory.getLogger(LoadBalancerCallMediator.class);
 
-    private LoadBalancerConfigContext context;
+    private final LoadBalancerConfigContext context;
+
+
 
     /**
-     * Default constructor.
-     */
-    public LoadBalancerCallMediator() {
-
-    }
-
-    /**
-     * @param outboundEPKey OutboundEndpoint Key.
-     */
-    public LoadBalancerCallMediator(String outboundEPKey) {
-
-
-        this.outboundEPKey = outboundEPKey;
-    }
-
-    /**
-     * @param outboundEndpoint OutboundEndpoint.
+     * @param lbOutboundEndpoint LBOutboundEndpoint.
      * @param context          LoadBalancerConfigContext.
      */
-    public LoadBalancerCallMediator(OutboundEndpoint outboundEndpoint,
+    public LoadBalancerCallMediator(LBOutboundEndpoint lbOutboundEndpoint,
                                     LoadBalancerConfigContext context) {
 
 
-        this.outboundEndpoint = outboundEndpoint;
+        this.lbOutboundEndpoint = lbOutboundEndpoint;
         this.context = context;
     }
 
@@ -63,24 +45,16 @@ public class LoadBalancerCallMediator extends AbstractMediator {
     public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback)
             throws Exception {
 
-        //log.info("LB Call Mediator Cookie Header : " + carbonMessage.getHeader(LoadBalancerConstants.COOKIE_HEADER));
-
-        OutboundEndpoint endpoint = outboundEndpoint;
-        if (endpoint == null) {
-            endpoint = ConfigRegistry.getInstance().getOutboundEndpoint(outboundEPKey);
-
-            if (endpoint == null) {
-                log.error("Outbound Endpoint : " + outboundEPKey + "not found ");
-                return false;
-            }
-        }
-
-
-        //Using separate LBMediatorCallBack because, we need to add special headers for session persistence...
+        //Using separate LBMediatorCallBack because, we are handling headers in CallBack for session persistence.
         CarbonCallback callback = new LoadBalancerMediatorCallBack(carbonCallback, this, context);
 
-        endpoint.receive(carbonMessage, callback);
+        lbOutboundEndpoint.receive(carbonMessage, callback);
 
+        //As we are locking only on CallBackPool object, it is efficient.
+        synchronized (this.context.getCallBackPool()) {
+            //TODO: this is wrong.
+            this.context.addToCallBackPool(callback.toString(), System.currentTimeMillis());
+        }
 
         return false;
     }

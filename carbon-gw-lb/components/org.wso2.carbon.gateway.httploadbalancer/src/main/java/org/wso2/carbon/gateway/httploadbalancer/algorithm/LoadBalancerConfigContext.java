@@ -3,8 +3,10 @@ package org.wso2.carbon.gateway.httploadbalancer.algorithm;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.gateway.core.outbound.OutboundEndpoint;
+import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -24,13 +26,14 @@ public class LoadBalancerConfigContext {
 
     private String sslType;
 
+    //There are the values as specified in config.
     private String healthCheck;
     private int reqTimeout;
     private int unHealthyRetries;
     private int healthyRetries;
     private int healthycheckInterval;
 
-    private Map<String, OutboundEndpoint> outboundEndpoints;
+    private Map<String, LBOutboundEndpoint> lbOutboundEndpoints;
 
     //TODO: Is this HashMap idea okay.?
     /**
@@ -54,6 +57,22 @@ public class LoadBalancerConfigContext {
      * NOTE: EndpointName will be of the form <hostName:port>
      */
     private Map<String, String> endpointToCookieMap;
+
+    /**
+     * A list that holds all unHealthyLBOutboundEndpoints.
+     */
+    private final List<LBOutboundEndpoint> unHealthyLBEPList = new ArrayList<>();
+
+    /**
+     * A LoadBalancerMediatorCallBack Pool for storing active callbacks.
+     * <p>
+     * NOTE: This pool stores only LoadBalancerMediatorCallBack objects.
+     * <p>
+     * TimeoutHandler will use this pool to check for Timeout of requests.
+     * <p>
+     * Accessing Pool objects MUST be synchronized.
+     */
+    private final Map<String, Long> callBackPool = new ConcurrentHashMap<>();
 
 
     public String getAlgorithm() {
@@ -181,20 +200,128 @@ public class LoadBalancerConfigContext {
         return endpointToCookieMap.get(endpoint);
     }
 
-    public Map<String, OutboundEndpoint> getOutboundEndpoints() {
-        return outboundEndpoints;
+    public Map<String, LBOutboundEndpoint> getLbOutboundEndpoints() {
+        return lbOutboundEndpoints;
     }
 
-    public void setOutboundEndpoints(Map<String, OutboundEndpoint> outboundEndpoints) {
-        this.outboundEndpoints = outboundEndpoints;
+    public void setLbOutboundEndpoints(Map<String, LBOutboundEndpoint> lbOutboundEndpoints) {
+        this.lbOutboundEndpoints = lbOutboundEndpoints;
     }
 
     /**
-     * @param name OutboundEndpoint's name.
-     * @return Corresponding OutboundEndpoint object.
+     * @param name LBOutboundEndpoint's name.
+     * @return Corresponding LBOutboundEndpoint object.
      */
-    public OutboundEndpoint getOutboundEndpoint(String name) {
+    public LBOutboundEndpoint getOutboundEndpoint(String name) {
 
-        return this.outboundEndpoints.get(name);
+        return this.lbOutboundEndpoints.get(name);
     }
+
+    public int getUnHealthyEPListSize() {
+
+        return this.unHealthyLBEPList.size();
+    }
+
+    public List<LBOutboundEndpoint> getUnHealthyLBEPList() {
+        return unHealthyLBEPList;
+    }
+
+    /**
+     * @param lbOutboundEndpoint UnHealthyLBOutboundEndpoint to be added to the list.
+     *                           <p>
+     *                           NOTE: always access this method with having lock on
+     *                           unHealthyLBEPList object.
+     *                           Add to the list only after checking using
+     *                           isAlreadyInUnHealthyList() method
+     */
+    public void addToUnHealthyList(LBOutboundEndpoint lbOutboundEndpoint) {
+
+        this.unHealthyLBEPList.add(lbOutboundEndpoint);
+    }
+
+    /**
+     * @param lbOutboundEndpoint To check whether it is already in list or not.
+     *                           <p>
+     *                           NOTE: always access this method with having lock on
+     *                           unHealthyLBEPList  object.
+     * @return existing or not.
+     */
+    public boolean isAlreadyInUnHealthyList(LBOutboundEndpoint lbOutboundEndpoint) {
+
+        if (this.unHealthyLBEPList.contains(lbOutboundEndpoint)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * @param lbOutboundEndpoint UnHealthyLBOutboundEndpoint to be removed from list.
+     *                           <p>
+     *                           NOTE: always access this method with having lock on
+     *                           unHealthyLBEPList object.
+     *                           Remove from list only after checking using
+     *                           isAlreadyInUnHealthyList() method
+     */
+    public void removeFromUnhealthyList(LBOutboundEndpoint lbOutboundEndpoint) {
+
+        this.unHealthyLBEPList.remove(lbOutboundEndpoint);
+    }
+
+
+    public Map<String, Long> getCallBackPool() {
+
+        return callBackPool;
+    }
+
+
+    /**
+     * @param callBackString toString() value of LoadBalancerMediatorCallBack Object.
+     * @param time           System.currentTimeMillis()
+     *                       <p>
+     *                       NOTE: Always access this method using lock on CallBackPool object.
+     */
+    public void addToCallBackPool(String callBackString, Long time) {
+
+        this.callBackPool.putIfAbsent(callBackString.
+                substring(callBackString.lastIndexOf(".") + 1, callBackString.length()), time);
+
+        log.info("Added to pool : " + callBackString.
+                substring(callBackString.lastIndexOf(".") + 1, callBackString.length()));
+
+    }
+
+    /**
+     * @param callBackString toString() value of LoadBalancerMediatorCallBack Object.
+     * @return existing or not.
+     * <p>
+     * NOTE: Always access this method using lock on CallBackPool object.
+     */
+    public boolean isInCallBackPool(String callBackString) {
+
+        if (this.callBackPool.containsKey(callBackString.
+                substring(callBackString.lastIndexOf(".") + 1, callBackString.length()))) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * @param callBackString toString() value of LoadBalancerMediatorCallBack Object.
+     *                       <p>
+     *                       NOTE: Always access this method using lock on CallBackPool object.
+     */
+
+    public void removeFromCallBackPool(String callBackString) {
+
+        this.callBackPool.remove(callBackString.
+                substring(callBackString.lastIndexOf(".") + 1, callBackString.length()));
+
+        log.info("Removed from Pool : " + callBackString.
+                substring(callBackString.lastIndexOf(".") + 1, callBackString.length()));
+
+    }
+
+
 }

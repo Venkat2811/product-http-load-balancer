@@ -35,7 +35,7 @@ public class LoadBalancerMediatorBuilder {
     public static LoadBalancerMediator configure(GWConfigHolder gwConfigHolder, LoadBalancerConfigContext context) {
 
         lbMediator = new LoadBalancerMediator(
-                CommonUtil.getOutboundEndpointsList(gwConfigHolder.getOutboundEndpoints()), context);
+                CommonUtil.getLBOutboundEndpointsList(context.getLbOutboundEndpoints()), context);
 
         if (gwConfigHolder.hasGroups()) {
 

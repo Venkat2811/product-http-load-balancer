@@ -1,9 +1,9 @@
 package org.wso2.carbon.gateway.httploadbalancer.algorithm;
 
 
-import org.wso2.carbon.gateway.core.outbound.OutboundEndpoint;
-import org.wso2.carbon.messaging.CarbonMessage;
 
+import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
+import org.wso2.carbon.messaging.CarbonMessage;
 import java.util.List;
 
 /**
@@ -18,27 +18,27 @@ public interface LoadBalancingAlgorithm {
     String getName();
 
     /**
-     * @param outboundEPs list of all Outbound Endpoints to be load balanced.
+     * @param lbOutboundEPs list of all Outbound Endpoints to be load balanced.
      */
-    void setOutboundEndpoints(List<OutboundEndpoint> outboundEPs);
+    void setLBOutboundEndpoints(List<LBOutboundEndpoint> lbOutboundEPs);
 
     /**
-     * @param outboundEndpoint outboundEndpoint to be added to the existing list.
+     * @param lbOutboundEndpoint outboundEndpoint to be added to the existing list.
      */
-    void addOutboundEndpoint(OutboundEndpoint outboundEndpoint);
+    void addLBOutboundEndpoint(LBOutboundEndpoint lbOutboundEndpoint);
 
     /**
-     * @param outboundEndpoint outboundEndpoint to be removed from existing list.
+     * @param lbOutboundEndpoint outboundEndpoint to be removed from existing list.
      */
-    void removeOutboundEndpoint(OutboundEndpoint outboundEndpoint);
+    void removeLBOutboundEndpoint(LBOutboundEndpoint lbOutboundEndpoint);
 
     /**
      * @param cMsg    Carbon Message has all headers required to make decision.
      * @param context LoadBalancerConfigContext.
-     * @return the next OutboundEndpoint according to implemented LB algorithm.
+     * @return the next LBOutboundEndpoint according to implemented LB algorithm.
      */
 
-    OutboundEndpoint getNextOutboundEndpoint(CarbonMessage cMsg, LoadBalancerConfigContext context);
+    LBOutboundEndpoint getNextOutboundEndpoint(CarbonMessage cMsg, LoadBalancerConfigContext context);
 
     /**
      * Each implementation of LB algorithm will have certain values pertained to it.

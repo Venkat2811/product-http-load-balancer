@@ -9,10 +9,12 @@ import org.wso2.carbon.gateway.core.outbound.OutboundEndpoint;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 import org.wso2.carbon.gateway.httploadbalancer.mediator.LoadBalancerMediatorBuilder;
+import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 import org.wso2.carbon.gateway.httploadbalancer.utils.CommonUtil;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A Class responsible for loading LB config from WUMLBaseListenerImpl.java to LoadBalancerConfigContext.
@@ -27,7 +29,7 @@ public class LoadBalancerConfigHolder {
 
     private WUMLConfigurationBuilder.IntegrationFlow integrationFlow;
 
-    private LoadBalancerConfigContext context;
+    private final LoadBalancerConfigContext context;
 
     /**
      * Default Constructor.
@@ -99,8 +101,23 @@ public class LoadBalancerConfigHolder {
 
 
         this.integrationFlow = integrationFlow;
+
+        Set<Map.Entry<String, OutboundEndpoint>> entrySet = integrationFlow.
+                getGWConfigHolder().getOutboundEndpoints().entrySet();
+
+        // Since all OutboundEndpoint Objects MUST be accessed via LBOutboundEndpoint, we are doing this.
+        Map<String, LBOutboundEndpoint> lbOutboundEndpointMap = new ConcurrentHashMap<>();
+
+        for (Map.Entry entry : entrySet) {
+
+            lbOutboundEndpointMap.put(entry.getKey().toString(),
+                    new LBOutboundEndpoint((OutboundEndpoint) entry.getValue()));
+        }
+
+        context.setLbOutboundEndpoints(lbOutboundEndpointMap);
+
         validateConfig();
-        context.setOutboundEndpoints(integrationFlow.getGWConfigHolder().getOutboundEndpoints());
+
         LoadBalancerMediatorBuilder.configure(this.integrationFlow.getGWConfigHolder(), context);
     }
 
@@ -145,6 +162,7 @@ public class LoadBalancerConfigHolder {
         }
 
     }
+
 
     /**
      * This method validates a given configuration, if anything is missing default value will be added.

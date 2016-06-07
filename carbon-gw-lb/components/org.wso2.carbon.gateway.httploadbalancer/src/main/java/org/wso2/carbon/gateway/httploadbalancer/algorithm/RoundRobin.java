@@ -2,10 +2,9 @@ package org.wso2.carbon.gateway.httploadbalancer.algorithm;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.gateway.core.outbound.OutboundEndpoint;
 import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
+import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 import org.wso2.carbon.messaging.CarbonMessage;
-
 import java.util.List;
 
 
@@ -22,26 +21,19 @@ public class RoundRobin implements LoadBalancingAlgorithm {
     private int index = 0;
     private int endPointsCount = 0;
 
-    private List<OutboundEndpoint> outboundEndpoints;
+    private List<LBOutboundEndpoint> lbOutboundEndpoints;
 
 
     /**
-     * Default Constructor.
+     * @param lbOutboundEndpoints list of LBOutboundEndpoints to be load balanced.
+     *                            <p>
+     *                            EndpointsCount is also initialized here.
      */
-    public RoundRobin() {
-
-    }
-
-    /**
-     * @param outboundEndpoints list of outboundEndpoints to be load balanced.
-     *                          <p>
-     *                          EndpointsCount is also initialized here.
-     */
-    public RoundRobin(List<OutboundEndpoint> outboundEndpoints) {
+    public RoundRobin(List<LBOutboundEndpoint> lbOutboundEndpoints) {
 
         synchronized (lock) {
-            this.outboundEndpoints = outboundEndpoints;
-            endPointsCount = outboundEndpoints.size();
+            this.lbOutboundEndpoints = lbOutboundEndpoints;
+            endPointsCount = lbOutboundEndpoints.size();
         }
     }
 
@@ -56,52 +48,52 @@ public class RoundRobin implements LoadBalancingAlgorithm {
     }
 
     /**
-     * @param outboundEndpoints list of outboundEndpoints to be load balanced.
-     *                          <p>
-     *                          EndpointsCount is also initialized here.
+     * @param lbOutboundEndpoints list of LBOutboundEndpoints to be load balanced.
+     *                            <p>
+     *                            EndpointsCount is also initialized here.
      */
     @Override
-    public void setOutboundEndpoints(List<OutboundEndpoint> outboundEndpoints) {
+    public void setLBOutboundEndpoints(List<LBOutboundEndpoint> lbOutboundEndpoints) {
 
         synchronized (lock) {
-            this.outboundEndpoints = outboundEndpoints;
-            endPointsCount = outboundEndpoints.size();
+            this.lbOutboundEndpoints = lbOutboundEndpoints;
+            endPointsCount = lbOutboundEndpoints.size();
         }
 
     }
 
 
     /**
-     * @param outboundEndpoint outboundEndpoint to be added to the existing list.
-     *                         <p>
-     *                         EndpointsCount is also updated here.
+     * @param lbOutboundEndpoint LBOutboundEndpoint to be added to the existing list.
+     *                           <p>
+     *                           EndpointsCount is also updated here.
      */
     @Override
-    public void addOutboundEndpoint(OutboundEndpoint outboundEndpoint) {
+    public void addLBOutboundEndpoint(LBOutboundEndpoint lbOutboundEndpoint) {
 
         synchronized (lock) {
-            outboundEndpoints.add(outboundEndpoint);
-            endPointsCount = outboundEndpoints.size();
+            lbOutboundEndpoints.add(lbOutboundEndpoint);
+            endPointsCount = lbOutboundEndpoints.size();
         }
 
     }
 
     /**
-     * @param outboundEndpoint outboundEndpoint to be removed from existing list.
-     *                         <p>
-     *                         EndpointsCount is also updated here.
+     * @param lbOutboundEndpoint LBOutboundEndpoint to be removed from existing list.
+     *                           <p>
+     *                           EndpointsCount is also updated here.
      */
     @Override
-    public void removeOutboundEndpoint(OutboundEndpoint outboundEndpoint) {
+    public void removeLBOutboundEndpoint(LBOutboundEndpoint lbOutboundEndpoint) {
 
         synchronized (lock) {
-            outboundEndpoints.remove(outboundEndpoint);
-            endPointsCount = outboundEndpoints.size();
+            lbOutboundEndpoints.remove(lbOutboundEndpoint);
+            endPointsCount = lbOutboundEndpoints.size();
         }
     }
 
     /**
-     * For getting next OutboundEndpoinnt.
+     * For getting next LBOutboundEndpoinnt.
      * This method is called after locking, so don't worry.
      */
     private void incrementIndex() {
@@ -114,25 +106,22 @@ public class RoundRobin implements LoadBalancingAlgorithm {
      * @param cMsg    Carbon Message has all headers required to make decision.
      * @param context LoadBalancerConfigContext.
      * @return chosen OutboundEndpoint
-     * <p>
-     * <p>
-     * TODO: Before choosing an endpoint check whether it is healthy or not.
      */
 
     @Override
-    public OutboundEndpoint getNextOutboundEndpoint(CarbonMessage cMsg, LoadBalancerConfigContext context) {
+    public LBOutboundEndpoint getNextOutboundEndpoint(CarbonMessage cMsg, LoadBalancerConfigContext context) {
 
-        OutboundEndpoint endPoint = null;
+        LBOutboundEndpoint endPoint = null;
 
         synchronized (lock) {
-            if (outboundEndpoints != null && outboundEndpoints.size() > 0) {
+            if (lbOutboundEndpoints != null && lbOutboundEndpoints.size() > 0) {
 
-                endPoint = outboundEndpoints.get(index);
+                endPoint = lbOutboundEndpoints.get(index);
                 incrementIndex();
 
             } else {
 
-                log.error("No outbound end point is available..");
+                log.error("No OutboundEndpoint is available..");
                 //TODO: throw appropriate exceptions also.
 
             }
