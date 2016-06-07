@@ -8,6 +8,7 @@ import java.util.List;
 
 /**
  * All LB algorithms must implement this interface.
+ * Algorithm implementation MUST ensure that all the operations are THREAD SAFE.
  */
 public interface LoadBalancingAlgorithm {
 
