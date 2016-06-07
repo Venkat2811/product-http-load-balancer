@@ -14,13 +14,11 @@ import java.util.concurrent.locks.ReentrantLock;
  * Implementation of Round Robin Algorithm.
  * <p>
  * All Endpoints are assumed to have equal weights.
- * <p>
- * TODO: Is re-entrant lock okay..?
  */
 public class RoundRobin implements LoadBalancingAlgorithm {
 
     private static final Logger log = LoggerFactory.getLogger(RoundRobin.class);
-    private final Lock lock = new ReentrantLock();
+    private final Object lock = new Object();
 
     private int index = 0;
     private int endPointsCount = 0;
@@ -41,12 +39,10 @@ public class RoundRobin implements LoadBalancingAlgorithm {
      *                          EndpointsCount is also initialized here.
      */
     public RoundRobin(List<OutboundEndpoint> outboundEndpoints) {
-        lock.lock();
-        try {
+
+        synchronized (lock) {
             this.outboundEndpoints = outboundEndpoints;
             endPointsCount = outboundEndpoints.size();
-        } finally {
-            lock.unlock();
         }
     }
 
@@ -68,12 +64,9 @@ public class RoundRobin implements LoadBalancingAlgorithm {
     @Override
     public void setOutboundEndpoints(List<OutboundEndpoint> outboundEndpoints) {
 
-        lock.lock();
-        try {
+        synchronized (lock) {
             this.outboundEndpoints = outboundEndpoints;
             endPointsCount = outboundEndpoints.size();
-        } finally {
-            lock.unlock();
         }
 
     }
@@ -87,12 +80,9 @@ public class RoundRobin implements LoadBalancingAlgorithm {
     @Override
     public void addOutboundEndpoint(OutboundEndpoint outboundEndpoint) {
 
-        lock.lock();
-        try {
+        synchronized (lock) {
             outboundEndpoints.add(outboundEndpoint);
             endPointsCount = outboundEndpoints.size();
-        } finally {
-            lock.unlock();
         }
 
     }
@@ -105,12 +95,9 @@ public class RoundRobin implements LoadBalancingAlgorithm {
     @Override
     public void removeOutboundEndpoint(OutboundEndpoint outboundEndpoint) {
 
-        lock.lock();
-        try {
+        synchronized (lock) {
             outboundEndpoints.remove(outboundEndpoint);
             endPointsCount = outboundEndpoints.size();
-        } finally {
-            lock.unlock();
         }
     }
 
@@ -138,8 +125,7 @@ public class RoundRobin implements LoadBalancingAlgorithm {
 
         OutboundEndpoint endPoint = null;
 
-        lock.lock();
-        try {
+        synchronized (lock) {
             if (outboundEndpoints != null && outboundEndpoints.size() > 0) {
 
                 endPoint = outboundEndpoints.get(index);
@@ -151,10 +137,7 @@ public class RoundRobin implements LoadBalancingAlgorithm {
                 //TODO: throw appropriate exceptions also.
 
             }
-        } finally {
-            lock.unlock();
         }
-
 
         return endPoint;
     }
@@ -165,11 +148,8 @@ public class RoundRobin implements LoadBalancingAlgorithm {
     @Override
     public void reset() {
 
-        lock.lock();
-        try {
+        synchronized (lock) {
             index = 0;
-        } finally {
-            lock.unlock();
         }
     }
 }

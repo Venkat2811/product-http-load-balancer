@@ -30,12 +30,11 @@ import java.util.concurrent.locks.ReentrantLock;
  * <p>
  * This algorithm by-itself maintains persistence. So, while choosing this algorithm,
  * persistence should be specified as NO_PERSISTENCE.
- * TODO: Is re-entrant Lock okay..?
  */
 public class ClientIPHashing implements LoadBalancingAlgorithm {
 
     private static final Logger log = LoggerFactory.getLogger(ClientIPHashing.class);
-    private final Lock lock = new ReentrantLock();
+    private final Object lock = new Object();
 
     private List<OutboundEndpoint> outboundEndpoints;
     private Hash hash;
@@ -54,8 +53,7 @@ public class ClientIPHashing implements LoadBalancingAlgorithm {
      */
     public ClientIPHashing(List<OutboundEndpoint> outboundEndpoints) {
 
-        lock.lock();
-        try {
+        synchronized (lock) {
 
             this.outboundEndpoints = outboundEndpoints;
             /**
@@ -68,8 +66,6 @@ public class ClientIPHashing implements LoadBalancingAlgorithm {
              */
             this.hash = new ConsistentHash(new MD5(),
                     CommonUtil.getOutboundEndpointNamesList(this.outboundEndpoints));
-        } finally {
-            lock.unlock();
         }
     }
 
@@ -88,8 +84,7 @@ public class ClientIPHashing implements LoadBalancingAlgorithm {
     @Override
     public void setOutboundEndpoints(List<OutboundEndpoint> outboundEPs) {
 
-        lock.lock();
-        try {
+        synchronized (lock) {
             this.outboundEndpoints = outboundEPs;
             /**
              * Two points are to be noted here.
@@ -101,8 +96,6 @@ public class ClientIPHashing implements LoadBalancingAlgorithm {
              */
             this.hash = new ConsistentHash(new MD5(),
                     CommonUtil.getOutboundEndpointNamesList(this.outboundEndpoints));
-        } finally {
-            lock.unlock();
         }
     }
 
@@ -112,12 +105,9 @@ public class ClientIPHashing implements LoadBalancingAlgorithm {
     @Override
     public void addOutboundEndpoint(OutboundEndpoint outboundEndpoint) {
 
-        lock.lock();
-        try {
+        synchronized (lock) {
             outboundEndpoints.add(outboundEndpoint);
             hash.addEndpoint(outboundEndpoint.getName());
-        } finally {
-            lock.unlock();
         }
 
     }
@@ -128,12 +118,9 @@ public class ClientIPHashing implements LoadBalancingAlgorithm {
     @Override
     public void removeOutboundEndpoint(OutboundEndpoint outboundEndpoint) {
 
-        lock.lock();
-        try {
+        synchronized (lock) {
             outboundEndpoints.remove(outboundEndpoint);
             hash.removeEndpoint(outboundEndpoint.getName());
-        } finally {
-            lock.unlock();
         }
 
     }
@@ -148,8 +135,7 @@ public class ClientIPHashing implements LoadBalancingAlgorithm {
 
         OutboundEndpoint endPoint = null;
 
-        lock.lock();
-        try {
+        synchronized (lock) {
             if (outboundEndpoints != null && outboundEndpoints.size() > 0) {
 
                 String ipAddress = CommonUtil.getClientIP(cMsg);
@@ -172,8 +158,6 @@ public class ClientIPHashing implements LoadBalancingAlgorithm {
                 //TODO: throw appropriate exceptions also.
 
             }
-        } finally {
-            lock.unlock();
         }
 
 
@@ -186,13 +170,10 @@ public class ClientIPHashing implements LoadBalancingAlgorithm {
     @Override
     public void reset() {
 
-        lock.lock();
-        try {
+        synchronized (lock) {
             hash.removeAllEndpoints(CommonUtil.getOutboundEndpointNamesList(outboundEndpoints));
             hash.addEndpoints(CommonUtil.getOutboundEndpointNamesList(outboundEndpoints));
 
-        } finally {
-            lock.unlock();
         }
     }
 }
