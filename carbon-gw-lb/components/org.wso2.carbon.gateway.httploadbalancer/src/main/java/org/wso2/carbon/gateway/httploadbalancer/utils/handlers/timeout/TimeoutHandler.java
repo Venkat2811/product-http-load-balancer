@@ -2,8 +2,8 @@ package org.wso2.carbon.gateway.httploadbalancer.utils.handlers.timeout;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancingAlgorithm;
+import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
 import java.util.TimerTask;
 
 /**

@@ -3,7 +3,7 @@ package org.wso2.carbon.gateway.httploadbalancer.invokers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.core.flow.AbstractMediator;
-import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancerConfigContext;
+import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.mediator.LoadBalancerMediatorCallBack;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 import org.wso2.carbon.messaging.CarbonCallback;

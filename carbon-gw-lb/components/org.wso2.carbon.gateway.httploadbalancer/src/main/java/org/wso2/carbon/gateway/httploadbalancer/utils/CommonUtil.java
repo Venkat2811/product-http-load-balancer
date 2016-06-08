@@ -2,8 +2,8 @@ package org.wso2.carbon.gateway.httploadbalancer.utils;
 
 
 import org.apache.commons.validator.routines.InetAddressValidator;
-import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
+import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.Constants;

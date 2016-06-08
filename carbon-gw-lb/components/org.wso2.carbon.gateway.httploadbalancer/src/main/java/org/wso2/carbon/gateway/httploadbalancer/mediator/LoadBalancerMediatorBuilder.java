@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.core.config.GWConfigHolder;
 import org.wso2.carbon.gateway.core.flow.Group;
 import org.wso2.carbon.gateway.core.flow.Pipeline;
-import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancerConfigContext;
+import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.utils.CommonUtil;
 
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package org.wso2.carbon.gateway.httploadbalancer.algorithm;
+package org.wso2.carbon.gateway.httploadbalancer.context;
 
 
 import org.slf4j.Logger;

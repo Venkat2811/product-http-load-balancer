@@ -4,16 +4,15 @@ package org.wso2.carbon.gateway.httploadbalancer.mediator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.core.flow.AbstractMediator;
-import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancingAlgorithm;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.simple.ClientIPHashing;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.simple.RoundRobin;
 import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
+import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.invokers.LoadBalancerCallMediator;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
-
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

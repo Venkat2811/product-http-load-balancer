@@ -2,6 +2,7 @@ package org.wso2.carbon.gateway.httploadbalancer.algorithm;
 
 
 
+import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 import org.wso2.carbon.messaging.CarbonMessage;
 import java.util.List;
