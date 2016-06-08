@@ -1,7 +1,9 @@
-package org.wso2.carbon.gateway.httploadbalancer.algorithm;
+package org.wso2.carbon.gateway.httploadbalancer.algorithm.simple;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancerConfigContext;
+import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancingAlgorithm;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.hashing.ConsistentHash;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.hashing.Hash;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.hashing.hashcodegenerators.MD5;
