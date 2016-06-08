@@ -4,15 +4,16 @@ package org.wso2.carbon.gateway.httploadbalancer.mediator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.core.flow.AbstractMediator;
-import org.wso2.carbon.gateway.httploadbalancer.algorithm.ClientIPHashing;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancingAlgorithm;
-import org.wso2.carbon.gateway.httploadbalancer.algorithm.RoundRobin;
+import org.wso2.carbon.gateway.httploadbalancer.algorithm.simple.ClientIPHashing;
+import org.wso2.carbon.gateway.httploadbalancer.algorithm.simple.RoundRobin;
 import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 import org.wso2.carbon.gateway.httploadbalancer.invokers.LoadBalancerCallMediator;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
+
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,6 +22,14 @@ import java.util.regex.Pattern;
 
 /**
  * LoadBalancerMediator.
+ * <p>
+ * This mediator receives client's request from InboundOutbound endpoint's pipeline.
+ * <p>
+ * This is responsible to choose Outbound endpoint based on the specified algorithm choice.
+ * <p>
+ * This mediator will also look for headers in client request to maintain persistence.
+ * <p>
+ * This mediator is responsible for choosing healthy OutboundEndpoint.
  */
 public class LoadBalancerMediator extends AbstractMediator {
 
@@ -72,16 +81,16 @@ public class LoadBalancerMediator extends AbstractMediator {
 
 
         /**
-        log.info("\n\n" + logMessage);
-        log.info("Inside LB mediator...");
-        Map<String, String> transHeaders = carbonMessage.getHeaders();
-        log.info("Transport Headers...");
-        log.info(transHeaders.toString() + "\n\n");
+         log.info("\n\n" + logMessage);
+         log.info("Inside LB mediator...");
+         Map<String, String> transHeaders = carbonMessage.getHeaders();
+         log.info("Transport Headers...");
+         log.info(transHeaders.toString() + "\n\n");
 
-        Map<String, Object> prop = carbonMessage.getProperties();
-        log.info("Properties...");
-        log.info(prop.toString() + "\n\n");
-        **/
+         Map<String, Object> prop = carbonMessage.getProperties();
+         log.info("Properties...");
+         log.info(prop.toString() + "\n\n");
+         **/
 
         //log.info(" LB Mediator Cookie Header : " + carbonMessage.getHeader(LoadBalancerConstants.COOKIE_HEADER));
 

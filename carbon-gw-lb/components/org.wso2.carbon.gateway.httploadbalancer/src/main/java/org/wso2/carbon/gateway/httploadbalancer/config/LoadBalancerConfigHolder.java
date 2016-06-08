@@ -105,7 +105,11 @@ public class LoadBalancerConfigHolder {
         Set<Map.Entry<String, OutboundEndpoint>> entrySet = integrationFlow.
                 getGWConfigHolder().getOutboundEndpoints().entrySet();
 
-        // Since all OutboundEndpoint Objects MUST be accessed via LBOutboundEndpoint, we are doing this.
+        /**
+         * Since all OutboundEndpoint Objects MUST be accessed via LBOutboundEndpoint, we are doing this.
+         * Here we are creating LBOutboundEndpoint Map similar to OutboundEndpoint Map.
+         * See LBOutboundEndpoint class to understand it better.
+         */
         Map<String, LBOutboundEndpoint> lbOutboundEndpointMap = new ConcurrentHashMap<>();
 
         for (Map.Entry entry : entrySet) {

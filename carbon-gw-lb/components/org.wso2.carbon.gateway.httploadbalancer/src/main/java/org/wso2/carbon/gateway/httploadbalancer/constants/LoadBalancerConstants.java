@@ -40,7 +40,13 @@ public class LoadBalancerConstants {
 
     public static final String IP_HASHING = "IP_HASHING";
 
-    //Common HTTP Request Headers related to Client IP address.
+    /**
+     * Common HTTP Request Headers related to Client IP address.
+     * These are according HTTP Specification.
+     * <p>
+     * If you want to support more Client IP related headers, kindly create a constant here and
+     * also make appropriate changes in getClientIP() method available in CommonUtil Class.
+     */
     public static final String X_FORWARDED_FOR_HEADER = "X-Forwarded-For";
     public static final String CLIENT_IP_HEADER = "Client-IP";
     public static final String REMOTE_ADDR_HEADER = "Remote-Addr";
@@ -75,7 +81,6 @@ public class LoadBalancerConstants {
     //These will be used to write cookie in response header.
     public static final String SET_COOKIE_HEADER = "Set-Cookie"; //RFC 2109.
     public static final String SET_COOKIE2_HEADER = "Set-Cookie2"; //RFC 2965.
-
 
     //This will be used to read cookie if any from request header.
     public static final String COOKIE_HEADER = "Cookie";
