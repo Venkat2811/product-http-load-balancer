@@ -9,6 +9,7 @@ import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
+
 /**
  * CallMediator for LoadBalancer.
  */
@@ -22,10 +23,9 @@ public class LoadBalancerCallMediator extends AbstractMediator {
     private final LoadBalancerConfigContext context;
 
 
-
     /**
      * @param lbOutboundEndpoint LBOutboundEndpoint.
-     * @param context          LoadBalancerConfigContext.
+     * @param context            LoadBalancerConfigContext.
      */
     public LoadBalancerCallMediator(LBOutboundEndpoint lbOutboundEndpoint,
                                     LoadBalancerConfigContext context) {
@@ -45,16 +45,21 @@ public class LoadBalancerCallMediator extends AbstractMediator {
     public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback)
             throws Exception {
 
+        /** log.info("Inside LB call mediator...");
+         Map<String, String> transHeaders = carbonMessage.getHeaders();
+         log.info("Transport Headers...");
+         log.info(transHeaders.toString() + "\n\n");
+
+         Map<String, Object> prop = carbonMessage.getProperties();
+         log.info("Properties...");
+         log.info(prop.toString() + "\n\n");
+         **/
+
+
         //Using separate LBMediatorCallBack because, we are handling headers in CallBack for session persistence.
         CarbonCallback callback = new LoadBalancerMediatorCallBack(carbonCallback, this, context);
 
-        lbOutboundEndpoint.receive(carbonMessage, callback);
-
-        //As we are locking only on CallBackPool object, it is efficient.
-        synchronized (this.context.getCallBackPool()) {
-            //TODO: this is wrong.
-            this.context.addToCallBackPool(callback.toString(), System.currentTimeMillis());
-        }
+        lbOutboundEndpoint.receive(carbonMessage, callback, this.context);
 
         return false;
     }

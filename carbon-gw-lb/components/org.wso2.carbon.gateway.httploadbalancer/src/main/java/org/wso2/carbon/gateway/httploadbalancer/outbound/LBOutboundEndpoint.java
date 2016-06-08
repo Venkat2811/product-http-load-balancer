@@ -1,6 +1,7 @@
 package org.wso2.carbon.gateway.httploadbalancer.outbound;
 
 import org.wso2.carbon.gateway.core.outbound.OutboundEndpoint;
+import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancerConfigContext;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -81,8 +82,24 @@ public class LBOutboundEndpoint {
         return this.outboundEndpoint.getName();
     }
 
-    public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback) throws Exception {
+    public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback,
+                           LoadBalancerConfigContext context) throws Exception {
+
         this.outboundEndpoint.receive(carbonMessage, carbonCallback);
+
+        /**
+         * As we are locking only on CallBackPool object, it is efficient.
+         *
+         * Adding callback in pool after making call makes sense. Because,
+         *
+         *      We are using System.currentTimeMillis() to store the time when call is made to OutboundEndpoint.
+         *      It will be more appropriate to store time after making the call than before making it.
+         *      (Though the difference will be in order of milliseconds).
+         */
+        synchronized (context.getCallBackPool()) {
+            context.addToCallBackPool(carbonCallback.toString(), System.currentTimeMillis());
+        }
+
         return false;
     }
 

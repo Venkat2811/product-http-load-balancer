@@ -13,7 +13,6 @@ import org.wso2.carbon.messaging.Constants;
 
 
 
-
 /**
  * Callback related to LoadBalancerMediator.
  * In case of cookie persistence, appropriate cookie will be appended with response here.
@@ -52,31 +51,31 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
     public void done(CarbonMessage carbonMessage) {
 
 
-        /**
-        log.info("Inside LB mediator call back...");
-        Map<String, String> transHeaders = carbonMessage.getHeaders();
-        log.info("Transport Headers...");
-        log.info(transHeaders.toString() + "\n\n");
+        /**log.info("Inside LB mediator call back...");
+         Map<String, String> transHeaders = carbonMessage.getHeaders();
+         log.info("Transport Headers...");
+         log.info(transHeaders.toString() + "\n\n");
 
-        Map<String, Object> prop = carbonMessage.getProperties();
-        log.info("Properties...");
-        log.info(prop.toString());
-        **/
+         Map<String, Object> prop = carbonMessage.getProperties();
+         log.info("Properties...");
+         log.info(prop.toString());**/
+
 
         if (parentCallback instanceof LoadBalancerMediatorCallBack) {
 
-          //  log.info(parentCallback.toString());
+            //  log.info(parentCallback.toString());
             //As we are locking only on CallBackPool object, it is efficient.
             synchronized (this.context.getCallBackPool()) {
 
                 if (this.context.isInCallBackPool(carbonMessage.getProperty(Constants.CALL_BACK).toString())) {
 
-                    //TODO: this is wrong.
-                    this.context.removeFromCallBackPool(parentCallback.toString());
+                    this.context.removeFromCallBackPool(carbonMessage.getProperty(
+                            Constants.CALL_BACK).toString());
 
                 } else {
                     log.error("Response received after removing callback from pool.." +
-                            "This response will be discarded..");
+                            "This response will be discarded. " +
+                            "You might have to adjust timeout value to avoid this.");
                     return;
                 }
             }

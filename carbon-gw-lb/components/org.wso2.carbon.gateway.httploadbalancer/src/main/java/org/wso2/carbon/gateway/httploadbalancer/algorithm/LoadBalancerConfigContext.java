@@ -286,8 +286,10 @@ public class LoadBalancerConfigContext {
         this.callBackPool.putIfAbsent(callBackString.
                 substring(callBackString.lastIndexOf(".") + 1, callBackString.length()), time);
 
-        log.info("Added to pool : " + callBackString.
-                substring(callBackString.lastIndexOf(".") + 1, callBackString.length()));
+        log.info("Added to pool Key : " + callBackString.
+                substring(callBackString.lastIndexOf(".") + 1, callBackString.length()) +
+                " Value : " + callBackPool.get(callBackString.
+                substring(callBackString.lastIndexOf(".") + 1, callBackString.length())));
 
     }
 
@@ -301,8 +303,12 @@ public class LoadBalancerConfigContext {
 
         if (this.callBackPool.containsKey(callBackString.
                 substring(callBackString.lastIndexOf(".") + 1, callBackString.length()))) {
+            log.info("Is in Pool : " + callBackString.
+                    substring(callBackString.lastIndexOf(".") + 1, callBackString.length()));
             return true;
         } else {
+            log.info("Is not in Pool : " + callBackString.
+                    substring(callBackString.lastIndexOf(".") + 1, callBackString.length()));
             return false;
         }
     }
@@ -315,11 +321,14 @@ public class LoadBalancerConfigContext {
 
     public void removeFromCallBackPool(String callBackString) {
 
+        log.info("Removing from Pool  Key : " + callBackString.
+                substring(callBackString.lastIndexOf(".") + 1, callBackString.length()) +
+                " Value : " + callBackPool.get(callBackString.
+                substring(callBackString.lastIndexOf(".") + 1, callBackString.length())));
+
         this.callBackPool.remove(callBackString.
                 substring(callBackString.lastIndexOf(".") + 1, callBackString.length()));
 
-        log.info("Removed from Pool : " + callBackString.
-                substring(callBackString.lastIndexOf(".") + 1, callBackString.length()));
 
     }
 
