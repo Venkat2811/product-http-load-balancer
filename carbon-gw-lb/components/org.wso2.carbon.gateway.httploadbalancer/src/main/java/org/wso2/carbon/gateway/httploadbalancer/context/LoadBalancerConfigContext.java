@@ -4,6 +4,7 @@ package org.wso2.carbon.gateway.httploadbalancer.context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
+import org.wso2.carbon.messaging.CarbonCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,7 +73,7 @@ public class LoadBalancerConfigContext {
      * <p>
      * Accessing Pool objects MUST be synchronized.
      */
-    private final Map<String, Long> callBackPool = new ConcurrentHashMap<>();
+    private final Map<String, CarbonCallback> callBackPool = new ConcurrentHashMap<>();
 
 
     public String getAlgorithm() {
@@ -269,65 +270,63 @@ public class LoadBalancerConfigContext {
     }
 
 
-    public Map<String, Long> getCallBackPool() {
+    public Map<String, CarbonCallback> getCallBackPool() {
 
         return callBackPool;
     }
 
 
     /**
-     * @param callBackString toString() value of LoadBalancerMediatorCallBack Object.
-     * @param time           System.nanoTime() in milli seconds format
-     *                       <p>
-     *                       NOTE: Always access this method using lock on CallBackPool object.
+     * @param callback LoadBalancerMediatorCallBack.
+     *                 <p>
+     *                 NOTE: This operation is always thread safe.
      */
-    public void addToCallBackPool(String callBackString, Long time) {
+    public void addToCallBackPool(CarbonCallback callback) {
 
-        this.callBackPool.putIfAbsent(callBackString.
-                substring(callBackString.lastIndexOf(".") + 1, callBackString.length()), time);
+        String name = callback.toString().substring(callback.toString().lastIndexOf(".") + 1,
+                callback.toString().length());
 
-        log.info("Added to pool Key : " + callBackString.
-                substring(callBackString.lastIndexOf(".") + 1, callBackString.length()) +
-                " Value : " + callBackPool.get(callBackString.
-                substring(callBackString.lastIndexOf(".") + 1, callBackString.length())));
+        this.callBackPool.putIfAbsent(name, callback);
+
+        log.info("Added to pool Key : " + name);
 
     }
 
-    /**
-     * @param callBackString toString() value of LoadBalancerMediatorCallBack Object.
-     * @return existing or not.
-     * <p>
-     * NOTE: Always access this method using lock on CallBackPool object.
-     */
-    public boolean isInCallBackPool(String callBackString) {
 
-        if (this.callBackPool.containsKey(callBackString.
-                substring(callBackString.lastIndexOf(".") + 1, callBackString.length()))) {
-            log.info("Is in Pool : " + callBackString.
-                    substring(callBackString.lastIndexOf(".") + 1, callBackString.length()));
+    /**
+     * @param callback LoadBalancerMediatorCallBack.
+     * @return present or not.
+     * <p>
+     * NOTE: This operation is always thread safe.
+     */
+    public boolean isInCallBackPool(CarbonCallback callback) {
+
+        String name = callback.toString().substring(callback.toString().lastIndexOf(".") + 1,
+                callback.toString().length());
+
+        if (this.callBackPool.containsKey(name)) {
+            log.info("Is in Pool : " + name);
             return true;
         } else {
-            log.info("Is not in Pool : " + callBackString.
-                    substring(callBackString.lastIndexOf(".") + 1, callBackString.length()));
+            log.info("Is not in Pool : " + name);
             return false;
         }
     }
 
+
     /**
-     * @param callBackString toString() value of LoadBalancerMediatorCallBack Object.
-     *                       <p>
-     *                       NOTE: Always access this method using lock on CallBackPool object.
+     * @param callback LoadBalancerMediatorCallBack.
+     *                 <p>
+     *                 NOTE: This operation is always thread safe.
      */
+    public void removeFromCallBackPool(CarbonCallback callback) {
 
-    public void removeFromCallBackPool(String callBackString) {
+        String name = callback.toString().substring(callback.toString().lastIndexOf(".") + 1,
+                callback.toString().length());
 
-        log.info("Removing from Pool  Key : " + callBackString.
-                substring(callBackString.lastIndexOf(".") + 1, callBackString.length()) +
-                " Value : " + callBackPool.get(callBackString.
-                substring(callBackString.lastIndexOf(".") + 1, callBackString.length())));
+        log.info("Removing from Pool  Key : " + name);
 
-        this.callBackPool.remove(callBackString.
-                substring(callBackString.lastIndexOf(".") + 1, callBackString.length()));
+        this.callBackPool.remove(name);
 
 
     }

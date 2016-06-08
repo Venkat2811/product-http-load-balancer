@@ -12,10 +12,13 @@ import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.invokers.LoadBalancerCallMediator;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
+import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.timeout.TimeoutHandler;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
+
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -73,6 +76,16 @@ public class LoadBalancerMediator extends AbstractMediator {
         for (LBOutboundEndpoint lbOutboundEP : lbOutboundEndpoints) {
             lbMediatorMap.put(lbOutboundEP.getName(), new LoadBalancerCallMediator(lbOutboundEP, context));
         }
+
+        //At this point everything is initialized.
+
+        //Creating timer for call back pool.
+
+        TimeoutHandler timeoutHandler = new TimeoutHandler(this.context);
+
+        Timer timer = new Timer(true); //TODO: Try to get config file name to use it here.
+
+        timer.schedule(timeoutHandler, 0, 10); //TODO: make it configurable.
 
     }
 

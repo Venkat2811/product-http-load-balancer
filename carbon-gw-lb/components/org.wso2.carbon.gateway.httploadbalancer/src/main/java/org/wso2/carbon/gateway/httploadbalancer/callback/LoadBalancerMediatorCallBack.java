@@ -11,6 +11,7 @@ import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.Constants;
 
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -30,6 +31,14 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
     //LoadBalancerConfigContext context.
     private final LoadBalancerConfigContext context;
 
+    //To store timeout value for this callback.
+    private final long timeOut;
+
+    public long getTimeout() {
+
+        return this.timeOut;
+    }
+
     /**
      * Constructor.
      *
@@ -43,6 +52,10 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
         this.parentCallback = parentCallback;
         this.mediator = mediator;
         this.context = context;
+        // Note that we are assigning timeout value way ahead of calling outboundEndpoint.
+        // this will be atleast 2 to 5 milli second difference, which might cause removal of
+        // object from pool before response arrives. So we are adding 5 ms time to it.
+        this.timeOut = TimeUnit.NANOSECONDS.toMillis(System.nanoTime()) + 5;
 
     }
 
@@ -63,22 +76,20 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
 
         if (parentCallback instanceof LoadBalancerMediatorCallBack) {
 
-            //  log.info(parentCallback.toString());
-            //As we are locking only on CallBackPool object, it is efficient.
-            synchronized (this.context.getCallBackPool()) {
+            //Locking is not required as we are operating on ConcurrentHashMap.
+            if (this.context.isInCallBackPool((CarbonCallback)
+                    carbonMessage.getProperty(Constants.CALL_BACK))) {
 
-                if (this.context.isInCallBackPool(carbonMessage.getProperty(Constants.CALL_BACK).toString())) {
+                this.context.removeFromCallBackPool((CarbonCallback)
+                        carbonMessage.getProperty(Constants.CALL_BACK));
 
-                    this.context.removeFromCallBackPool(carbonMessage.getProperty(
-                            Constants.CALL_BACK).toString());
-
-                } else {
-                    log.error("Response received after removing callback from pool.." +
-                            "This response will be discarded. " +
-                            "You might have to adjust timeout value to avoid this.");
-                    return;
-                }
+            } else {
+                log.error("Response received after removing callback from pool.." +
+                        "This response will be discarded. " +
+                        "You might have to adjust timeout value to avoid this from happening.");
+                return;
             }
+
 
             if (context.getPersistence().equals(LoadBalancerConstants.APPLICATION_COOKIE)) {
 

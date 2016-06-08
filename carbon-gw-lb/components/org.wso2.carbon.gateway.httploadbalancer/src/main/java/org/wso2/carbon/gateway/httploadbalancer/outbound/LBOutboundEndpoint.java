@@ -5,7 +5,6 @@ import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContex
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
-import java.util.concurrent.TimeUnit;
 
 /**
  * An instance of this class has a reference to an OutboundEndpoint.
@@ -89,19 +88,8 @@ public class LBOutboundEndpoint {
 
         this.outboundEndpoint.receive(carbonMessage, carbonCallback);
 
-        /**
-         * As we are locking only on CallBackPool object, it is efficient.
-         *
-         * Adding callback in pool after making call makes sense. Because,
-         *
-         *      We are using System.nanoTime() to store the time when call is made to OutboundEndpoint.
-         *      It will be more appropriate to store time after making the call than before making it.
-         *      (Though the difference will be in order of milliseconds).
-         */
-        synchronized (context.getCallBackPool()) {
-
-            context.addToCallBackPool(carbonCallback.toString(), TimeUnit.NANOSECONDS.toMillis(System.nanoTime()));
-        }
+        //No need to synchronize as we are operating on concurrent HashMap.
+        context.addToCallBackPool(carbonCallback);
 
         return false;
     }

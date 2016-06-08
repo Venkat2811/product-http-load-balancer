@@ -1,5 +1,7 @@
 package org.wso2.carbon.gateway.httploadbalancer.constants;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Constants for Load Balancer.
  */
@@ -115,14 +117,16 @@ public class LoadBalancerConstants {
     /**
      * TODO: Check these values with mentor. Should there be specific values based on type..?
      */
-    public static final int MAX_TIMEOUT_VAL = 18000000; //5 hours.
+    public static final int MAX_TIMEOUT_VAL = (int) TimeUnit.HOURS.toMillis(5); //5 hours.
 
-    public static final int DEFAULT_TIMEOUT = 60000; //1 min.
+    public static final int DEFAULT_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(60); //60 sec.
 
     public static final int DEFAULT_RETRIES = 3;
 
     //Time interval to be elapsed after which, LB has to check whether an endpoint is back to healthy.
-    public static final int DEFAULT_HEALTHY_CHECK_INTERVAL = 300000; //5 mins.
+    public static final int DEFAULT_HEALTHY_CHECK_INTERVAL = (int) TimeUnit.MINUTES.toMillis(5); //5 mins.
+
+    public static final int DEFAULT_TIMER_PERIOD = (int) TimeUnit.SECONDS.toMillis(10); //10 sec
 
 
 }
