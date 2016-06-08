@@ -5,6 +5,8 @@ import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContex
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * An instance of this class has a reference to an OutboundEndpoint.
  * It also holds other LB HealthCheck related values pertained to it.
@@ -25,7 +27,7 @@ public class LBOutboundEndpoint {
     // No of retries to be done to mark an endpoint as unHealthy.
     private int unHealthyRetriesCount = 0;
 
-    // This will be used to hold System.currentTimeMillis() value.
+    // This will be used to hold System.nanoTime() value.
     // This will be set, once OutboundEndpoint becomes unhealthy.
     // It will be set back to zero once endpoint becomes healthy again.
     private long healthCheckedTime = 0;
@@ -92,12 +94,13 @@ public class LBOutboundEndpoint {
          *
          * Adding callback in pool after making call makes sense. Because,
          *
-         *      We are using System.currentTimeMillis() to store the time when call is made to OutboundEndpoint.
+         *      We are using System.nanoTime() to store the time when call is made to OutboundEndpoint.
          *      It will be more appropriate to store time after making the call than before making it.
          *      (Though the difference will be in order of milliseconds).
          */
         synchronized (context.getCallBackPool()) {
-            context.addToCallBackPool(carbonCallback.toString(), System.currentTimeMillis());
+
+            context.addToCallBackPool(carbonCallback.toString(), TimeUnit.NANOSECONDS.toMillis(System.nanoTime()));
         }
 
         return false;

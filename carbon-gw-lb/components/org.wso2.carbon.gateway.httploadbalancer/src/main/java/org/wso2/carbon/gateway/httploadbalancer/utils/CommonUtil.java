@@ -13,6 +13,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A util class for LB specific operations.
@@ -69,19 +70,17 @@ public class CommonUtil {
         } else if (time.contains("s")) {
 
             val = Integer.parseInt(time.substring(0, time.indexOf("s")));
-            val *= 1000;
-            return val;
+            return (int) TimeUnit.SECONDS.toMillis(val);
 
         } else if (time.contains("m")) {
 
             val = Integer.parseInt(time.substring(0, time.indexOf("m")));
-            val *= 60 * 1000;
-            return val;
+            return (int) TimeUnit.MINUTES.toMillis(val);
 
         } else if (time.contains("h")) {
 
             val = Integer.parseInt(time.substring(0, time.indexOf("h")));
-            val *= 60 * 60 * 1000;
+            return (int) TimeUnit.HOURS.toMillis(val);
 
         }
 

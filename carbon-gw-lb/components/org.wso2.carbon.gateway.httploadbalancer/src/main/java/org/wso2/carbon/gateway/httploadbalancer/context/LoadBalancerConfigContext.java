@@ -277,7 +277,7 @@ public class LoadBalancerConfigContext {
 
     /**
      * @param callBackString toString() value of LoadBalancerMediatorCallBack Object.
-     * @param time           System.currentTimeMillis()
+     * @param time           System.nanoTime() in milli seconds format
      *                       <p>
      *                       NOTE: Always access this method using lock on CallBackPool object.
      */
