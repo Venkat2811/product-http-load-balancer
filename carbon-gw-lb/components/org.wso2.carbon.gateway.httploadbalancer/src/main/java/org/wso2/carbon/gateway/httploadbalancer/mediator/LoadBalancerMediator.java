@@ -7,6 +7,7 @@ import org.wso2.carbon.gateway.core.flow.AbstractMediator;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancingAlgorithm;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.simple.ClientIPHashing;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.simple.RoundRobin;
+import org.wso2.carbon.gateway.httploadbalancer.callback.LoadBalancerMediatorCallBack;
 import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.invokers.LoadBalancerCallMediator;
