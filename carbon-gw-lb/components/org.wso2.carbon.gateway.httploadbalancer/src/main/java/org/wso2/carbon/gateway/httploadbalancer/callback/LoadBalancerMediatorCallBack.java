@@ -93,6 +93,7 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
 
                 this.context.removeFromCallBackPool((CarbonCallback)
                         carbonMessage.getProperty(Constants.CALL_BACK));
+                //From this point, this callback will not be available in pool.
 
                 /**
                  * We are locking on this LBOutboundEndpoint object because,

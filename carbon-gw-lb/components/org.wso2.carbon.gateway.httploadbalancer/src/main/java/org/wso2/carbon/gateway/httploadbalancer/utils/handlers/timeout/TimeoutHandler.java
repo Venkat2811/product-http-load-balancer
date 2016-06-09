@@ -70,6 +70,8 @@ public class TimeoutHandler extends TimerTask {
         //If there is no object in pool no need to process.
         if (hasContent) {
 
+            long currentTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
+
             /**
              * Here also we are not locking callBackPool, because lock on concurrent HashMap will be overkill.
              * At this point 2 cases might occur.
@@ -79,36 +81,57 @@ public class TimeoutHandler extends TimerTask {
              *
              *  2) A response arrives and corresponding object is removed from pool. So don't worry.
              *     We got response and it would have been sent to client.
-             *     Note that by iterating through Key Set we are getting callback object
+             *
+             *     NOTE: By iterating through Key Set we are getting callback object
              *     from our callBackPool.
              */
-
-            long currentTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
 
             for (String key : context.getCallBackPool().keySet()) {
 
                 LoadBalancerMediatorCallBack callBack = (LoadBalancerMediatorCallBack)
                         context.getCallBackPool().get(key);
 
-                if (((currentTime - callBack.getTimeout()) > context.getReqTimeout())) {
-                    //This callBack is in pool after it has timedOut.
+                /**
+                 * CallBack might be null because, we are iterating using keySet. So when getting keySet()
+                 * we will get keys of all objects present in pool at that point.
+                 *
+                 * Suppose a response arrives after getting keySet(), that callBack will be removed from
+                 * pool and it will also be reflected here because we are accessing callbackPool through
+                 * context.getCallBackPool(), instead of having a local reference to it.
+                 *
+                 * So doing null check is better.
+                 */
+                if (callBack != null) {
 
-                    //This operation is on Concurrent HashMap, so no synchronization is required.
-                    context.removeFromCallBackPool(callBack);
+                    if (((currentTime - callBack.getTimeout()) > context.getReqTimeout())) {
+                        //This callBack is in pool after it has timedOut.
 
-                    /**
-                     * But here we need synchronization because, this LBOutboundEndpoint might be
-                     * used in CallMediator and LoadBalancerMediatorCallBack.
-                     *
-                     * We will be changing LBOutboundEndpoint's properties here.
-                     */
-                    synchronized (callBack.getLbOutboundEndpoint()) {
 
-                        log.info("Work in progress");
-                        //TODO: Since this is timedOut, we have to send appropriate message to client.
-                        //TODO: Change properties of ther OutboundEndpoint too.
+                        //This operation is on Concurrent HashMap, so no synchronization is required.
+                        if (!context.isInCallBackPool(callBack)) {
+                            //If response arrives at this point, callBack would have been removed from pool
+                            //and it would have been sent back to client. So break here.
+                            break;
+                        } else {
+                            context.removeFromCallBackPool(callBack);
+                            //From this point, this callback will not be available in pool.
+                            //So if response arrives it will be discarded.
+                        }
+
+                        /**
+                         * But here we need synchronization because, this LBOutboundEndpoint might be
+                         * used in CallMediator and LoadBalancerMediatorCallBack.
+                         *
+                         * We will be changing LBOutboundEndpoint's properties here.
+                         */
+                        synchronized (callBack.getLbOutboundEndpoint()) {
+
+                            log.info("Work in progress");
+                            //TODO: Since this is timedOut, we have to send appropriate message to client.
+                            //TODO: Change properties of ther OutboundEndpoint too.
+                        }
+
                     }
-
                 }
             }
         }
