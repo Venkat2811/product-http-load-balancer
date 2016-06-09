@@ -13,7 +13,7 @@ public class LoadBalancerConstants {
     public static final String ALGORITHM_NAME = "algorithmName";
     public static final String PERSISTENCE_TYPE = "persistenceType";
 
-    // As of now, this timeout value will be used only with "LB_COOKIE" based persistence.
+    // As of now, this timers value will be used only with "LB_COOKIE" based persistence.
     public static final String PERSISTENCE_SESSION_TIME_OUT = "sessionTimeOut";
 
     public static final String SSL_TYPE = "sslType";

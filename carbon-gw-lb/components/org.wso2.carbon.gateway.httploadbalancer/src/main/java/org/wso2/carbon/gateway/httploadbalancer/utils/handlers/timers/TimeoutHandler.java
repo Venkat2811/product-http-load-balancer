@@ -1,9 +1,10 @@
-package org.wso2.carbon.gateway.httploadbalancer.utils.handlers.timeout;
+package org.wso2.carbon.gateway.httploadbalancer.utils.handlers.timers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.httploadbalancer.callback.LoadBalancerMediatorCallBack;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
+import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
@@ -70,7 +71,7 @@ public class TimeoutHandler extends TimerTask {
         //If there is no object in pool no need to process.
         if (hasContent) {
 
-            long currentTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
+            long currentTime = this.getCurrentTime();
 
             /**
              * Here also we are not locking callBackPool, because lock on concurrent HashMap will be overkill.
@@ -128,7 +129,21 @@ public class TimeoutHandler extends TimerTask {
 
                             log.info("Work in progress");
                             //TODO: Since this is timedOut, we have to send appropriate message to client.
-                            //TODO: Change properties of ther OutboundEndpoint too.
+
+                            callBack.getLbOutboundEndpoint().incrementUnHealthyRetries();
+
+                            if (this.reachedUnHealthyRetriesThreshold(callBack.getLbOutboundEndpoint())) {
+
+                                callBack.getLbOutboundEndpoint().flipHealthyFlag();
+                                callBack.getLbOutboundEndpoint().setHealthCheckedTime(this.getCurrentTime());
+
+                                //Adding to unHealthy List.
+                                synchronized (context.getUnHealthyLBEPList()) {
+
+                                    context.getUnHealthyLBEPList().add(callBack.getLbOutboundEndpoint());
+                                }
+
+                            }
                         }
 
                     }
@@ -136,5 +151,20 @@ public class TimeoutHandler extends TimerTask {
             }
         }
 
+    }
+
+    private boolean reachedUnHealthyRetriesThreshold(LBOutboundEndpoint lbOutboundEndpoint) {
+
+        if (lbOutboundEndpoint.getUnHealthyRetriesCount() >= context.getUnHealthyRetries()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
+    private long getCurrentTime() {
+
+        return TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
     }
 }

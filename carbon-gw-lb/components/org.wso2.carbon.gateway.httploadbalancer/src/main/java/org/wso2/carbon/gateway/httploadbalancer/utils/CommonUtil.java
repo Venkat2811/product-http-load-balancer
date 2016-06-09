@@ -135,7 +135,7 @@ public class CommonUtil {
      * <p>
      * NOTE: This will be used when there is no cookie from BE.
      * <p>
-     * No timeout is specified. So, there will be persistence until browser is closed.
+     * No timers is specified. So, there will be persistence until browser is closed.
      * So this is a Session Cookie.
      * <p>
      * //TODO: should we add path.?

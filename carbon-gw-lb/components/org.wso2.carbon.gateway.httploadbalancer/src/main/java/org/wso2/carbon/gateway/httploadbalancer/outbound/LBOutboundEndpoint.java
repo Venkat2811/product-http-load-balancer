@@ -94,6 +94,19 @@ public class LBOutboundEndpoint {
         return false;
     }
 
+    public void incrementUnHealthyRetries() {
+
+        this.unHealthyRetriesCount++;
+    }
+
+    public void incrementHealthyRetries() {
+
+        this.healthyRetriesCount++;
+    }
+
+    public void flipHealthyFlag() {
+        isHealthy = !isHealthy;
+    }
 
     /**
      * Call this method only when unHealthy LBEndpoint becomes Healthy.

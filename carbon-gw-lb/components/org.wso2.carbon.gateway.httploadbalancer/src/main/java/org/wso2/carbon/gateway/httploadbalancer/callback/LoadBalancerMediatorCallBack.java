@@ -36,7 +36,7 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
     //This will be used to locate specific lbOutboundEndpoint for healthChecking purposes.
     private final LBOutboundEndpoint lbOutboundEndpoint;
 
-    //To store timeout value for this callback.
+    //To store timers value for this callback.
     private final long timeOut;
 
     public long getTimeout() {
@@ -62,7 +62,7 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
         this.mediator = mediator;
         this.lbOutboundEndpoint = lbOutboundEndpoint;
         this.context = context;
-        // Note that we are assigning timeout value way ahead before invoking outboundEndpoint.
+        // Note that we are assigning timers value way ahead before invoking outboundEndpoint.
         // this will be atleast 2 to 5 milli second difference, which might cause removal of
         // object from pool before response arrives. So we are adding a grace period of 5 ms time to it.
         this.timeOut = TimeUnit.NANOSECONDS.toMillis(System.nanoTime()) -
@@ -108,7 +108,7 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
             } else {
                 log.error("Response received after removing callback from pool.." +
                         "This response will be discarded. " +
-                        "You might have to adjust timeout value to avoid this from happening.");
+                        "You might have to adjust timers value to avoid this from happening.");
                 return;
             }
 

@@ -129,7 +129,7 @@ public class LoadBalancerConfigHolder {
      * @param timeOut
      * @return boolean
      * <p>
-     * This method is used to check whether timeout is within limit or not.
+     * This method is used to check whether timers is within limit or not.
      */
     public boolean isWithInLimit(int timeOut) {
 
