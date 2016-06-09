@@ -3,6 +3,7 @@ package org.wso2.carbon.gateway.httploadbalancer.context;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.gateway.httploadbalancer.algorithm.simple.StrictClientIPHashing;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 import org.wso2.carbon.messaging.CarbonCallback;
 
@@ -74,6 +75,11 @@ public class LoadBalancerConfigContext {
      * Accessing Pool objects MUST be synchronized.
      */
     private final Map<String, CarbonCallback> callBackPool = new ConcurrentHashMap<>();
+
+    /**
+     * This will be used if persistence is chosen as CLIENT_IP_HASHING.
+     */
+    private StrictClientIPHashing strictClientIPHashing;
 
 
     public String getAlgorithm() {
@@ -160,6 +166,10 @@ public class LoadBalancerConfigContext {
         endpointToCookieMap = new ConcurrentHashMap<>();
     }
 
+    public void initStrictClientIPHashing(List<LBOutboundEndpoint> lbOutboundEndpoints) {
+        strictClientIPHashing = new StrictClientIPHashing(lbOutboundEndpoints);
+    }
+
     /**
      * @param cookieName
      * @param outboundEPKey Maps cookie to an outbound EP.
@@ -213,7 +223,7 @@ public class LoadBalancerConfigContext {
      * @param name LBOutboundEndpoint's name.
      * @return Corresponding LBOutboundEndpoint object.
      */
-    public LBOutboundEndpoint getOutboundEndpoint(String name) {
+    public LBOutboundEndpoint getLBOutboundEndpoint(String name) {
 
         return this.lbOutboundEndpoints.get(name);
     }
@@ -331,5 +341,7 @@ public class LoadBalancerConfigContext {
 
     }
 
-
+    public StrictClientIPHashing getStrictClientIPHashing() {
+        return strictClientIPHashing;
+    }
 }

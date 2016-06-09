@@ -57,7 +57,8 @@ public class LoadBalancerCallMediator extends AbstractMediator {
 
 
         //Using separate LBMediatorCallBack because, we are handling headers in CallBack for session persistence.
-        CarbonCallback callback = new LoadBalancerMediatorCallBack(carbonCallback, this, context);
+        CarbonCallback callback = new LoadBalancerMediatorCallBack(carbonCallback, this,
+                this.context, this.lbOutboundEndpoint);
 
         lbOutboundEndpoint.receive(carbonMessage, callback, this.context);
 

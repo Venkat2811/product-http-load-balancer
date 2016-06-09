@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.core.flow.Mediator;
 import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
+import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 import org.wso2.carbon.gateway.httploadbalancer.utils.CommonUtil;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -31,6 +32,10 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
     //LoadBalancerConfigContext context.
     private final LoadBalancerConfigContext context;
 
+    //LBOutboundEndpoint.
+    //This will be used to locate specific lbOutboundEndpoint for healthChecking purposes.
+    private final LBOutboundEndpoint lbOutboundEndpoint;
+
     //To store timeout value for this callback.
     private final long timeOut;
 
@@ -39,23 +44,29 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
         return this.timeOut;
     }
 
+    public LBOutboundEndpoint getLbOutboundEndpoint() {
+
+        return this.lbOutboundEndpoint;
+    }
+
     /**
      * Constructor.
      *
      * @param parentCallback CarbonCallback.
-     * @param mediator       Mediator.
-     * @param context        LoadBalancerConfigContext.
+     * @param mediator       LoadBalancerMediator.
      */
-    public LoadBalancerMediatorCallBack(CarbonCallback parentCallback,
-                                        Mediator mediator, LoadBalancerConfigContext context) {
+    public LoadBalancerMediatorCallBack(CarbonCallback parentCallback, Mediator mediator,
+                                        LoadBalancerConfigContext context, LBOutboundEndpoint lbOutboundEndpoint) {
 
         this.parentCallback = parentCallback;
         this.mediator = mediator;
+        this.lbOutboundEndpoint = lbOutboundEndpoint;
         this.context = context;
-        // Note that we are assigning timeout value way ahead of calling outboundEndpoint.
+        // Note that we are assigning timeout value way ahead before invoking outboundEndpoint.
         // this will be atleast 2 to 5 milli second difference, which might cause removal of
-        // object from pool before response arrives. So we are adding 5 ms time to it.
-        this.timeOut = TimeUnit.NANOSECONDS.toMillis(System.nanoTime()) + 5;
+        // object from pool before response arrives. So we are adding a grace period of 5 ms time to it.
+        this.timeOut = TimeUnit.NANOSECONDS.toMillis(System.nanoTime()) -
+                LoadBalancerConstants.DEFAULT_GRACE_PERIOD;
 
     }
 
@@ -83,6 +94,16 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
                 this.context.removeFromCallBackPool((CarbonCallback)
                         carbonMessage.getProperty(Constants.CALL_BACK));
 
+                /**
+                 * We are locking on this LBOutboundEndpoint object because,
+                 * this might be used in LoadBalancerMediator and in TimeoutHandler.
+                 *
+                 * Since we are resetting the properties lock is must.
+                 */
+                synchronized (this.lbOutboundEndpoint) {
+                    this.lbOutboundEndpoint.resetToDefault();
+                }
+
             } else {
                 log.error("Response received after removing callback from pool.." +
                         "This response will be discarded. " +
@@ -91,7 +112,7 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
             }
 
 
-            if (context.getPersistence().equals(LoadBalancerConstants.APPLICATION_COOKIE)) {
+            if (this.context.getPersistence().equals(LoadBalancerConstants.APPLICATION_COOKIE)) {
 
                 /**
                  ///////////////////////////////////////////////////////////////////////////////////
@@ -128,7 +149,7 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
                             ),
                             CommonUtil.addLBCookieToExistingCookie(
                                     carbonMessage.getHeader(LoadBalancerConstants.SET_COOKIE_HEADER),
-                                    CommonUtil.getCookieValue(carbonMessage, context)));
+                                    CommonUtil.getCookieValue(carbonMessage, this.context)));
 
                 } else { //There is no cookie in response from BE.
 
@@ -140,7 +161,7 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
                     //i.e., we are only inserting cookie. So using Set-Cookie itself.
                     carbonMessage.setHeader(LoadBalancerConstants.SET_COOKIE_HEADER,
                             CommonUtil.getSessionCookie(CommonUtil.
-                                    getCookieValue(carbonMessage, context), false));
+                                    getCookieValue(carbonMessage, this.context), false));
 
                 }
 
@@ -148,7 +169,7 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
                 parentCallback.done(carbonMessage);
 
 
-            } else if (context.getPersistence().equals(LoadBalancerConstants.LB_COOKIE)) {
+            } else if (this.context.getPersistence().equals(LoadBalancerConstants.LB_COOKIE)) {
 
                 /**
                  ///////////////////////////////////////////////////////////////////////////////////
@@ -181,7 +202,8 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
 
                 //Adding LB specific cookie.
                 carbonMessage.setHeader(LoadBalancerConstants.SET_COOKIE_HEADER,
-                        CommonUtil.getSessionCookie(CommonUtil.getCookieValue(carbonMessage, context), false));
+                        CommonUtil.getSessionCookie(CommonUtil.
+                                getCookieValue(carbonMessage, this.context), false));
 
                 parentCallback.done(carbonMessage);
 

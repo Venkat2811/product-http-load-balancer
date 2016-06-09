@@ -40,7 +40,11 @@ public class LoadBalancerConstants {
 
     public static final String ROUND_ROBIN = "ROUND_ROBIN";
 
-    public static final String IP_HASHING = "IP_HASHING";
+    //Persistence based on Client's IP address.
+    //If client IP address is not available, NO ENDPOINT will be chosen.
+    //If this algorithm is chosen, on should choose NO_PERSISTENCE as persistence policy.
+    //Because, it has implicit session handling.
+    public static final String STRICT_IP_HASHING = "STRICT_IP_HASHING";
 
     /**
      * Common HTTP Request Headers related to Client IP address.
@@ -56,20 +60,31 @@ public class LoadBalancerConstants {
     //This value will be used in ConsistentHash algorithm.
     public static final int NUM_OF_REPLICAS = 1;
 
+
     public static final String LEAST_RESPONSE_TIME = "LEAST_RESPONSE_TIME";
 
 
     /**
      * Session Persistence related Constants.
      */
+    //No persistence will be maintained.
     public static final String NO_PERSISTENCE = "NO_PERSISTENCE";
 
     //Session Timeout is handled by application cookie.
+    //If application cookie is not available in server's response,
+    //LB will insert its own cookie to maintain persistence.
+    //If cookie is not available from client side, endpoint will be chosen based on algorithm.
     public static final String APPLICATION_COOKIE = "APPLICATION_COOKIE";
 
     //Session Timeout is handled by LB_COOKIE.
     // Use this mode ONLY if application doesn't use its own cookies.
+    // If there is any cookie available in server's response it will be discarded.
+    //If cookie is not available from client side, endpoint will be chosen based on algorithm.
     public static final String LB_COOKIE = "LB_COOKIE";
+
+    //Persistence based on Client's IP address.
+    //If client IP address is not available, endpoint will be chosen based on algorithm.
+    public static final String CLIENT_IP_HASHING = "CLIENT_IP_HASHING";
 
 
     //This will be used in cookie to OutboundEndpoint maps.
@@ -126,7 +141,11 @@ public class LoadBalancerConstants {
     //Time interval to be elapsed after which, LB has to check whether an endpoint is back to healthy.
     public static final int DEFAULT_HEALTHY_CHECK_INTERVAL = (int) TimeUnit.MINUTES.toMillis(5); //5 mins.
 
+    //Scheduled time Interval to execute TimeoutHandler.
     public static final int DEFAULT_TIMER_PERIOD = (int) TimeUnit.SECONDS.toMillis(10); //10 sec
+
+    //Default grace period to be added to timeOut value (in milliseconds) while creating LBMediatorCallBack.
+    public static final int DEFAULT_GRACE_PERIOD = 5; //5 ms
 
 
 }
