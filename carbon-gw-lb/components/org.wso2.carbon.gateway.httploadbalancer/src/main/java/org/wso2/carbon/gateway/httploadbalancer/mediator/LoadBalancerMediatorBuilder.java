@@ -23,6 +23,8 @@ public class LoadBalancerMediatorBuilder {
     private static LoadBalancerMediator lbMediator;
 
 
+
+
     /**
      * @param gwConfigHolder GWConfigHolder.
      * @param context        LoadBalancerConfigContex.
@@ -34,8 +36,14 @@ public class LoadBalancerMediatorBuilder {
      */
     public static LoadBalancerMediator configure(GWConfigHolder gwConfigHolder, LoadBalancerConfigContext context) {
 
+
         lbMediator = new LoadBalancerMediator(
-                CommonUtil.getLBOutboundEndpointsList(context.getLbOutboundEndpoints()), context);
+                CommonUtil.getLBOutboundEndpointsList(context.getLbOutboundEndpoints()), context,
+                // We will be using this name for our timer. If configHolder has a name we will use that.
+                // Otherwise we will use InboundEndpoint's name.
+                // Anyways, it will be unique and will be easy to debug.
+                (gwConfigHolder.getName() == null || gwConfigHolder.getName().equals("default")) ?
+                        gwConfigHolder.getInboundEndpoint().getName() : gwConfigHolder.getName());
 
         if (gwConfigHolder.hasGroups()) {
 
@@ -56,4 +64,5 @@ public class LoadBalancerMediatorBuilder {
 
         return lbMediator;
     }
+
 }

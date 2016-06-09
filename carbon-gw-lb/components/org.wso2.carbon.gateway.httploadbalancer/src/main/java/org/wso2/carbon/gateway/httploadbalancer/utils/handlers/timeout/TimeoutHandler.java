@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.httploadbalancer.callback.LoadBalancerMediatorCallBack;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
+
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
@@ -16,14 +17,26 @@ public class TimeoutHandler extends TimerTask {
 
 
     private final LoadBalancerConfigContext context;
+    private final String handlerName;
 
     private volatile boolean isRunning = false;
 
-    public TimeoutHandler(LoadBalancerConfigContext context) {
+    public TimeoutHandler(LoadBalancerConfigContext context, String configName) {
 
         this.context = context;
+        this.handlerName = configName + "-" + this.getName();
+
+        log.info(this.getHandlerName() + " started.");
     }
 
+    public String getName() {
+
+        return "TimeoutHandler";
+    }
+
+    public String getHandlerName() {
+        return handlerName;
+    }
 
     @Override
     public void run() {
@@ -77,11 +90,25 @@ public class TimeoutHandler extends TimerTask {
                 LoadBalancerMediatorCallBack callBack = (LoadBalancerMediatorCallBack)
                         context.getCallBackPool().get(key);
 
-                if ((callBack.getTimeout() + context.getReqTimeout()) > currentTime) {
-                    //There is an object in pool after request has timedOut.
+                if (((currentTime - callBack.getTimeout()) > context.getReqTimeout())) {
+                    //This callBack is in pool after it has timedOut.
 
+                    //This operation is on Concurrent HashMap, so no synchronization is required.
                     context.removeFromCallBackPool(callBack);
-                    //TODO: Since this is timedOut, we have to send appropriate message to client.
+
+                    /**
+                     * But here we need synchronization because, this LBOutboundEndpoint might be
+                     * used in CallMediator and LoadBalancerMediatorCallBack.
+                     *
+                     * We will be changing LBOutboundEndpoint's properties here.
+                     */
+                    synchronized (callBack.getLbOutboundEndpoint()) {
+
+                        log.info("Work in progress");
+                        //TODO: Since this is timedOut, we have to send appropriate message to client.
+                        //TODO: Change properties of ther OutboundEndpoint too.
+                    }
+
                 }
             }
         }

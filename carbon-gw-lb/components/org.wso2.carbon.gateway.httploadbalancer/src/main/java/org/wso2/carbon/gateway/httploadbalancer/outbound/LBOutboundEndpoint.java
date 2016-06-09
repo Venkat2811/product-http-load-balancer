@@ -100,7 +100,7 @@ public class LBOutboundEndpoint {
      * <p>
      * NOTE: Have a lock on the LBOutboundEndpoint before calling this.
      */
-    public void reset() {
+    public void resetToDefault() {
         setHealthy(true);
         setHealthyRetriesCount(0);
         setUnHealthyRetriesCount(0);

@@ -5,13 +5,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.core.flow.AbstractMediator;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancingAlgorithm;
-import org.wso2.carbon.gateway.httploadbalancer.algorithm.simple.ClientIPHashing;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.simple.RoundRobin;
+import org.wso2.carbon.gateway.httploadbalancer.algorithm.simple.StrictClientIPHashing;
 import org.wso2.carbon.gateway.httploadbalancer.callback.LoadBalancerMediatorCallBack;
 import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.invokers.LoadBalancerCallMediator;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
+import org.wso2.carbon.gateway.httploadbalancer.utils.CommonUtil;
 import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.timeout.TimeoutHandler;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -39,10 +40,12 @@ public class LoadBalancerMediator extends AbstractMediator {
     private static final Logger log = LoggerFactory.getLogger(LoadBalancerMediator.class);
     private final String logMessage = "Message received at Load Balancer Mediator";
 
-    private Map<String, LoadBalancerCallMediator> lbMediatorMap;
+    private Map<String, LoadBalancerCallMediator> lbCallMediatorMap;
 
     private final LoadBalancingAlgorithm lbAlgorithm;
     private final LoadBalancerConfigContext context;
+
+    private String configName;
 
 
     @Override
@@ -52,21 +55,38 @@ public class LoadBalancerMediator extends AbstractMediator {
     }
 
 
+    public String getConfigName() {
+        return configName;
+    }
+
+    public void setConfigName(String configName) {
+        this.configName = configName;
+    }
+
     /**
      * @param lbOutboundEndpoints LBOutboundEndpoints List.
      * @param context             LoadBalancerConfigContext.
      */
-    public LoadBalancerMediator(List<LBOutboundEndpoint> lbOutboundEndpoints, LoadBalancerConfigContext context) {
+    public LoadBalancerMediator(List<LBOutboundEndpoint> lbOutboundEndpoints,
+                                LoadBalancerConfigContext context, String configName) {
 
         this.context = context;
-        lbMediatorMap = new ConcurrentHashMap<>();
+        this.configName = configName;
+        lbCallMediatorMap = new ConcurrentHashMap<>();
 
         if (context.getAlgorithm().equals(LoadBalancerConstants.ROUND_ROBIN)) {
 
             lbAlgorithm = new RoundRobin(lbOutboundEndpoints);
-        } else if (context.getAlgorithm().equals(LoadBalancerConstants.IP_HASHING)) {
 
-            lbAlgorithm = new ClientIPHashing(lbOutboundEndpoints);
+            if (context.getPersistence().equals(LoadBalancerConstants.CLIENT_IP_HASHING)) {
+
+                context.initStrictClientIPHashing(lbOutboundEndpoints);
+            }
+
+        } else if (context.getAlgorithm().equals(LoadBalancerConstants.STRICT_IP_HASHING)) {
+
+            lbAlgorithm = new StrictClientIPHashing(lbOutboundEndpoints);
+
         } else {
             lbAlgorithm = null;
             return;
@@ -74,18 +94,18 @@ public class LoadBalancerMediator extends AbstractMediator {
 
         // Creating LoadBalancerCallMediators for OutboundEndpoints...
         for (LBOutboundEndpoint lbOutboundEP : lbOutboundEndpoints) {
-            lbMediatorMap.put(lbOutboundEP.getName(), new LoadBalancerCallMediator(lbOutboundEP, context));
+            lbCallMediatorMap.put(lbOutboundEP.getName(), new LoadBalancerCallMediator(lbOutboundEP, context));
         }
 
         //At this point everything is initialized.
 
         //Creating timer for call back pool.
 
-        TimeoutHandler timeoutHandler = new TimeoutHandler(this.context);
+        TimeoutHandler timeoutHandler = new TimeoutHandler(this.context, this.configName);
 
-        Timer timer = new Timer(true); //TODO: Try to get config file name to use it here.
+        Timer timer = new Timer(this.configName, true);
 
-        timer.schedule(timeoutHandler, 0, 10); //TODO: make it configurable.
+        timer.schedule(timeoutHandler, 0, LoadBalancerConstants.DEFAULT_TIMER_PERIOD);
 
     }
 
@@ -108,7 +128,7 @@ public class LoadBalancerMediator extends AbstractMediator {
 
         //log.info(" LB Mediator Cookie Header : " + carbonMessage.getHeader(LoadBalancerConstants.COOKIE_HEADER));
 
-        LBOutboundEndpoint nextEndpoint = null;
+        LBOutboundEndpoint nextLBOutboundEndpoint = null;
         final String persistenceType = context.getPersistence();
 
 
@@ -129,7 +149,7 @@ public class LoadBalancerMediator extends AbstractMediator {
                 log.info("There is no LB specific cookie.." +
                         "Persistence cannot be maintained.." +
                         "Choosing Endpoint based on algorithm");
-                nextEndpoint = lbAlgorithm.getNextOutboundEndpoint(carbonMessage, context);
+                nextLBOutboundEndpoint = lbAlgorithm.getNextLBOutboundEndpoint(carbonMessage, context);
 
             } else { //There is a LB specific cookie.
 
@@ -240,7 +260,7 @@ public class LoadBalancerMediator extends AbstractMediator {
 
 
                     //Choosing endpoint based on persistence.
-                    nextEndpoint = context.getOutboundEndpoint(outboundEPKey);
+                    nextLBOutboundEndpoint = context.getLBOutboundEndpoint(outboundEPKey);
 
 
                 } else {
@@ -254,53 +274,92 @@ public class LoadBalancerMediator extends AbstractMediator {
 
             }
 
+        } else if (persistenceType.equals(LoadBalancerConstants.CLIENT_IP_HASHING)) {
+
+            String ipAddress = CommonUtil.getClientIP(carbonMessage);
+            log.info("IP address retrieved is : " + ipAddress);
+            if (CommonUtil.isValidIP(ipAddress)) {
+
+                //Chosing endpoint based on IP Hashing.
+                nextLBOutboundEndpoint = context.getLBOutboundEndpoint(
+                        context.getStrictClientIPHashing().getHash().get(ipAddress));
+
+            } else {
+
+                log.error("The IP Address retrieved is : " + ipAddress +
+                        " which is invalid according to our validation. " +
+                        "Endpoint will be chosen based on algorithm");
+                //TODO: throw appropriate exceptions also.
+                //Fetching endpoint according to algorithm.
+                nextLBOutboundEndpoint = lbAlgorithm.getNextLBOutboundEndpoint(carbonMessage, context);
+
+            }
+
         } else { //Policy is NO_PERSISTENCE
 
             //Fetching endpoint according to algorithm.
-            nextEndpoint = lbAlgorithm.getNextOutboundEndpoint(carbonMessage, context);
+            nextLBOutboundEndpoint = lbAlgorithm.getNextLBOutboundEndpoint(carbonMessage, context);
 
 
         }
 
-        if (nextEndpoint != null) {
-            log.info("Chosen endpoint by LB is.." + nextEndpoint.getName());
+        if (nextLBOutboundEndpoint != null) {
+            log.info("Chosen endpoint by LB is.." + nextLBOutboundEndpoint.getName());
 
-            if (nextEndpoint.isHealthy()) {
+            /**
+             *  NOTE: The places where LBOutboundEndpoint's properties will be changed are:
+             *  1) LoadBalancerMediatorCallBack
+             *  2) TimeoutHandler
+             *
+             *  We are acquiring lock on respective LBOutboundEndpoint object in the above mentioned
+             *  classes when the properties are being changed. So here we need not worry about locking
+             *  here because here we are just reading them.
+             */
+            if (nextLBOutboundEndpoint.isHealthy()) {
                 // Chosen Endpoint is healthy.
                 // If there is any persistence, it will be maintained.
 
                 // Calling chosen LBOutboundEndpoint's LoadBalancerCallMediator receive...
-                lbMediatorMap.get(nextEndpoint.getName()).
-                        receive(carbonMessage, new LoadBalancerMediatorCallBack(carbonCallback, this, context));
+                lbCallMediatorMap.get(nextLBOutboundEndpoint.getName()).
+                        receive(carbonMessage, new LoadBalancerMediatorCallBack(carbonCallback, this,
+                                this.context, nextLBOutboundEndpoint));
                 return true;
 
             } else {
 
                 while (true) {
-                    // Here we are trying to fetch healthy endpoint.
-                    // This loop also handles if there is no healthy endpoint available.
-                    // Adding and removing unHealthyEndpoint to the UnHealthyList happens in timer not here.
-                    // If there is any persistence, it WILL NOT BE MAINTAINED.
-
+                    /**
+                     * Here we are trying to fetch healthy endpoint.
+                     *
+                     * This loop also handles if there is no healthy endpoint available.
+                     *
+                     * Adding and removing unHealthyEndpoint to the UnHealthyList happens in TimeoutHandler not here.
+                     *
+                     * If there is any persistence, it WILL NOT BE MAINTAINED because the already chosen endpoint
+                     * with persistence is unHealthy and we again don't want to chose it.
+                     */
 
                     //Fetching endpoint according to algorithm.
-                    nextEndpoint = lbAlgorithm.getNextOutboundEndpoint(carbonMessage, context);
+                    nextLBOutboundEndpoint = lbAlgorithm.getNextLBOutboundEndpoint(carbonMessage, context);
 
-                    if (nextEndpoint.isHealthy()) { //The new Chosen Endpoint is healthy.
+                    if (nextLBOutboundEndpoint.isHealthy()) { //The new Chosen Endpoint is healthy.
 
                         // Calling chosen LBOutboundEndpoint's LoadBalancerCallMediator receive...
-                        lbMediatorMap.get(nextEndpoint.getName()).
-                                receive(carbonMessage, new LoadBalancerMediatorCallBack(carbonCallback, this, context));
+                        lbCallMediatorMap.get(nextLBOutboundEndpoint.getName()).
+                                receive(carbonMessage, new LoadBalancerMediatorCallBack(carbonCallback, this,
+                                        this.context, nextLBOutboundEndpoint));
                         return true;
 
                     } else {
 
-                        int size;
-                        synchronized (this.context) {
-                            size = context.getUnHealthyEPListSize();
+                        int unHealthyListSize;
+
+                        // Here locking is required as we are fetching size.
+                        synchronized (this.context.getUnHealthyLBEPList()) {
+                            unHealthyListSize = context.getUnHealthyEPListSize();
                         }
 
-                        if (context.getLbOutboundEndpoints().size() == size) {
+                        if (context.getLbOutboundEndpoints().size() == unHealthyListSize) {
 
                             log.error("All LBOutboundEndpoints are unHealthy..");
                             //TODO: throw exception if necessary.
@@ -315,6 +374,7 @@ public class LoadBalancerMediator extends AbstractMediator {
 
             log.error("Unable to choose endpoint for forwarding the request." +
                     " Check logs to see what went wrong.");
+            //TODO: Send appropriate response.
             return false;
         }
 
