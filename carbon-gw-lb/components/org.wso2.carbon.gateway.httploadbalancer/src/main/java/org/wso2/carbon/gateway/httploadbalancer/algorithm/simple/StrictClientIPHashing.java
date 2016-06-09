@@ -32,9 +32,9 @@ import java.util.List;
  * This algorithm by-itself maintains persistence. So, while choosing this algorithm,
  * persistence should be specified as NO_PERSISTENCE.
  */
-public class ClientIPHashing implements LoadBalancingAlgorithm {
+public class StrictClientIPHashing implements LoadBalancingAlgorithm {
 
-    private static final Logger log = LoggerFactory.getLogger(ClientIPHashing.class);
+    private static final Logger log = LoggerFactory.getLogger(StrictClientIPHashing.class);
     private final Object lock = new Object();
 
     private List<LBOutboundEndpoint> lbOutboundEndpoints;
@@ -47,7 +47,7 @@ public class ClientIPHashing implements LoadBalancingAlgorithm {
      *
      * @param lbOutboundEndpoints List of OutboundEndpoints.
      */
-    public ClientIPHashing(List<LBOutboundEndpoint> lbOutboundEndpoints) {
+    public StrictClientIPHashing(List<LBOutboundEndpoint> lbOutboundEndpoints) {
 
         synchronized (lock) {
 
@@ -71,9 +71,17 @@ public class ClientIPHashing implements LoadBalancingAlgorithm {
     @Override
     public String getName() {
 
-        return LoadBalancerConstants.IP_HASHING;
+        return LoadBalancerConstants.STRICT_IP_HASHING;
     }
 
+    /**
+     *
+     * @return Hash used.
+     */
+    public Hash getHash() {
+
+        return this.hash;
+    }
     /**
      * @param lbOutboundEPs list of all LBOutboundEndpoints to be load balanced.
      */
@@ -127,7 +135,7 @@ public class ClientIPHashing implements LoadBalancingAlgorithm {
      * @return LBOutboundEndpoint Object.
      */
     @Override
-    public LBOutboundEndpoint getNextOutboundEndpoint(CarbonMessage cMsg, LoadBalancerConfigContext context) {
+    public LBOutboundEndpoint getNextLBOutboundEndpoint(CarbonMessage cMsg, LoadBalancerConfigContext context) {
 
         LBOutboundEndpoint endPoint = null;
 
@@ -138,12 +146,12 @@ public class ClientIPHashing implements LoadBalancingAlgorithm {
                 log.info("IP address retrieved is : " + ipAddress);
                 if (CommonUtil.isValidIP(ipAddress)) {
 
-                    endPoint = context.getOutboundEndpoint(hash.get(ipAddress));
+                    endPoint = context.getLBOutboundEndpoint(hash.get(ipAddress));
 
                 } else {
 
                     log.error("The IP Address retrieved is : " + ipAddress +
-                            " which is invalid according to our validation.");
+                            " which is invalid according to our validation. No Endpoint will be chosen");
                     //TODO: throw appropriate exceptions also.
 
                 }

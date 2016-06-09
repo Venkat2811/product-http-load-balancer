@@ -184,7 +184,7 @@ public class LoadBalancerConfigHolder {
             log.info("Algorithm : " + context.getAlgorithm());
 
         } else if (this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue().
-                equals(LoadBalancerConstants.IP_HASHING)) {
+                equals(LoadBalancerConstants.STRICT_IP_HASHING)) {
 
             context.setAlgorithm(this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue());
             log.info("Algorithm : " + context.getAlgorithm());
@@ -245,6 +245,10 @@ public class LoadBalancerConfigHolder {
 
              }**/
             populateCookieMaps(integrationFlow.getGWConfigHolder().getOutboundEndpoints());
+        } else if (persistenceType.equals(LoadBalancerConstants.CLIENT_IP_HASHING)) {
+
+            context.setPersistence(persistenceType);
+            log.info("Persistence : " + context.getPersistence());
         }
 
         /**SSL related validations.**/

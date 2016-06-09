@@ -39,12 +39,12 @@ public interface LoadBalancingAlgorithm {
      * @return the next LBOutboundEndpoint according to implemented LB algorithm.
      */
 
-    LBOutboundEndpoint getNextOutboundEndpoint(CarbonMessage cMsg, LoadBalancerConfigContext context);
+    LBOutboundEndpoint getNextLBOutboundEndpoint(CarbonMessage cMsg, LoadBalancerConfigContext context);
 
     /**
      * Each implementation of LB algorithm will have certain values pertained to it.
      * (Eg: Round robin keeps track of index of OutboundEndpoint).
-     * Implementation of this method will reset them.
+     * Implementation of this method will resetToDefault them.
      */
     void reset();
 

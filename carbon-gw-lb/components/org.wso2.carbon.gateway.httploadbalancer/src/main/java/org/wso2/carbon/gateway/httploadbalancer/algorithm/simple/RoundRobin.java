@@ -111,7 +111,7 @@ public class RoundRobin implements LoadBalancingAlgorithm {
      */
 
     @Override
-    public LBOutboundEndpoint getNextOutboundEndpoint(CarbonMessage cMsg, LoadBalancerConfigContext context) {
+    public LBOutboundEndpoint getNextLBOutboundEndpoint(CarbonMessage cMsg, LoadBalancerConfigContext context) {
 
         LBOutboundEndpoint endPoint = null;
 
