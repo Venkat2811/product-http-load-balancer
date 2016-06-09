@@ -88,13 +88,13 @@ listenerConfigurations:
      name: "server.bootstrap.recievebuffersize"
      value: 1048576
     -
-     name: "server.bootstrap.connect.timers"
+     name: "server.bootstrap.connect.scheduled"
      value: 15000
     -
      name: "server.bootstrap.socket.reuse"
      value: false
     -
-     name: "server.bootstrap.socket.timers"
+     name: "server.bootstrap.socket.scheduled"
      value: 15
     -
      name: "server.bootstrap.socket.backlog"
@@ -146,13 +146,13 @@ senderConfigurations:
      name: "client.bootstrap.recievebuffersize"
      value: 1048576
     -
-     name: "client.bootstrap.connect.timers"
+     name: "client.bootstrap.connect.scheduled"
      value: 15000
     -
      name: "client.bootstrap.socket.reuse"
      value: false
     -
-     name: "client.bootstrap.socket.timers"
+     name: "client.bootstrap.socket.scheduled"
      value: 15
 # -
 #  id: "https-sender"

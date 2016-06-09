@@ -1,7 +1,8 @@
-package org.wso2.carbon.gateway.httploadbalancer.utils.handlers.timers;
+package org.wso2.carbon.gateway.httploadbalancer.utils.handlers.scheduled;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancingAlgorithm;
 import org.wso2.carbon.gateway.httploadbalancer.callback.LoadBalancerMediatorCallBack;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
@@ -19,12 +20,15 @@ public class TimeoutHandler extends TimerTask {
 
     private final LoadBalancerConfigContext context;
     private final String handlerName;
+    private final LoadBalancingAlgorithm algorithm;
 
+    //To avoid race condition if any.
     private volatile boolean isRunning = false;
 
-    public TimeoutHandler(LoadBalancerConfigContext context, String configName) {
+    public TimeoutHandler(LoadBalancerConfigContext context, LoadBalancingAlgorithm algorithm, String configName) {
 
         this.context = context;
+        this.algorithm = algorithm;
         this.handlerName = configName + "-" + this.getName();
 
         log.info(this.getHandlerName() + " started.");
@@ -46,7 +50,6 @@ public class TimeoutHandler extends TimerTask {
             return;
         }
 
-        //TODO: Do we need locking here..?
         processCallBackPool();
 
         isRunning = false;
@@ -55,7 +58,6 @@ public class TimeoutHandler extends TimerTask {
 
     private void processCallBackPool() {
 
-        //As we are locking on callback pool it is efficient.
         boolean hasContent = false;
 
         // Only operations on Concurrent HashMap are thread safe.
@@ -137,10 +139,41 @@ public class TimeoutHandler extends TimerTask {
                                 callBack.getLbOutboundEndpoint().flipHealthyFlag();
                                 callBack.getLbOutboundEndpoint().setHealthCheckedTime(this.getCurrentTime());
 
-                                //Adding to unHealthy List.
-                                synchronized (context.getUnHealthyLBEPList()) {
+                                /**
+                                 * When request is received at LoadBalancerMediator,
+                                 *  1) It checks for persistence
+                                 *  2) It checks for algorithm
+                                 *  3) It checks with unHealthyList
+                                 *
+                                 * So here we are removing unHealthy Endpoint in this order and finally
+                                 * adding to unHealthyEndpoint list.
+                                 */
 
-                                    context.getUnHealthyLBEPList().add(callBack.getLbOutboundEndpoint());
+                                //This case will only be true in case of CLIENT_IP_HASHING
+                                //as persistence policy.
+                                if (context.getStrictClientIPHashing() != null) {
+
+                                    synchronized (context.getStrictClientIPHashing()) {
+
+                                        context.getStrictClientIPHashing().
+                                                removeLBOutboundEndpoint(callBack.getLbOutboundEndpoint());
+                                    }
+                                }
+
+                                //We are acquiring lock on Object that is available in algorithm.
+                                //We are removing the UnHealthyEndpoint from Algorithm List so that it
+                                //will not be chosen by algorithm.
+                                synchronized (algorithm.getLock()) {
+
+                                    algorithm.removeLBOutboundEndpoint(callBack.getLbOutboundEndpoint());
+                                    algorithm.reset();
+
+                                }
+
+                                //Adding to unHealthy List.
+                                synchronized (context.getUnHealthyLBEPQueue()) {
+
+                                    context.getUnHealthyLBEPQueue().add(callBack.getLbOutboundEndpoint());
                                 }
 
                             }

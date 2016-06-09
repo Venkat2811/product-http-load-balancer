@@ -142,4 +142,10 @@ public class RoundRobin implements LoadBalancingAlgorithm {
             index = 0;
         }
     }
+
+    @Override
+    public Object getLock() {
+
+        return this.lock;
+    }
 }

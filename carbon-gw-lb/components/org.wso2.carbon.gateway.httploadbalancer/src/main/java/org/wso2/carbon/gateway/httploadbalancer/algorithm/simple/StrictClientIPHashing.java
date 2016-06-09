@@ -41,7 +41,6 @@ public class StrictClientIPHashing implements LoadBalancingAlgorithm {
     private Hash hash;
 
 
-
     /**
      * Constructor.
      *
@@ -75,13 +74,13 @@ public class StrictClientIPHashing implements LoadBalancingAlgorithm {
     }
 
     /**
-     *
      * @return Hash used.
      */
     public Hash getHash() {
 
         return this.hash;
     }
+
     /**
      * @param lbOutboundEPs list of all LBOutboundEndpoints to be load balanced.
      */
@@ -169,15 +168,17 @@ public class StrictClientIPHashing implements LoadBalancingAlgorithm {
     }
 
     /**
-     * Hash Circle will be re-constructed in case of ConsistentHash.
+     * Nothing to do in case of ConsistentHash.
      */
     @Override
     public void reset() {
 
-        synchronized (lock) {
-            hash.removeAllEndpoints(CommonUtil.getLBOutboundEndpointNamesList(lbOutboundEndpoints));
-            hash.addEndpoints(CommonUtil.getLBOutboundEndpointNamesList(lbOutboundEndpoints));
 
-        }
+    }
+
+    @Override
+    public Object getLock() {
+
+        return this.lock;
     }
 }

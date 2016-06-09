@@ -48,4 +48,10 @@ public interface LoadBalancingAlgorithm {
      */
     void reset();
 
+    /**
+     *
+     * @return Object used for locking.
+     */
+    Object getLock();
+
 }

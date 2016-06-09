@@ -7,10 +7,11 @@ import org.wso2.carbon.gateway.httploadbalancer.algorithm.simple.StrictClientIPH
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 import org.wso2.carbon.messaging.CarbonCallback;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Holds LB Configuration context.
@@ -63,7 +64,7 @@ public class LoadBalancerConfigContext {
     /**
      * A list that holds all unHealthyLBOutboundEndpoints.
      */
-    private final List<LBOutboundEndpoint> unHealthyLBEPList = new ArrayList<>();
+    private final Queue<LBOutboundEndpoint> unHealthyLBEPQueue = new ConcurrentLinkedQueue<>();
 
     /**
      * A LoadBalancerMediatorCallBack Pool for storing active callbacks.
@@ -228,38 +229,38 @@ public class LoadBalancerConfigContext {
         return this.lbOutboundEndpoints.get(name);
     }
 
-    public int getUnHealthyEPListSize() {
+    public int getUnHealthyEPQueueSize() {
 
-        return this.unHealthyLBEPList.size();
+        return this.unHealthyLBEPQueue.size();
     }
 
-    public List<LBOutboundEndpoint> getUnHealthyLBEPList() {
-        return unHealthyLBEPList;
+    public Queue<LBOutboundEndpoint> getUnHealthyLBEPQueue() {
+        return unHealthyLBEPQueue;
     }
 
     /**
      * @param lbOutboundEndpoint UnHealthyLBOutboundEndpoint to be added to the list.
      *                           <p>
      *                           NOTE: always access this method with having lock on
-     *                           unHealthyLBEPList object.
+     *                           unHealthyLBEPQueue object.
      *                           Add to the list only after checking using
      *                           isAlreadyInUnHealthyList() method
      */
     public void addToUnHealthyList(LBOutboundEndpoint lbOutboundEndpoint) {
 
-        this.unHealthyLBEPList.add(lbOutboundEndpoint);
+        this.unHealthyLBEPQueue.add(lbOutboundEndpoint);
     }
 
     /**
      * @param lbOutboundEndpoint To check whether it is already in list or not.
      *                           <p>
      *                           NOTE: always access this method with having lock on
-     *                           unHealthyLBEPList  object.
+     *                           unHealthyLBEPQueue  object.
      * @return existing or not.
      */
     public boolean isAlreadyInUnHealthyList(LBOutboundEndpoint lbOutboundEndpoint) {
 
-        if (this.unHealthyLBEPList.contains(lbOutboundEndpoint)) {
+        if (this.unHealthyLBEPQueue.contains(lbOutboundEndpoint)) {
             return true;
         } else {
             return false;
@@ -270,13 +271,13 @@ public class LoadBalancerConfigContext {
      * @param lbOutboundEndpoint UnHealthyLBOutboundEndpoint to be removed from list.
      *                           <p>
      *                           NOTE: always access this method with having lock on
-     *                           unHealthyLBEPList object.
+     *                           unHealthyLBEPQueue object.
      *                           Remove from list only after checking using
      *                           isAlreadyInUnHealthyList() method
      */
     public void removeFromUnhealthyList(LBOutboundEndpoint lbOutboundEndpoint) {
 
-        this.unHealthyLBEPList.remove(lbOutboundEndpoint);
+        this.unHealthyLBEPQueue.remove(lbOutboundEndpoint);
     }
 
 

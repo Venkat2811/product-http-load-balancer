@@ -13,7 +13,8 @@ import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContex
 import org.wso2.carbon.gateway.httploadbalancer.invokers.LoadBalancerCallMediator;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 import org.wso2.carbon.gateway.httploadbalancer.utils.CommonUtil;
-import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.timers.TimeoutHandler;
+import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.scheduled.BackToHealthyHandler;
+import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.scheduled.TimeoutHandler;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -99,13 +100,29 @@ public class LoadBalancerMediator extends AbstractMediator {
 
         //At this point everything is initialized.
 
-        //Creating timer for call back pool.
 
-        TimeoutHandler timeoutHandler = new TimeoutHandler(this.context, this.configName);
+        /**
+         * TimeoutHandler.
+         */
+        TimeoutHandler timeoutHandler = new TimeoutHandler(this.context, this.lbAlgorithm, this.configName);
 
-        Timer timer = new Timer(this.configName, true);
+        Timer timerForTimeout = new Timer(timeoutHandler.getHandlerName(), true);
 
-        timer.schedule(timeoutHandler, 0, LoadBalancerConstants.DEFAULT_TIMER_PERIOD);
+        timerForTimeout.schedule(timeoutHandler, 0, LoadBalancerConstants.DEFAULT_TIMER_PERIOD); //TODO: time
+
+
+        //TODO: are two timers okay..?
+        /**
+         * BackToHealthyHandler.
+         */
+        BackToHealthyHandler backToHealthyHandler = new BackToHealthyHandler(this.context,
+                this.lbAlgorithm, this.configName);
+
+        Timer timerForHealthyHandler = new Timer(backToHealthyHandler.getHandlerName(), true);
+
+        timerForHealthyHandler.schedule(backToHealthyHandler, 0,
+                LoadBalancerConstants.DEFAULT_HEALTHY_CHECK_INTERVAL); //TODO: time
+
 
     }
 
@@ -379,8 +396,8 @@ public class LoadBalancerMediator extends AbstractMediator {
                         int unHealthyListSize;
 
                         // Here locking is required as we are fetching size.
-                        synchronized (this.context.getUnHealthyLBEPList()) {
-                            unHealthyListSize = context.getUnHealthyEPListSize();
+                        synchronized (this.context.getUnHealthyLBEPQueue()) {
+                            unHealthyListSize = context.getUnHealthyEPQueueSize();
                         }
 
                         if (context.getLbOutboundEndpoints().size() == unHealthyListSize) {
