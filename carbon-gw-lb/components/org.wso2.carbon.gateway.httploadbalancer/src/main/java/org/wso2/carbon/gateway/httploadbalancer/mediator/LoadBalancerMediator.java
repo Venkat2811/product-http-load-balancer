@@ -161,6 +161,9 @@ public class LoadBalancerMediator extends AbstractMediator {
                     boolean isError1 = false, isError2 = false;
 
                     //There are two possible cookie paterns in this case.
+                    /**
+                     * TYPE 1 FORMAT
+                     */
                     //1) eg cookie: JSESSIONID=ghsgsdgsg---LB_COOKIE:EP1---
                     // We need to retrieve EP1 in this case.
                     String regEx =
@@ -185,6 +188,9 @@ public class LoadBalancerMediator extends AbstractMediator {
                     }
 
                     if (isError1) {
+                        /**
+                         * TYPE 2 FORMAT
+                         */
                         // 2) cookie: LB_COOKIE=EP1
                         // We need to retrieve EP1 in this case.
                         regEx = "(" +
@@ -205,10 +211,18 @@ public class LoadBalancerMediator extends AbstractMediator {
                     }
 
                     if (isError1 && isError2) {
+
                         log.error("Cookie matching didn't match any of the two types for " +
                                 "Persistence type :" + LoadBalancerConstants.APPLICATION_COOKIE);
-                        return false;
+
+                        //TODO: is this okay or should we send error..?
+                        log.error("Persistence cannot be maintained.. Choosing endpoint based on algorithm.");
+
+                        //Fetching endpoint according to algorithm.
+                        nextLBOutboundEndpoint = lbAlgorithm.getNextLBOutboundEndpoint(carbonMessage, context);
+
                     } else if (isError1) {
+
                         log.info("LB key of type 2 has been retrieved from cookie for" +
                                 "Persistence type :" + LoadBalancerConstants.APPLICATION_COOKIE);
                     }
@@ -227,9 +241,15 @@ public class LoadBalancerMediator extends AbstractMediator {
                     if (m.find()) {
                         cookieName = m.group(2);
                     } else {
+
                         log.error("Couldn't retrieve LB Key from cookie for " +
                                 "Persistence type :" + LoadBalancerConstants.LB_COOKIE);
-                        return false;
+
+                        //TODO: is this okay or should we send error..?
+                        log.error("Persistence cannot be maintained.. Choosing endpoint based on algorithm.");
+
+                        //Fetching endpoint according to algorithm.
+                        nextLBOutboundEndpoint = lbAlgorithm.getNextLBOutboundEndpoint(carbonMessage, context);
 
                     }
 
@@ -266,9 +286,13 @@ public class LoadBalancerMediator extends AbstractMediator {
                 } else {
 
                     log.error("LB Key extraction using RegEx has gone for a toss." +
-                            "Check the logic. " +
-                            "Persistence cannot be maintained..");
-                    return false;
+                            "Check the logic. ");
+
+                    //TODO: is this okay or should we send error..?
+                    log.error("Persistence cannot be maintained.. Choosing endpoint based on algorithm.");
+
+                    //Fetching endpoint according to algorithm.
+                    nextLBOutboundEndpoint = lbAlgorithm.getNextLBOutboundEndpoint(carbonMessage, context);
                 }
 
 
