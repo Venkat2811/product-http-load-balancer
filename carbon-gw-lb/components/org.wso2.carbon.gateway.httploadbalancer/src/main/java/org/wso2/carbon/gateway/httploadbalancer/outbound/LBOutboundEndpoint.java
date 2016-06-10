@@ -1,5 +1,7 @@
 package org.wso2.carbon.gateway.httploadbalancer.outbound;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.core.outbound.OutboundEndpoint;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
 import org.wso2.carbon.messaging.CarbonCallback;
@@ -13,6 +15,8 @@ import org.wso2.carbon.messaging.CarbonMessage;
  * NOTE: Inside LB all OutboundEndpoints MUST be accessed via this Object only.
  */
 public class LBOutboundEndpoint {
+
+    private static final Logger log = LoggerFactory.getLogger(LBOutboundEndpoint.class);
 
     // HTTP or HTTPS Endpoint.
     private OutboundEndpoint outboundEndpoint;
@@ -97,15 +101,19 @@ public class LBOutboundEndpoint {
     public void incrementUnHealthyRetries() {
 
         this.unHealthyRetriesCount++;
+        log.warn("Incremented UnHealthyRetries count for endPoint : " + this.getName());
     }
 
     public void incrementHealthyRetries() {
 
         this.healthyRetriesCount++;
+        log.info("Incremented HealthyRetries count for endPoint : " + this.getName());
     }
 
-    public void flipHealthyFlag() {
-        isHealthy = !isHealthy;
+    public void markAsUnHealthy() {
+
+        isHealthy = false;
+        log.warn(this.getName() + " is unHealthy");
     }
 
     /**

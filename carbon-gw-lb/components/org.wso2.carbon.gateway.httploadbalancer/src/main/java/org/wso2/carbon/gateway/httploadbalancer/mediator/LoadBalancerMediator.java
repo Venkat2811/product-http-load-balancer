@@ -4,7 +4,6 @@ package org.wso2.carbon.gateway.httploadbalancer.mediator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.core.flow.AbstractMediator;
-//import org.wso2.carbon.gateway.core.flow.mediators.builtin.invokers.RespondMediator;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancingAlgorithm;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.simple.RoundRobin;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.simple.StrictClientIPHashing;
@@ -14,15 +13,11 @@ import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContex
 import org.wso2.carbon.gateway.httploadbalancer.invokers.LoadBalancerCallMediator;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 import org.wso2.carbon.gateway.httploadbalancer.utils.CommonUtil;
+import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.error.LBErrorHandler;
 import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.scheduled.BackToHealthyHandler;
 import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.scheduled.TimeoutHandler;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.Constants;
-import org.wso2.carbon.messaging.DefaultCarbonMessage;
-
-import java.nio.charset.Charset;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -138,6 +133,7 @@ public class LoadBalancerMediator extends AbstractMediator {
     @Override
     public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback) throws Exception {
 
+        log.info(logMessage);
 
         /**
          log.info("\n\n" + logMessage);
@@ -172,7 +168,7 @@ public class LoadBalancerMediator extends AbstractMediator {
                 //There is no cookie or no LB specific cookie.
 
                 //Fetching endpoint according to algorithm (no persistence is maintained).
-                log.info("There is no LB specific cookie.." +
+                log.warn("There is no LB specific cookie.." +
                         "Persistence cannot be maintained.." +
                         "Choosing Endpoint based on algorithm");
                 nextLBOutboundEndpoint = lbAlgorithm.getNextLBOutboundEndpoint(carbonMessage, context);
@@ -209,7 +205,7 @@ public class LoadBalancerMediator extends AbstractMediator {
                         cookieName = m.group(2);
                     } else {
                         isError1 = true;
-                        log.info("Couldn't retrieve LB Key from cookie of type 1 for " +
+                        log.warn("Couldn't retrieve LB Key from cookie of type 1 for " +
                                 "Persistence type : " + LoadBalancerConstants.APPLICATION_COOKIE);
                     }
 
@@ -230,7 +226,7 @@ public class LoadBalancerMediator extends AbstractMediator {
 
                         } else {
                             isError2 = true;
-                            log.info("Couldn't retrieve LB Key from cookie of type 2 for " +
+                            log.warn("Couldn't retrieve LB Key from cookie of type 2 for " +
                                     "Persistence type :" + LoadBalancerConstants.APPLICATION_COOKIE);
 
                         }
@@ -242,10 +238,8 @@ public class LoadBalancerMediator extends AbstractMediator {
                                 "Persistence type :" + LoadBalancerConstants.APPLICATION_COOKIE);
 
                         //TODO: is this okay or should we send error..?
-                        log.error("Persistence cannot be maintained.. Choosing endpoint based on algorithm.");
+                        log.error("Persistence cannot be maintained.. Endpoint will be chosen based on algorithm.");
 
-                        //Fetching endpoint according to algorithm.
-                        nextLBOutboundEndpoint = lbAlgorithm.getNextLBOutboundEndpoint(carbonMessage, context);
 
                     } else if (isError1) {
 
@@ -272,10 +266,7 @@ public class LoadBalancerMediator extends AbstractMediator {
                                 "Persistence type :" + LoadBalancerConstants.LB_COOKIE);
 
                         //TODO: is this okay or should we send error..?
-                        log.error("Persistence cannot be maintained.. Choosing endpoint based on algorithm.");
-
-                        //Fetching endpoint according to algorithm.
-                        nextLBOutboundEndpoint = lbAlgorithm.getNextLBOutboundEndpoint(carbonMessage, context);
+                        log.error("Persistence cannot be maintained.. Endpoint will be chosen based on algorithm.");
 
                     }
 
@@ -410,7 +401,7 @@ public class LoadBalancerMediator extends AbstractMediator {
 
                         if (areAllEndpointsUnhealthy()) {
 
-                            sendResponse(carbonCallback);
+                            sendResponse(carbonCallback, false);
                             return false;
                         }
 
@@ -422,13 +413,13 @@ public class LoadBalancerMediator extends AbstractMediator {
 
             if (areAllEndpointsUnhealthy()) {
 
-                sendResponse(carbonCallback);
-            }
+                sendResponse(carbonCallback, false);
+            } else {
 
-            log.error("Unable to choose endpoint for forwarding the request." +
-                    " Check logs to see what went wrong.");
-            //TODO: Send appropriate response. Decide what error to send.
-            //TODO: 500, Internal Server Error
+                log.error("Unable to choose endpoint for forwarding the request." +
+                        " Check logs to see what went wrong.");
+                sendResponse(carbonCallback, true);
+            }
             return false;
         }
 
@@ -452,28 +443,20 @@ public class LoadBalancerMediator extends AbstractMediator {
 
     }
 
-    private void sendResponse(CarbonCallback carbonCallback) throws Exception {
+    private void sendResponse(CarbonCallback carbonCallback, boolean isInternalError) throws Exception {
 
-        log.error("All LBOutboundEndpoints are unHealthy..");
-        DefaultCarbonMessage response = new DefaultCarbonMessage();
-        String payload = "Service Unavailable.. Kindly try after some time..";
-        response.setStringMessageBody(payload);
-        byte[] errorMessageBytes = payload.getBytes(Charset.defaultCharset());
+        if (!isInternalError) {
+            log.error("All LBOutboundEndpoints are unHealthy..");
+            new LBErrorHandler().handleFault
+                    ("503", new Throwable("Service Unavailable.. " +
+                            "Kindly try after some time.."), null, carbonCallback);
+        } else {
 
-        Map<String, String> transportHeaders = new HashMap<>();
-        transportHeaders.put(Constants.HTTP_CONNECTION, Constants.KEEP_ALIVE);
-        transportHeaders.put(Constants.HTTP_CONTENT_ENCODING, Constants.GZIP);
-        transportHeaders.put(Constants.HTTP_CONTENT_TYPE, Constants.TEXT_PLAIN);
-        transportHeaders.put(Constants.HTTP_CONTENT_LENGTH,
-                (String.valueOf(errorMessageBytes.length)));
-        transportHeaders.put(Constants.HTTP_STATUS_CODE, "503");
+            new LBErrorHandler().handleFault
+                    ("500", new Throwable("Internal Server Error.."), null, carbonCallback);
 
-        response.setHeaders(transportHeaders);
-        log.info(response.getHeaders().toString());
-        log.info(response.getProperties().toString());
+        }
 
-        carbonCallback.done(response);
-        //new RespondMediator().receive(response, carbonCallback);
 
     }
 

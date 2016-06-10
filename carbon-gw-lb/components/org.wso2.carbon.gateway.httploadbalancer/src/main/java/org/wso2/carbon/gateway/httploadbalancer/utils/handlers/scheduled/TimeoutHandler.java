@@ -7,12 +7,7 @@ import org.wso2.carbon.gateway.httploadbalancer.callback.LoadBalancerMediatorCal
 import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
-import org.wso2.carbon.messaging.Constants;
-import org.wso2.carbon.messaging.DefaultCarbonMessage;
-
-import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.Map;
+import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.error.LBErrorHandler;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
@@ -127,23 +122,8 @@ public class TimeoutHandler extends TimerTask {
                             //From this point, this callback will not be available in pool.
                             //So if response arrives it will be discarded.
 
-                            DefaultCarbonMessage response = new DefaultCarbonMessage();
-                            String payload = "Gateway Timeout..";
-                            response.setStringMessageBody(payload);
-                            byte[] errorMessageBytes = payload.getBytes(Charset.defaultCharset());
-
-                            Map<String, String> transportHeaders = new HashMap<>();
-                            transportHeaders.put(Constants.HTTP_CONNECTION, Constants.KEEP_ALIVE);
-                            transportHeaders.put(Constants.HTTP_CONTENT_ENCODING, Constants.GZIP);
-                            transportHeaders.put(Constants.HTTP_CONTENT_TYPE, Constants.TEXT_PLAIN);
-                            transportHeaders.put(Constants.HTTP_CONTENT_LENGTH,
-                                    (String.valueOf(errorMessageBytes.length)));
-                            transportHeaders.put(Constants.HTTP_STATUS_CODE, "504");
-
-                            response.setHeaders(transportHeaders);
-
-                            callBack.getParentCallback().done(response);
-
+                            new LBErrorHandler().handleFault
+                                    ("504", new Throwable("Gateway TimeOut"), null, callBack);
 
                         }
 
@@ -165,8 +145,8 @@ public class TimeoutHandler extends TimerTask {
 
                                 if (this.reachedUnHealthyRetriesThreshold(callBack.getLbOutboundEndpoint())) {
 
-                                    callBack.getLbOutboundEndpoint().flipHealthyFlag();
-                                    log.error(callBack.getLbOutboundEndpoint().getName() + " is unhealthy..");
+                                    callBack.getLbOutboundEndpoint().markAsUnHealthy();
+
                                     callBack.getLbOutboundEndpoint().setHealthCheckedTime(this.getCurrentTime());
 
                                     /**
@@ -176,7 +156,7 @@ public class TimeoutHandler extends TimerTask {
                                      *  3) It checks with unHealthyList
                                      *
                                      * So here we are removing unHealthy Endpoint in this order and finally
-                                     * adding to unHealthyEndpoint list.
+                                     * adding it to unHealthyEndpoint list.
                                      */
 
                                     //This case will only be true in case of CLIENT_IP_HASHING

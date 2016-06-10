@@ -309,7 +309,7 @@ public class LoadBalancerConfigContext {
 
         this.callBackPool.putIfAbsent(name, callback);
 
-        log.info("Added to pool Key : " + name);
+      //  log.info("Added to pool Key : " + name);
 
     }
 
@@ -326,10 +326,10 @@ public class LoadBalancerConfigContext {
                 callback.toString().length());
 
         if (this.callBackPool.containsKey(name)) {
-            log.info("Is in Pool : " + name);
+          //  log.info("Is in Pool : " + name);
             return true;
         } else {
-            log.info("Is not in Pool : " + name);
+          //  log.info("Is not in Pool : " + name);
             return false;
         }
     }
@@ -345,7 +345,7 @@ public class LoadBalancerConfigContext {
         String name = callback.toString().substring(callback.toString().lastIndexOf(".") + 1,
                 callback.toString().length());
 
-        log.info("Removing from Pool  Key : " + name);
+       // log.info("Removing from Pool  Key : " + name);
 
         this.callBackPool.remove(name);
 
