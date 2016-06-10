@@ -106,6 +106,11 @@ public class CommonUtil {
         return host + ":" + String.valueOf(port);
     }
 
+    /**
+     *
+     * @param uri Uri
+     * @return UrlPath
+     */
     public static String getUrlPath(String uri) {
 
         URL url = null;
@@ -120,6 +125,11 @@ public class CommonUtil {
 
     }
 
+    /**
+     * @param carbonMessage Response from which host and port are to be identified.
+     * @param context       LoadBalancerConfigContext
+     * @return <host:port>
+     */
     public static String getCookieValue(CarbonMessage carbonMessage, LoadBalancerConfigContext context) {
         //Extracting host and port from response to identify appropriate cookie.
 

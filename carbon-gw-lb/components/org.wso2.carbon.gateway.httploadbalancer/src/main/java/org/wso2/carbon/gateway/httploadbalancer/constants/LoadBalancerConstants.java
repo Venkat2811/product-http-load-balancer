@@ -33,6 +33,8 @@ public class LoadBalancerConstants {
     // Scheduled time interval after which LB has to check if an OutboundEndpoint is healthy again.
     public static final String HEALTH_CHECK_HEALTHY_CHECK_INTERVAL = "healthyCheckInterval";
 
+    public static final String HEALTH_CHECK_TEST_REQUEST = "testRequest";
+
 
     /**
      * LB Algorithm related Constants.
@@ -134,7 +136,7 @@ public class LoadBalancerConstants {
      */
     public static final int MAX_TIMEOUT_VAL = (int) TimeUnit.HOURS.toMillis(5); //5 hours.
 
-    public static final int DEFAULT_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(60); //60 sec.
+    public static final int DEFAULT_REQ_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(5); //5 sec.
 
     public static final int DEFAULT_RETRIES = 3;
 

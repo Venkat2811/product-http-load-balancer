@@ -161,8 +161,8 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
                     //Here we are not looking for Set-Cookie2 header coz, it is only for LB purpose.
                     //i.e., we are only inserting cookie. So using Set-Cookie itself.
                     carbonMessage.setHeader(LoadBalancerConstants.SET_COOKIE_HEADER,
-                            CommonUtil.getSessionCookie(CommonUtil.
-                                    getCookieValue(carbonMessage, this.context), false));
+                            CommonUtil.getSessionCookie(//here we are finding endpoint to insert appropriate cookie.
+                                    CommonUtil.getCookieValue(carbonMessage, this.context), false));
 
                 }
 
@@ -203,12 +203,12 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
 
                 //Adding LB specific cookie.
                 carbonMessage.setHeader(LoadBalancerConstants.SET_COOKIE_HEADER,
-                        CommonUtil.getSessionCookie(CommonUtil.
-                                getCookieValue(carbonMessage, this.context), false));
+                        CommonUtil.getSessionCookie(//here we are finding endpoint to insert appropriate cookie.
+                                CommonUtil.getCookieValue(carbonMessage, this.context), false));
 
                 parentCallback.done(carbonMessage);
 
-            } else { //for NO_PERSISTENCE type.
+            } else { //for NO_PERSISTENCE and CLIENT_IP_HASHING type.
 
                 parentCallback.done(carbonMessage);
             }

@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancingAlgorithm;
 import org.wso2.carbon.gateway.httploadbalancer.callback.LoadBalancerMediatorCallBack;
+import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 
@@ -117,65 +118,72 @@ public class TimeoutHandler extends TimerTask {
                             break;
                         } else {
                             context.removeFromCallBackPool(callBack);
+                            log.info("Work in progress");
+                            //TODO: Since this is timedOut, we have to send appropriate message to client.
+                            // TODO: HTTP Code : 504, Gateway Timeout.
                             //From this point, this callback will not be available in pool.
                             //So if response arrives it will be discarded.
                         }
 
-                        /**
-                         * But here we need synchronization because, this LBOutboundEndpoint might be
-                         * used in CallMediator and LoadBalancerMediatorCallBack.
-                         *
-                         * We will be changing LBOutboundEndpoint's properties here.
-                         */
-                        synchronized (callBack.getLbOutboundEndpoint()) {
+                        if (!this.context.getHealthCheck().equals(LoadBalancerConstants.NO_HEALTH_CHECK)) {
+                            /**
+                             * But here we need synchronization because, this LBOutboundEndpoint might be
+                             * used in CallMediator and LoadBalancerMediatorCallBack.
+                             *
+                             * We will be changing LBOutboundEndpoint's properties here.
+                             *
+                             * If an LBOutboundEndpoint is unHealthy it should not be available else where.
+                             * So we are locking on it, till we remove it from all the places where it is available.
+                             *
+                             * NOTE: The below code does only HealthCheck related activities.
+                             */
+                            synchronized (callBack.getLbOutboundEndpoint()) {
 
-                            log.info("Work in progress");
-                            //TODO: Since this is timedOut, we have to send appropriate message to client.
+                                callBack.getLbOutboundEndpoint().incrementUnHealthyRetries();
 
-                            callBack.getLbOutboundEndpoint().incrementUnHealthyRetries();
+                                if (this.reachedUnHealthyRetriesThreshold(callBack.getLbOutboundEndpoint())) {
 
-                            if (this.reachedUnHealthyRetriesThreshold(callBack.getLbOutboundEndpoint())) {
+                                    callBack.getLbOutboundEndpoint().flipHealthyFlag();
+                                    callBack.getLbOutboundEndpoint().setHealthCheckedTime(this.getCurrentTime());
 
-                                callBack.getLbOutboundEndpoint().flipHealthyFlag();
-                                callBack.getLbOutboundEndpoint().setHealthCheckedTime(this.getCurrentTime());
+                                    /**
+                                     * When request is received at LoadBalancerMediator,
+                                     *  1) It checks for persistence
+                                     *  2) It checks for algorithm
+                                     *  3) It checks with unHealthyList
+                                     *
+                                     * So here we are removing unHealthy Endpoint in this order and finally
+                                     * adding to unHealthyEndpoint list.
+                                     */
 
-                                /**
-                                 * When request is received at LoadBalancerMediator,
-                                 *  1) It checks for persistence
-                                 *  2) It checks for algorithm
-                                 *  3) It checks with unHealthyList
-                                 *
-                                 * So here we are removing unHealthy Endpoint in this order and finally
-                                 * adding to unHealthyEndpoint list.
-                                 */
+                                    //This case will only be true in case of CLIENT_IP_HASHING
+                                    //as persistence policy.
+                                    if (context.getStrictClientIPHashing() != null) {
 
-                                //This case will only be true in case of CLIENT_IP_HASHING
-                                //as persistence policy.
-                                if (context.getStrictClientIPHashing() != null) {
+                                        synchronized (context.getStrictClientIPHashing()) {
 
-                                    synchronized (context.getStrictClientIPHashing()) {
-
-                                        context.getStrictClientIPHashing().
-                                                removeLBOutboundEndpoint(callBack.getLbOutboundEndpoint());
+                                            context.getStrictClientIPHashing().
+                                                    removeLBOutboundEndpoint(callBack.getLbOutboundEndpoint());
+                                        }
                                     }
+
+                                    //We are acquiring lock on Object that is available in algorithm.
+                                    //We are removing the UnHealthyEndpoint from Algorithm List so that it
+                                    //will not be chosen by algorithm.
+                                    synchronized (algorithm.getLock()) {
+
+                                        algorithm.removeLBOutboundEndpoint(callBack.getLbOutboundEndpoint());
+                                        algorithm.reset();
+
+                                    }
+
+                                    //Adding to unHealthy List.
+                                    synchronized (context.getUnHealthyLBEPQueue()) {
+
+                                        context.getUnHealthyLBEPQueue().add(callBack.getLbOutboundEndpoint());
+                                    }
+
                                 }
-
-                                //We are acquiring lock on Object that is available in algorithm.
-                                //We are removing the UnHealthyEndpoint from Algorithm List so that it
-                                //will not be chosen by algorithm.
-                                synchronized (algorithm.getLock()) {
-
-                                    algorithm.removeLBOutboundEndpoint(callBack.getLbOutboundEndpoint());
-                                    algorithm.reset();
-
-                                }
-
-                                //Adding to unHealthy List.
-                                synchronized (context.getUnHealthyLBEPQueue()) {
-
-                                    context.getUnHealthyLBEPQueue().add(callBack.getLbOutboundEndpoint());
-                                }
-
                             }
                         }
 

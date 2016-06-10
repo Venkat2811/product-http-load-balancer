@@ -114,14 +114,18 @@ public class LoadBalancerMediator extends AbstractMediator {
         //TODO: are two timers okay..?
         /**
          * BackToHealthyHandler.
+         *
+         * This is started only if health check is enabled.
          */
-        BackToHealthyHandler backToHealthyHandler = new BackToHealthyHandler(this.context,
-                this.lbAlgorithm, this.configName);
+        if (!this.context.getHealthCheck().equals(LoadBalancerConstants.NO_HEALTH_CHECK)) {
+            BackToHealthyHandler backToHealthyHandler = new BackToHealthyHandler(this.context,
+                    this.lbAlgorithm, this.configName);
 
-        Timer timerForHealthyHandler = new Timer(backToHealthyHandler.getHandlerName(), true);
+            Timer timerForHealthyHandler = new Timer(backToHealthyHandler.getHandlerName(), true);
 
-        timerForHealthyHandler.schedule(backToHealthyHandler, 0,
-                LoadBalancerConstants.DEFAULT_HEALTHY_CHECK_INTERVAL); //TODO: time
+            timerForHealthyHandler.schedule(backToHealthyHandler, 0,
+                    LoadBalancerConstants.DEFAULT_HEALTHY_CHECK_INTERVAL); //TODO: time
+        }
 
 
     }
@@ -355,6 +359,9 @@ public class LoadBalancerMediator extends AbstractMediator {
              *  We are acquiring lock on respective LBOutboundEndpoint object in the above mentioned
              *  classes when the properties are being changed. So here we need not worry about locking
              *  here because here we are just reading them.
+             *
+             *  NOTE: In case of NO_HEALTH_CHECK, endpoints will always be healthy but timeOut checking will happen.
+             *  So, if condition will always be true.
              */
             if (nextLBOutboundEndpoint.isHealthy()) {
                 // Chosen Endpoint is healthy.
@@ -404,6 +411,7 @@ public class LoadBalancerMediator extends AbstractMediator {
 
                             log.error("All LBOutboundEndpoints are unHealthy..");
                             //TODO: throw exception if necessary.
+                            //TODO: HTTP code: 503, Service Unavailable
                             return false;
                         }
 

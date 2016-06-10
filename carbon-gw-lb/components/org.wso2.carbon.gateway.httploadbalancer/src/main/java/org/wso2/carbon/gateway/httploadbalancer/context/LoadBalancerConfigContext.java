@@ -35,6 +35,8 @@ public class LoadBalancerConfigContext {
     private int unHealthyRetries;
     private int healthyRetries;
     private int healthycheckInterval;
+    private String testRequest;
+
 
     private Map<String, LBOutboundEndpoint> lbOutboundEndpoints;
 
@@ -156,6 +158,14 @@ public class LoadBalancerConfigContext {
 
     public void setHealthycheckInterval(int healthycheckInterval) {
         this.healthycheckInterval = healthycheckInterval;
+    }
+
+    public String getTestRequest() {
+        return testRequest;
+    }
+
+    public void setTestRequest(String testRequest) {
+        this.testRequest = testRequest;
     }
 
     /**

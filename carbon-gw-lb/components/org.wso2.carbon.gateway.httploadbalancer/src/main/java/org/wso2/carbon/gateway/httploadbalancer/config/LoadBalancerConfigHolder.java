@@ -167,15 +167,9 @@ public class LoadBalancerConfigHolder {
 
     }
 
+    /**Algorithm related validations.*/
 
-    /**
-     * This method validates a given configuration, if anything is missing default value will be added.
-     * TODO: check default values limit.
-     */
-
-    public void validateConfig() {
-
-        /**Algorithm related validations.*/
+    public void validateAlgorithm() {
 
         if (this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue().
                 equals(LoadBalancerConstants.ROUND_ROBIN)) {
@@ -190,10 +184,14 @@ public class LoadBalancerConfigHolder {
             log.info("Algorithm : " + context.getAlgorithm());
         } else {
             log.error("Currently this algorithm type is not supported...");
-            return;
+
         }
 
-        /**Session persistence related validations.*/
+    }
+
+    /**Session persistence related validations.*/
+
+    public void validatePersistence() {
 
         String persistenceType = this.getFromConfig(LoadBalancerConstants.PERSISTENCE_TYPE).getValue();
 
@@ -229,7 +227,7 @@ public class LoadBalancerConfigHolder {
              log.info("Persistence Timeout : " + context.getSessionPersistenceTimeout());
              } else {
              //TODO: Is this okay..?
-             context.setSessionPersistenceTimeout(LoadBalancerConstants.DEFAULT_TIMEOUT);
+             context.setSessionPersistenceTimeout(LoadBalancerConstants.DEFAULT_REQ_TIMEOUT);
              log.error("Value greater than Max limit. Loading default value...Persistence Timeout :  " +
              context.getSessionPersistenceTimeout());
              }
@@ -239,7 +237,7 @@ public class LoadBalancerConfigHolder {
 
              log.info("For LB_COOKIE session cookie time out has to be specified...");
              //TODO: Is this okay..?
-             context.setSessionPersistenceTimeout(LoadBalancerConstants.DEFAULT_TIMEOUT);
+             context.setSessionPersistenceTimeout(LoadBalancerConstants.DEFAULT_REQ_TIMEOUT);
              log.error("For LB_COOKIE session cookie time out has to be specified.. Loading default value..." +
              "Persistence Timeout :  " + context.getSessionPersistenceTimeout());
 
@@ -251,7 +249,11 @@ public class LoadBalancerConfigHolder {
             log.info("Persistence : " + context.getPersistence());
         }
 
-        /**SSL related validations.**/
+    }
+
+    /**SSL related validations.**/
+
+    public void validateSSL() {
 
         if (this.getFromConfig(LoadBalancerConstants.SSL_TYPE).getValue().
                 equals(LoadBalancerConstants.NO_SSL)) {
@@ -265,12 +267,14 @@ public class LoadBalancerConfigHolder {
 
         }
 
+    }
 
-        /**HealthCheck related validations.*/
+    /**HealthCheck related validations.*/
+
+    public void validateHealthCheck() {
 
         /**
-         *Currently "PASSIVE_HEALTH_CHECK" is the only supported type of HealthCheck,
-         * yet this check is made in case any other type is supported in future.
+         *For PASSIVE_HEALTH_CHECK.
          */
         if (this.getFromConfig(LoadBalancerConstants.HEALTH_CHECK_TYPE).getValue().
                 equals(LoadBalancerConstants.PASSIVE_HEALTH_CHECK)) {
@@ -290,7 +294,7 @@ public class LoadBalancerConfigHolder {
                     log.info("Request TIME_OUT : " + context.getReqTimeout());
                 } else {
                     //TODO: Is this okay..?
-                    context.setReqTimeout(LoadBalancerConstants.DEFAULT_TIMEOUT);
+                    context.setReqTimeout(LoadBalancerConstants.DEFAULT_REQ_TIMEOUT);
                     log.error("Exceeded TIMEOUT LIMIT. Loading DEFAULT value for " +
                             "Request TIME_OUT : " + context.getReqTimeout());
                 }
@@ -298,7 +302,7 @@ public class LoadBalancerConfigHolder {
 
             } else {
                 //TODO: Is this okay..?
-                context.setReqTimeout(LoadBalancerConstants.DEFAULT_TIMEOUT);
+                context.setReqTimeout(LoadBalancerConstants.DEFAULT_REQ_TIMEOUT);
                 log.error("LB_REQUEST_TIMEOUT NOT SPECIFIED. Loading DEFAULT value for " +
                         "Request TIME_OUT : " + context.getReqTimeout());
             }
@@ -354,7 +358,7 @@ public class LoadBalancerConfigHolder {
                 } else {
                     //TODO: Is this okay..?
 
-                    context.setHealthycheckInterval(LoadBalancerConstants.DEFAULT_TIMEOUT);
+                    context.setHealthycheckInterval(LoadBalancerConstants.DEFAULT_REQ_TIMEOUT);
 
                     log.error("Exceeded HEALTHY_CHECK_TIMEOUT LIMIT. Loading DEFAULT value for " +
                             LoadBalancerConstants.HEALTH_CHECK_HEALTHY_CHECK_INTERVAL + " : " +
@@ -365,7 +369,7 @@ public class LoadBalancerConfigHolder {
             } else {
                 //TODO: Is this okay..?
 
-                context.setHealthycheckInterval(LoadBalancerConstants.DEFAULT_TIMEOUT);
+                context.setHealthycheckInterval(LoadBalancerConstants.DEFAULT_REQ_TIMEOUT);
 
                 log.error("HEALTHY_CHECK_TIMEOUT LIMIT NOT SPECIFIED. Loading DEFAULT value for " +
                         LoadBalancerConstants.HEALTH_CHECK_HEALTHY_CHECK_INTERVAL + " : " +
@@ -373,9 +377,65 @@ public class LoadBalancerConfigHolder {
 
             }
 
+            validateTestRequest();
+
+            //For DEFAULT_HEALTH_CHECK
+        } else if (this.getFromConfig(LoadBalancerConstants.HEALTH_CHECK_TYPE).getValue().
+                equals(LoadBalancerConstants.DEFAULT_HEALTH_CHECK)) {
+
+            context.setHealthCheck(this.getFromConfig(LoadBalancerConstants.HEALTH_CHECK_TYPE).getValue());
+
+            log.info("HEALTH CHECK TYPE : " + context.getHealthCheck());
+
+            context.setUnHealthyRetries(LoadBalancerConstants.DEFAULT_RETRIES);
+            context.setHealthyRetries(LoadBalancerConstants.DEFAULT_RETRIES);
+            context.setReqTimeout(LoadBalancerConstants.DEFAULT_REQ_TIMEOUT);
+            context.setHealthycheckInterval(LoadBalancerConstants.DEFAULT_HEALTHY_CHECK_INTERVAL);
+            validateTestRequest();
+
+            //FOR NO_HEALTH_CHECK
+        } else if (this.getFromConfig(LoadBalancerConstants.HEALTH_CHECK_TYPE).getValue().
+                equals(LoadBalancerConstants.NO_HEALTH_CHECK)) {
+
+            context.setHealthCheck(this.getFromConfig(LoadBalancerConstants.HEALTH_CHECK_TYPE).getValue());
+
+            log.info("HEALTH CHECK TYPE : " + context.getHealthCheck());
+
         }
 
     }
 
+    public void validateTestRequest() {
+
+        if (this.getFromConfig(LoadBalancerConstants.HEALTH_CHECK_TEST_REQUEST) != null) {
+
+            this.context.setTestRequest(
+                    this.getFromConfig(LoadBalancerConstants.HEALTH_CHECK_TEST_REQUEST).getValue());
+            log.info("TestRequest : " + context.getTestRequest());
+
+        } else {
+
+            log.info("TestRequest : " + context.getTestRequest());
+            log.error("Health Check is enabled, but no testRequest is provided. LB will try only to make" +
+                    "Inet Socket connection to check timeOut. ");
+
+        }
+
+    }
+
+
+    /**
+     * This method validates a given configuration, if anything is missing default value will be added.
+     * TODO: check default values limit.
+     */
+
+    public void validateConfig() {
+
+        validateAlgorithm();
+        validatePersistence();
+        validateSSL();
+        validateHealthCheck();
+
+    }
 
 }
