@@ -4,6 +4,7 @@ package org.wso2.carbon.gateway.httploadbalancer.mediator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.core.flow.AbstractMediator;
+//import org.wso2.carbon.gateway.core.flow.mediators.builtin.invokers.RespondMediator;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancingAlgorithm;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.simple.RoundRobin;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.simple.StrictClientIPHashing;
@@ -17,7 +18,11 @@ import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.scheduled.BackToH
 import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.scheduled.TimeoutHandler;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.Constants;
+import org.wso2.carbon.messaging.DefaultCarbonMessage;
 
+import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -362,6 +367,9 @@ public class LoadBalancerMediator extends AbstractMediator {
              *
              *  NOTE: In case of NO_HEALTH_CHECK, endpoints will always be healthy but timeOut checking will happen.
              *  So, if condition will always be true.
+             *
+             *  The returned endpoint by algorithm will always be healthy, but we are making the below
+             *  check just to be safe.
              */
             if (nextLBOutboundEndpoint.isHealthy()) {
                 // Chosen Endpoint is healthy.
@@ -400,18 +408,9 @@ public class LoadBalancerMediator extends AbstractMediator {
 
                     } else {
 
-                        int unHealthyListSize;
+                        if (areAllEndpointsUnhealthy()) {
 
-                        // Here locking is required as we are fetching size.
-                        synchronized (this.context.getUnHealthyLBEPQueue()) {
-                            unHealthyListSize = context.getUnHealthyEPQueueSize();
-                        }
-
-                        if (context.getLbOutboundEndpoints().size() == unHealthyListSize) {
-
-                            log.error("All LBOutboundEndpoints are unHealthy..");
-                            //TODO: throw exception if necessary.
-                            //TODO: HTTP code: 503, Service Unavailable
+                            sendResponse(carbonCallback);
                             return false;
                         }
 
@@ -421,12 +420,60 @@ public class LoadBalancerMediator extends AbstractMediator {
             }
         } else {
 
+            if (areAllEndpointsUnhealthy()) {
+
+                sendResponse(carbonCallback);
+            }
+
             log.error("Unable to choose endpoint for forwarding the request." +
                     " Check logs to see what went wrong.");
-            //TODO: Send appropriate response.
+            //TODO: Send appropriate response. Decide what error to send.
+            //TODO: 500, Internal Server Error
             return false;
         }
 
+
+    }
+
+    private boolean areAllEndpointsUnhealthy() {
+
+        int unHealthyListSize;
+
+        // Here locking is required as we are fetching size.
+        synchronized (this.context.getUnHealthyLBEPQueue()) {
+            unHealthyListSize = context.getUnHealthyEPQueueSize();
+        }
+
+        if (context.getLbOutboundEndpoints().size() == unHealthyListSize) {
+            return true;
+        } else {
+            return false;
+        }
+
+    }
+
+    private void sendResponse(CarbonCallback carbonCallback) throws Exception {
+
+        log.error("All LBOutboundEndpoints are unHealthy..");
+        DefaultCarbonMessage response = new DefaultCarbonMessage();
+        String payload = "Service Unavailable.. Kindly try after some time..";
+        response.setStringMessageBody(payload);
+        byte[] errorMessageBytes = payload.getBytes(Charset.defaultCharset());
+
+        Map<String, String> transportHeaders = new HashMap<>();
+        transportHeaders.put(Constants.HTTP_CONNECTION, Constants.KEEP_ALIVE);
+        transportHeaders.put(Constants.HTTP_CONTENT_ENCODING, Constants.GZIP);
+        transportHeaders.put(Constants.HTTP_CONTENT_TYPE, Constants.TEXT_PLAIN);
+        transportHeaders.put(Constants.HTTP_CONTENT_LENGTH,
+                (String.valueOf(errorMessageBytes.length)));
+        transportHeaders.put(Constants.HTTP_STATUS_CODE, "503");
+
+        response.setHeaders(transportHeaders);
+        log.info(response.getHeaders().toString());
+        log.info(response.getProperties().toString());
+
+        carbonCallback.done(response);
+        //new RespondMediator().receive(response, carbonCallback);
 
     }
 

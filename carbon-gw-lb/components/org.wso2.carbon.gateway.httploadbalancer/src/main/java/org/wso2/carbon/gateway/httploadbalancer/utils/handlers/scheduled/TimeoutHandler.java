@@ -7,7 +7,12 @@ import org.wso2.carbon.gateway.httploadbalancer.callback.LoadBalancerMediatorCal
 import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
+import org.wso2.carbon.messaging.Constants;
+import org.wso2.carbon.messaging.DefaultCarbonMessage;
 
+import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
@@ -118,11 +123,28 @@ public class TimeoutHandler extends TimerTask {
                             break;
                         } else {
                             context.removeFromCallBackPool(callBack);
-                            log.info("Work in progress");
-                            //TODO: Since this is timedOut, we have to send appropriate message to client.
-                            // TODO: HTTP Code : 504, Gateway Timeout.
+
                             //From this point, this callback will not be available in pool.
                             //So if response arrives it will be discarded.
+
+                            DefaultCarbonMessage response = new DefaultCarbonMessage();
+                            String payload = "Gateway Timeout..";
+                            response.setStringMessageBody(payload);
+                            byte[] errorMessageBytes = payload.getBytes(Charset.defaultCharset());
+
+                            Map<String, String> transportHeaders = new HashMap<>();
+                            transportHeaders.put(Constants.HTTP_CONNECTION, Constants.KEEP_ALIVE);
+                            transportHeaders.put(Constants.HTTP_CONTENT_ENCODING, Constants.GZIP);
+                            transportHeaders.put(Constants.HTTP_CONTENT_TYPE, Constants.TEXT_PLAIN);
+                            transportHeaders.put(Constants.HTTP_CONTENT_LENGTH,
+                                    (String.valueOf(errorMessageBytes.length)));
+                            transportHeaders.put(Constants.HTTP_STATUS_CODE, "504");
+
+                            response.setHeaders(transportHeaders);
+
+                            callBack.getParentCallback().done(response);
+
+
                         }
 
                         if (!this.context.getHealthCheck().equals(LoadBalancerConstants.NO_HEALTH_CHECK)) {
@@ -144,6 +166,7 @@ public class TimeoutHandler extends TimerTask {
                                 if (this.reachedUnHealthyRetriesThreshold(callBack.getLbOutboundEndpoint())) {
 
                                     callBack.getLbOutboundEndpoint().flipHealthyFlag();
+                                    log.error(callBack.getLbOutboundEndpoint().getName() + " is unhealthy..");
                                     callBack.getLbOutboundEndpoint().setHealthCheckedTime(this.getCurrentTime());
 
                                     /**

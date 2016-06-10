@@ -49,6 +49,16 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
         return this.lbOutboundEndpoint;
     }
 
+    public Mediator getMediator() {
+
+        return this.mediator;
+    }
+
+    public CarbonCallback getParentCallback() {
+
+        return this.parentCallback;
+    }
+
     /**
      * Constructor.
      *
@@ -57,6 +67,8 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
      */
     public LoadBalancerMediatorCallBack(CarbonCallback parentCallback, Mediator mediator,
                                         LoadBalancerConfigContext context, LBOutboundEndpoint lbOutboundEndpoint) {
+
+
 
         this.parentCallback = parentCallback;
         this.mediator = mediator;
@@ -68,6 +80,7 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
         this.timeOut = TimeUnit.NANOSECONDS.toMillis(System.nanoTime()) -
                 LoadBalancerConstants.DEFAULT_GRACE_PERIOD;
 
+
     }
 
 
@@ -75,15 +88,15 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
     public void done(CarbonMessage carbonMessage) {
 
 
-        /**log.info("Inside LB mediator call back...");
-         Map<String, String> transHeaders = carbonMessage.getHeaders();
-         log.info("Transport Headers...");
-         log.info(transHeaders.toString() + "\n\n");
+        /**
+        log.info("Inside LB call back mediator...");
 
-         Map<String, Object> prop = carbonMessage.getProperties();
-         log.info("Properties...");
-         log.info(prop.toString());**/
+        log.info("Transport Headers...");
+        log.info(carbonMessage.getHeaders().toString());
 
+        log.info("Properties...");
+        log.info(carbonMessage.getProperties().toString());
+        **/
 
         if (parentCallback instanceof LoadBalancerMediatorCallBack) {
 
