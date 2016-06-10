@@ -131,7 +131,7 @@ public class LoadBalancerConfigHolder {
      * <p>
      * This method is used to check whether scheduled is within limit or not.
      */
-    public boolean isWithInLimit(int timeOut) {
+    private boolean isWithInLimit(int timeOut) {
 
         if (timeOut <= LoadBalancerConstants.MAX_TIMEOUT_VAL) {
             return true;
@@ -144,7 +144,7 @@ public class LoadBalancerConfigHolder {
      * @param endpoints <p>
      *                  Populates cookie handling maps.
      */
-    public void populateCookieMaps(Map<String, OutboundEndpoint> endpoints) {
+    private void populateCookieMaps(Map<String, OutboundEndpoint> endpoints) {
 
         //Initializing cookie maps.
         context.initCookieMaps();
@@ -169,7 +169,7 @@ public class LoadBalancerConfigHolder {
 
     /**Algorithm related validations.*/
 
-    public void validateAlgorithm() {
+    private void validateAlgorithm() {
 
         if (this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue().
                 equals(LoadBalancerConstants.ROUND_ROBIN)) {
@@ -191,7 +191,7 @@ public class LoadBalancerConfigHolder {
 
     /**Session persistence related validations.*/
 
-    public void validatePersistence() {
+    private void validatePersistence() {
 
         String persistenceType = this.getFromConfig(LoadBalancerConstants.PERSISTENCE_TYPE).getValue();
 
@@ -253,7 +253,7 @@ public class LoadBalancerConfigHolder {
 
     /**SSL related validations.**/
 
-    public void validateSSL() {
+    private void validateSSL() {
 
         if (this.getFromConfig(LoadBalancerConstants.SSL_TYPE).getValue().
                 equals(LoadBalancerConstants.NO_SSL)) {
@@ -271,7 +271,7 @@ public class LoadBalancerConfigHolder {
 
     /**HealthCheck related validations.*/
 
-    public void validateHealthCheck() {
+    private void validateHealthCheck() {
 
         /**
          *For PASSIVE_HEALTH_CHECK.
@@ -405,7 +405,7 @@ public class LoadBalancerConfigHolder {
 
     }
 
-    public void validateTestRequest() {
+    private void validateTestRequest() {
 
         if (this.getFromConfig(LoadBalancerConstants.HEALTH_CHECK_TEST_REQUEST) != null) {
 
@@ -429,7 +429,7 @@ public class LoadBalancerConfigHolder {
      * TODO: check default values limit.
      */
 
-    public void validateConfig() {
+    private void validateConfig() {
 
         validateAlgorithm();
         validatePersistence();
