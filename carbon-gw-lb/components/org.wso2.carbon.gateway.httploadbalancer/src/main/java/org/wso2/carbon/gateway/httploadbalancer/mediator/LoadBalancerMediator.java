@@ -18,6 +18,7 @@ import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.scheduled.BackToH
 import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.scheduled.TimeoutHandler;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -389,22 +390,33 @@ public class LoadBalancerMediator extends AbstractMediator {
                     //Fetching endpoint according to algorithm.
                     nextLBOutboundEndpoint = lbAlgorithm.getNextLBOutboundEndpoint(carbonMessage, context);
 
-                    if (nextLBOutboundEndpoint.isHealthy()) { //The new Chosen Endpoint is healthy.
+                    //Here null pointer test is must.
+                    if (nextLBOutboundEndpoint != null) {
 
-                        // Calling chosen LBOutboundEndpoint's LoadBalancerCallMediator receive...
-                        lbCallMediatorMap.get(nextLBOutboundEndpoint.getName()).
-                                receive(carbonMessage, new LoadBalancerMediatorCallBack(carbonCallback, this,
-                                        this.context, nextLBOutboundEndpoint));
-                        return true;
+                        if (nextLBOutboundEndpoint.isHealthy()) { //The new Chosen Endpoint is healthy.
+
+                            log.info("Previously chosen endpoint is unHealthy.. Now, Chosen endpoint is : " +
+                                    nextLBOutboundEndpoint.getName());
+
+                            // Calling chosen LBOutboundEndpoint's LoadBalancerCallMediator receive...
+                            lbCallMediatorMap.get(nextLBOutboundEndpoint.getName()).
+                                    receive(carbonMessage, new LoadBalancerMediatorCallBack(carbonCallback, this,
+                                            this.context, nextLBOutboundEndpoint));
+                            return true;
+
+                        } else {
+
+                            if (areAllEndpointsUnhealthy()) {
+
+                                sendResponse(carbonCallback, false);
+                                return false;
+                            }
+                        }
 
                     } else {
 
-                        if (areAllEndpointsUnhealthy()) {
-
-                            sendResponse(carbonCallback, false);
-                            return false;
-                        }
-
+                        sendResponse(carbonCallback, false);
+                        return false;
                     }
 
                 }
