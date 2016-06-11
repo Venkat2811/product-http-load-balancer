@@ -7,6 +7,7 @@ import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 import org.wso2.carbon.messaging.CarbonMessage;
+
 import java.util.List;
 
 
@@ -138,7 +139,12 @@ public class RoundRobin implements LoadBalancingAlgorithm {
     public void reset() {
 
         synchronized (lock) {
-            index = 0;
+
+            if (endPointsCount > 0) {
+                index %= endPointsCount;
+            } else {
+                index = 0;
+            }
         }
     }
 
