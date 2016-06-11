@@ -49,10 +49,6 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
         return this.lbOutboundEndpoint;
     }
 
-    public Mediator getMediator() {
-
-        return this.mediator;
-    }
 
     public CarbonCallback getParentCallback() {
 
@@ -69,7 +65,6 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
                                         LoadBalancerConfigContext context, LBOutboundEndpoint lbOutboundEndpoint) {
 
 
-
         this.parentCallback = parentCallback;
         this.mediator = mediator;
         this.lbOutboundEndpoint = lbOutboundEndpoint;
@@ -77,7 +72,7 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
         // Note that we are assigning scheduled value way ahead before invoking outboundEndpoint.
         // this will be atleast 2 to 5 milli second difference, which might cause removal of
         // object from pool before response arrives. So we are adding a grace period of 5 ms time to it.
-        this.timeOut = TimeUnit.NANOSECONDS.toMillis(System.nanoTime()) -
+        this.timeOut = TimeUnit.NANOSECONDS.toMillis(System.nanoTime()) +
                 LoadBalancerConstants.DEFAULT_GRACE_PERIOD;
 
 
@@ -89,151 +84,158 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
 
 
         /**
-        log.info("Inside LB call back mediator...");
+         log.info("Inside LB call back mediator...");
 
-        log.info("Transport Headers...");
-        log.info(carbonMessage.getHeaders().toString());
+         log.info("Transport Headers...");
+         log.info(carbonMessage.getHeaders().toString());
 
-        log.info("Properties...");
-        log.info(carbonMessage.getProperties().toString());
-        **/
+         log.info("Properties...");
+         log.info(carbonMessage.getProperties().toString());
+         **/
 
-        if (parentCallback instanceof LoadBalancerMediatorCallBack) {
+            if (parentCallback instanceof LoadBalancerMediatorCallBack) {
 
-            //Locking is not required as we are operating on ConcurrentHashMap.
-            if (this.context.isInCallBackPool((CarbonCallback)
-                    carbonMessage.getProperty(Constants.CALL_BACK))) {
+                //Locking is not required as we are operating on ConcurrentHashMap.
+                if (this.context.isInCallBackPool((CarbonCallback)
+                        carbonMessage.getProperty(Constants.CALL_BACK))) {
 
-                this.context.removeFromCallBackPool((CarbonCallback)
-                        carbonMessage.getProperty(Constants.CALL_BACK));
-                //From this point, this callback will not be available in pool.
+                    this.context.removeFromCallBackPool((CarbonCallback)
+                            carbonMessage.getProperty(Constants.CALL_BACK));
+                    //From this point, this callback will not be available in pool.
 
-                /**
-                 * We are locking on this LBOutboundEndpoint object because,
-                 * this might be used in LoadBalancerMediator and in TimeoutHandler.
-                 *
-                 * Since we are resetting the properties lock is must.
-                 */
-                synchronized (this.lbOutboundEndpoint) {
-                    this.lbOutboundEndpoint.resetToDefault();
+                    /**
+                     * We are locking on this LBOutboundEndpoint object because,
+                     * this might be used in LoadBalancerMediator and in TimeoutHandler.
+                     *
+                     * Since we are resetting the properties lock is must.
+                     *
+                     * We are doing reset because, due to some delay though an endpoint is healthy,
+                     * we might have got request timeout. But the we would have got the other response
+                     * within timeOut. In such cases resetting has to be done.
+                     */
+                    synchronized (this.lbOutboundEndpoint) {
+
+                        this.lbOutboundEndpoint.resetToDefault();
+
+                    }
+
+                } else {
+                    log.error("Response received after removing callback from pool.." +
+                            "This response will be discarded. " +
+                            "You might have to adjust scheduled value to avoid this from happening.");
+                    return;
                 }
 
-            } else {
-                log.error("Response received after removing callback from pool.." +
-                        "This response will be discarded. " +
-                        "You might have to adjust scheduled value to avoid this from happening.");
-                return;
-            }
+
+                if (this.context.getPersistence().equals(LoadBalancerConstants.APPLICATION_COOKIE)) {
+
+                    /**
+                     ///////////////////////////////////////////////////////////////////////////////////
+                     //TODO: Just for testing. Remove this block later.
+                     BasicClientCookie serverCookie = new BasicClientCookie("JSESSIONID", "ghsgsdgsg");
+
+                     Date expiration = new Date(new Date().getTime() + 3600 * 1000);
+
+                     serverCookie.setExpiryDate(expiration);
+
+                     String finalCookie =
+                     serverCookie.getName() + "=" + serverCookie.getValue()
+                     +
+                     "; expires =" + serverCookie.getExpiryDate() +
+                     "; HTTPOnly";
+                     carbonMessage.setHeader(LoadBalancerConstants.SET_COOKIE_HEADER, finalCookie);
+
+                     ///////////////////////////////////////////////////////////////////////////////////////
+                     **/
 
 
-            if (this.context.getPersistence().equals(LoadBalancerConstants.APPLICATION_COOKIE)) {
+                    /**Checking if there is any cookie already available in response from BE. **/
 
-                /**
-                 ///////////////////////////////////////////////////////////////////////////////////
-                 //TODO: Just for testing. Remove this block later.
-                 BasicClientCookie serverCookie = new BasicClientCookie("JSESSIONID", "ghsgsdgsg");
+                    if (carbonMessage.getHeader(LoadBalancerConstants.SET_COOKIE_HEADER) != null ||
+                            carbonMessage.getHeader(LoadBalancerConstants.SET_COOKIE2_HEADER) != null) {
+                        //Cookie exists.
 
-                 Date expiration = new Date(new Date().getTime() + 3600 * 1000);
+                        //Appending LB_COOKIE along with existing cookie.
+                        carbonMessage.setHeader(
+                                (//Appending to appropriate header that is present.
+                                        carbonMessage.getHeader(LoadBalancerConstants.SET_COOKIE_HEADER) != null ?
+                                                LoadBalancerConstants.SET_COOKIE_HEADER :
+                                                LoadBalancerConstants.SET_COOKIE2_HEADER
+                                ),
+                                CommonUtil.addLBCookieToExistingCookie(
+                                        carbonMessage.getHeader(LoadBalancerConstants.SET_COOKIE_HEADER),
+                                        CommonUtil.getCookieValue(carbonMessage, this.context)));
 
-                 serverCookie.setExpiryDate(expiration);
+                    } else { //There is no cookie in response from BE.
 
-                 String finalCookie =
-                 serverCookie.getName() + "=" + serverCookie.getValue()
-                 +
-                 "; expires =" + serverCookie.getExpiryDate() +
-                 "; HTTPOnly";
-                 carbonMessage.setHeader(LoadBalancerConstants.SET_COOKIE_HEADER, finalCookie);
+                        //Adding LB specific cookie.
+                        log.error("BE endpoint doesn't has it's own cookie. LB will insert it's own cookie for " +
+                                "the sake of maintaining persistence. ");
 
-                 ///////////////////////////////////////////////////////////////////////////////////////
-                 **/
+                        //Here we are not looking for Set-Cookie2 header coz, it is only for LB purpose.
+                        //i.e., we are only inserting cookie. So using Set-Cookie itself.
+                        carbonMessage.setHeader(LoadBalancerConstants.SET_COOKIE_HEADER,
+                                CommonUtil.getSessionCookie(//here we are finding endpoint to insert appropriate cookie.
+                                        CommonUtil.getCookieValue(carbonMessage, this.context), false));
+
+                    }
 
 
-                /**Checking if there is any cookie already available in response from BE. **/
+                    parentCallback.done(carbonMessage);
 
-                if (carbonMessage.getHeader(LoadBalancerConstants.SET_COOKIE_HEADER) != null ||
-                        carbonMessage.getHeader(LoadBalancerConstants.SET_COOKIE2_HEADER) != null) {
-                    //Cookie exists.
 
-                    //Appending LB_COOKIE along with existing cookie.
-                    carbonMessage.setHeader(
-                            (//Appending to appropriate header that is present.
-                                    carbonMessage.getHeader(LoadBalancerConstants.SET_COOKIE_HEADER) != null ?
-                                            LoadBalancerConstants.SET_COOKIE_HEADER :
-                                            LoadBalancerConstants.SET_COOKIE2_HEADER
-                            ),
-                            CommonUtil.addLBCookieToExistingCookie(
-                                    carbonMessage.getHeader(LoadBalancerConstants.SET_COOKIE_HEADER),
-                                    CommonUtil.getCookieValue(carbonMessage, this.context)));
+                } else if (this.context.getPersistence().equals(LoadBalancerConstants.LB_COOKIE)) {
 
-                } else { //There is no cookie in response from BE.
+                    /**
+                     ///////////////////////////////////////////////////////////////////////////////////
+                     //TODO: Just for testing. Remove this block later.
+                     BasicClientCookie serverCookie = new BasicClientCookie("JSESSIONID", "ghsgsdgsg");
+
+                     Date expiration = new Date(new Date().getTime() + 3600 * 1000);
+
+                     serverCookie.setExpiryDate(expiration);
+
+                     String finalCookie =
+                     serverCookie.getName() + "=" + serverCookie.getValue();
+                     // +
+                     //   "; expires =" + serverCookie.getExpiryDate() +
+                     //  "; HTTPOnly";
+                     carbonMessage.setHeader(LoadBalancerConstants.SET_COOKIE_HEADER, finalCookie);
+
+                     ///////////////////////////////////////////////////////////////////////////////////////
+                     **/
+
+                    if (carbonMessage.getHeader(LoadBalancerConstants.SET_COOKIE_HEADER) != null ||
+                            carbonMessage.getHeader(LoadBalancerConstants.SET_COOKIE2_HEADER) != null) {
+                        //Cookie exists.
+
+                        log.error("BE endpoint has it's own cookie, LB will DISCARD this. If" +
+                                "you want your application cookie to be used, please choose " +
+                                LoadBalancerConstants.APPLICATION_COOKIE +
+                                " mode of persistence");
+                    }
 
                     //Adding LB specific cookie.
-                    log.error("BE endpoint doesn't has it's own cookie. LB will insert it's own cookie for " +
-                            "the sake of maintaining persistence. ");
-
-                    //Here we are not looking for Set-Cookie2 header coz, it is only for LB purpose.
-                    //i.e., we are only inserting cookie. So using Set-Cookie itself.
                     carbonMessage.setHeader(LoadBalancerConstants.SET_COOKIE_HEADER,
                             CommonUtil.getSessionCookie(//here we are finding endpoint to insert appropriate cookie.
                                     CommonUtil.getCookieValue(carbonMessage, this.context), false));
 
+                    parentCallback.done(carbonMessage);
+
+                } else { //for NO_PERSISTENCE and CLIENT_IP_HASHING type.
+
+                    parentCallback.done(carbonMessage);
                 }
 
+            } else if (mediator.hasNext()) { // If Mediator has a sibling after this
 
-                parentCallback.done(carbonMessage);
-
-
-            } else if (this.context.getPersistence().equals(LoadBalancerConstants.LB_COOKIE)) {
-
-                /**
-                 ///////////////////////////////////////////////////////////////////////////////////
-                 //TODO: Just for testing. Remove this block later.
-                 BasicClientCookie serverCookie = new BasicClientCookie("JSESSIONID", "ghsgsdgsg");
-
-                 Date expiration = new Date(new Date().getTime() + 3600 * 1000);
-
-                 serverCookie.setExpiryDate(expiration);
-
-                 String finalCookie =
-                 serverCookie.getName() + "=" + serverCookie.getValue();
-                 // +
-                 //   "; expires =" + serverCookie.getExpiryDate() +
-                 //  "; HTTPOnly";
-                 carbonMessage.setHeader(LoadBalancerConstants.SET_COOKIE_HEADER, finalCookie);
-
-                 ///////////////////////////////////////////////////////////////////////////////////////
-                 **/
-
-                if (carbonMessage.getHeader(LoadBalancerConstants.SET_COOKIE_HEADER) != null ||
-                        carbonMessage.getHeader(LoadBalancerConstants.SET_COOKIE2_HEADER) != null) {
-                    //Cookie exists.
-
-                    log.error("BE endpoint has it's own cookie, LB will DISCARD this. If" +
-                            "you want your application cookie to be used, please choose " +
-                            LoadBalancerConstants.APPLICATION_COOKIE +
-                            " mode of persistence");
+                try {
+                    mediator.next(carbonMessage, parentCallback);
+                } catch (Exception e) {
+                    log.error("Error while mediating from Callback", e);
                 }
-
-                //Adding LB specific cookie.
-                carbonMessage.setHeader(LoadBalancerConstants.SET_COOKIE_HEADER,
-                        CommonUtil.getSessionCookie(//here we are finding endpoint to insert appropriate cookie.
-                                CommonUtil.getCookieValue(carbonMessage, this.context), false));
-
-                parentCallback.done(carbonMessage);
-
-            } else { //for NO_PERSISTENCE and CLIENT_IP_HASHING type.
-
-                parentCallback.done(carbonMessage);
             }
 
-        } else if (mediator.hasNext()) { // If Mediator has a sibling after this
-
-            try {
-                mediator.next(carbonMessage, parentCallback);
-            } catch (Exception e) {
-                log.error("Error while mediating from Callback", e);
-            }
-        }
 
     }
 }

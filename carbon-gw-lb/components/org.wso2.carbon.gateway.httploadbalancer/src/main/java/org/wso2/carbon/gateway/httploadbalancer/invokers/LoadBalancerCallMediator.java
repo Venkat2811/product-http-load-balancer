@@ -10,7 +10,6 @@ import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 
-
 /**
  * CallMediator for LoadBalancer.
  */
@@ -54,12 +53,19 @@ public class LoadBalancerCallMediator extends AbstractMediator {
 
          log.info("Properties...");
          log.info(carbonMessage.getProperties().toString());
-        **/
+         **/
 
+        CarbonCallback callback;
 
-        //Using separate LBMediatorCallBack because, we are handling headers in CallBack for session persistence.
-        CarbonCallback callback = new LoadBalancerMediatorCallBack(carbonCallback, this,
-                this.context, this.lbOutboundEndpoint);
+        if (carbonCallback instanceof LoadBalancerMediatorCallBack) {
+            //Using separate LBMediatorCallBack because, we are handling headers in CallBack for session persistence.
+            callback = new LoadBalancerMediatorCallBack(carbonCallback, this,
+                    this.context, this.lbOutboundEndpoint);
+        } else {
+
+            callback = carbonCallback;
+
+        }
 
         lbOutboundEndpoint.receive(carbonMessage, callback, this.context);
 
