@@ -100,14 +100,29 @@ public class CommonUtil {
             ex.printStackTrace();
             return null;
         }
-        String host = url.getHost();
+
         int port = (url.getPort() == -1) ? 80 : url.getPort();
 
-        return host + ":" + String.valueOf(port);
+        return url.getHost() + ":" + String.valueOf(port);
+    }
+
+    public static String getHostAndPortWithProtocol(String uri) {
+
+        URL url = null;
+        try {
+            url = new URL(uri);
+        } catch (MalformedURLException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+
+        int port = (url.getPort() == -1) ? 80 : url.getPort();
+
+        return url.getProtocol() + "://" + url.getHost() + ":" + String.valueOf(port);
+
     }
 
     /**
-     *
      * @param uri Uri
      * @return UrlPath
      */

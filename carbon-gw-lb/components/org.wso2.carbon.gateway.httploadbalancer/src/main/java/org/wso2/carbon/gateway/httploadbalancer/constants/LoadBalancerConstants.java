@@ -141,7 +141,7 @@ public class LoadBalancerConstants {
     public static final int DEFAULT_RETRIES = 3;
 
     //Time interval to be elapsed after which, LB has to check whether an endpoint is back to healthy.
-    public static final int DEFAULT_HEALTHY_CHECK_INTERVAL = (int) TimeUnit.MINUTES.toMillis(5); //5 mins.
+    public static final int DEFAULT_HEALTHY_CHECK_INTERVAL = (int) TimeUnit.MINUTES.toMillis(1); //1 mins.
 
     //Scheduled time Interval to execute TimeoutHandler.
     public static final int DEFAULT_TIMER_PERIOD = (int) TimeUnit.SECONDS.toMillis(10); //10 sec

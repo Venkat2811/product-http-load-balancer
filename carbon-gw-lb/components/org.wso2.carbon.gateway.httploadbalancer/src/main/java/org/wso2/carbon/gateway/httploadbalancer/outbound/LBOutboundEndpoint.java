@@ -90,7 +90,15 @@ public class LBOutboundEndpoint {
     public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback,
                            LoadBalancerConfigContext context) throws Exception {
 
-        this.outboundEndpoint.receive(carbonMessage, carbonCallback);
+        /**  log.info("Inside LBOutboundEndpoint...");
+
+         log.info("Transport Headers...");
+         log.info(carbonMessage.getHeaders().toString());
+
+         log.info("Properties...");
+         log.info(carbonMessage.getProperties().toString());
+
+         this.outboundEndpoint.receive(carbonMessage, carbonCallback);**/
 
         //No need to synchronize as we are operating on concurrent HashMap.
         context.addToCallBackPool(carbonCallback);

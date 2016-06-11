@@ -304,6 +304,8 @@ public class LoadBalancerConfigContext {
      */
     public void addToCallBackPool(CarbonCallback callback) {
 
+
+
         String name = callback.toString().substring(callback.toString().lastIndexOf(".") + 1,
                 callback.toString().length());
 
@@ -326,10 +328,10 @@ public class LoadBalancerConfigContext {
                 callback.toString().length());
 
         if (this.callBackPool.containsKey(name)) {
-          //  log.info("Is in Pool : " + name);
+             // log.info("Is in Pool : " + name);
             return true;
         } else {
-          //  log.info("Is not in Pool : " + name);
+              // log.info("Is not in Pool : " + name);
             return false;
         }
     }
@@ -342,10 +344,12 @@ public class LoadBalancerConfigContext {
      */
     public void removeFromCallBackPool(CarbonCallback callback) {
 
+
+
         String name = callback.toString().substring(callback.toString().lastIndexOf(".") + 1,
                 callback.toString().length());
 
-       // log.info("Removing from Pool  Key : " + name);
+     //   log.info("Removing from Pool  Key : " + name);
 
         this.callBackPool.remove(name);
 

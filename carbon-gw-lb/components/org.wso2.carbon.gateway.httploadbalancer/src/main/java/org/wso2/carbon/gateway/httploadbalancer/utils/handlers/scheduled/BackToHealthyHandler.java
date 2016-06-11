@@ -3,9 +3,15 @@ package org.wso2.carbon.gateway.httploadbalancer.utils.handlers.scheduled;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancingAlgorithm;
+import org.wso2.carbon.gateway.httploadbalancer.callback.LBHealthCheckCallBack;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
+import org.wso2.carbon.gateway.httploadbalancer.invokers.LoadBalancerCallMediator;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
+import org.wso2.carbon.messaging.DefaultCarbonMessage;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
@@ -20,15 +26,17 @@ public class BackToHealthyHandler extends TimerTask {
     private final LoadBalancerConfigContext context;
     private final String handlerName;
     private final LoadBalancingAlgorithm algorithm;
+    private Map<String, LoadBalancerCallMediator> lbCallMediatorMap;
 
     //To avoid race condition if any.
     private volatile boolean isRunning = false;
 
-    public BackToHealthyHandler(LoadBalancerConfigContext context,
-                                LoadBalancingAlgorithm algorithm, String configName) {
+    public BackToHealthyHandler(LoadBalancerConfigContext context, LoadBalancingAlgorithm algorithm,
+                                Map<String, LoadBalancerCallMediator> lbCallMediatorMap, String configName) {
 
         this.context = context;
         this.algorithm = algorithm;
+        this.lbCallMediatorMap = lbCallMediatorMap;
         this.handlerName = configName + "-" + this.getName();
 
         log.info(this.getHandlerName() + " started.");
@@ -75,9 +83,6 @@ public class BackToHealthyHandler extends TimerTask {
         //Tf there is no content in list no need to process.
         if (hasContent) {
 
-            long currentTime = this.getCurrentTime();
-
-
             /**
              * Here we will remove and endpoint from the list and do necessary processing.
              * If it is back to healthy, we will not add it to the list again.
@@ -87,34 +92,107 @@ public class BackToHealthyHandler extends TimerTask {
              * So it will not lead to infinite circular loop.
              */
 
-            for (int i = 0; i < context.getUnHealthyLBEPQueue().size(); i++) {
+            List<LBOutboundEndpoint> list = new ArrayList<>(context.getUnHealthyLBEPQueue());
 
-                LBOutboundEndpoint lbOutboundEndpoint = context.getUnHealthyLBEPQueue().poll();
+            for (int i = 0; i < list.size(); i++) {
 
-                if ((currentTime - lbOutboundEndpoint.getHealthCheckedTime()) > context.getHealthycheckInterval()) {
+                LBOutboundEndpoint lbOutboundEndpoint = list.get(i);
 
-                    //TODO: Think How will you make a call to endpoint to check its health..?
-                    //TODO: otherwise, after time has elapsed add it back to list,
-                    //TODO:Again if it fails we can add it back to unHealthy list.
+                //TODO: Think How will you make a call to endpoint to check its health..?
+                //TODO: otherwise, after time has elapsed add it back to list,
+                //TODO:Again if it fails we can add it back to unHealthy list.
 
-                    if (reachedHealthyRetriesThreshold(lbOutboundEndpoint)) {
 
-                        lbOutboundEndpoint.resetToDefault();
+                while (true) {
 
-                    } else {
 
-                        //Since HealthyRetriesThreshold is not reached, we are adding it back to queue.
-                        //Adding it back to Queue.
-                        context.getUnHealthyLBEPQueue().add(lbOutboundEndpoint);
+                    DefaultCarbonMessage carbonMessage = new DefaultCarbonMessage();
+                    //TODO: construct carbonMessage.
+
+                    LBHealthCheckCallBack callBack = new LBHealthCheckCallBack(context, lbOutboundEndpoint);
+
+                    try {
+                        this.lbCallMediatorMap.get(lbOutboundEndpoint.getName()).receive(
+                                carbonMessage,
+                                callBack);
+                    } catch (Exception e) {
+
+                        log.error(e.toString());
                     }
 
-                } else {
+                    try {
+                        //Waiting for response to come.
+                        Thread.sleep(context.getReqTimeout() + 10);
 
-                    //Since time has not elapsed, we are not processing it.
-                    //Adding it back to Queue.
-                    context.getUnHealthyLBEPQueue().add(lbOutboundEndpoint);
+                    } catch (InterruptedException e) {
+                        log.error(e.toString());
+                    }
+
+                    //If response has arrived it will not be in pool.
+                    if (context.isInCallBackPool(callBack)) {
+
+                        context.removeFromCallBackPool(callBack);
+
+                        //Adding back to queue since it is unHealthy.
+                        lbOutboundEndpoint.setHealthCheckedTime(this.getCurrentTime());
+                        lbOutboundEndpoint.setHealthyRetriesCount(0);
+
+
+                        log.warn(lbOutboundEndpoint.getName() + " is still unHealthy..");
+                        break;
+
+                    } else { //Ok, now response has arrived. We need to check for healthy retries.
+
+                        if (reachedHealthyRetriesThreshold(lbOutboundEndpoint)) {
+
+                            //TODO: If it is healthy, remove it from Queue.
+                            lbOutboundEndpoint.resetToDefault(); //Endpoint is back to healthy.
+                            log.info("Endpoint is back to healthy..");
+
+                            /**
+                             * When request is received at LoadBalancerMediator,
+                             *  1) It checks for persistence
+                             *  2) It checks for algorithm
+                             *  3) It checks with unHealthyList
+                             *
+                             * So here we are removing unHealthy Endpoint in this order and finally
+                             * adding it to unHealthyEndpoint list.
+                             */
+
+                            //This case will only be true in case of CLIENT_IP_HASHING
+                            //as persistence policy.
+                            if (context.getStrictClientIPHashing() != null) {
+
+                                synchronized (context.getStrictClientIPHashing()) {
+
+                                    context.getStrictClientIPHashing().addLBOutboundEndpoint(lbOutboundEndpoint);
+
+                                }
+                            }
+
+                            //We are acquiring lock on Object that is available in algorithm.
+                            //We are removing the UnHealthyEndpoint from Algorithm List so that it
+                            //will not be chosen by algorithm.
+                            synchronized (algorithm.getLock()) {
+
+                                algorithm.addLBOutboundEndpoint(lbOutboundEndpoint);
+                                algorithm.reset();
+
+                            }
+
+                        } else {
+                            log.info("To be implemented..");
+                            break;
+                        }
+
+                    }
+
+
                 }
+
+
             }
+            log.info("Size : " + context.getUnHealthyLBEPQueue().size());
 
         }
 

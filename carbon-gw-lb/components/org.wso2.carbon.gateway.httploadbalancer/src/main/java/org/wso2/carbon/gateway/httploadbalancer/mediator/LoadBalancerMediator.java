@@ -18,6 +18,7 @@ import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.scheduled.BackToH
 import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.scheduled.TimeoutHandler;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -119,12 +120,12 @@ public class LoadBalancerMediator extends AbstractMediator {
          */
         if (!this.context.getHealthCheck().equals(LoadBalancerConstants.NO_HEALTH_CHECK)) {
             BackToHealthyHandler backToHealthyHandler = new BackToHealthyHandler(this.context,
-                    this.lbAlgorithm, this.configName);
+                    this.lbAlgorithm, this.lbCallMediatorMap, this.configName);
 
             Timer timerForHealthyHandler = new Timer(backToHealthyHandler.getHandlerName(), true);
 
             timerForHealthyHandler.schedule(backToHealthyHandler, 0,
-                    LoadBalancerConstants.DEFAULT_HEALTHY_CHECK_INTERVAL); //TODO: time
+                    context.getHealthycheckInterval()); //TODO: time
         }
 
 
@@ -135,17 +136,17 @@ public class LoadBalancerMediator extends AbstractMediator {
 
         log.info(logMessage);
 
-        /**
-         log.info("\n\n" + logMessage);
-         log.info("Inside LB mediator...");
-         Map<String, String> transHeaders = carbonMessage.getHeaders();
-         log.info("Transport Headers...");
-         log.info(transHeaders.toString() + "\n\n");
 
-         Map<String, Object> prop = carbonMessage.getProperties();
-         log.info("Properties...");
-         log.info(prop.toString() + "\n\n");
-         **/
+/**
+ log.info("Inside LB mediator...");
+
+ log.info("Transport Headers...");
+ log.info(carbonMessage.getHeaders() + "\n\n");
+
+ log.info("Properties...");
+ log.info(carbonMessage.getProperties() + "\n\n");
+
+ **/
 
 
         //log.info(" LB Mediator Cookie Header : " + carbonMessage.getHeader(LoadBalancerConstants.COOKIE_HEADER));
