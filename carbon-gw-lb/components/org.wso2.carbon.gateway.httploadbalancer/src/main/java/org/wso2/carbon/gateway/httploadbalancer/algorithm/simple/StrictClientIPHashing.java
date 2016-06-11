@@ -150,15 +150,14 @@ public class StrictClientIPHashing implements LoadBalancingAlgorithm {
                 } else {
 
                     log.error("The IP Address retrieved is : " + ipAddress +
-                            " which is invalid according to our validation. No Endpoint will be chosen");
-                    //TODO: throw appropriate exceptions also.
+                            " which is invalid according to our validation. No Endpoint will be chosen" +
+                            " as your configuration is Strict IP Hashing..");
 
                 }
 
             } else {
 
                 log.error("No outbound end point is available..");
-                //TODO: throw appropriate exceptions also.
 
             }
         }

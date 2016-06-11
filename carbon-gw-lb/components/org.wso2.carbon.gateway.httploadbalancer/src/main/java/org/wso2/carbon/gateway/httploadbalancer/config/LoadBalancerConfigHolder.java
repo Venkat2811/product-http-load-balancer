@@ -20,6 +20,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * A Class responsible for loading LB config from WUMLBaseListenerImpl.java to LoadBalancerConfigContext.
  * <p>
  * All validations and conversions are done here.
+ * <p>
+ * This holds static configuration from .iflow config files.
  */
 public class LoadBalancerConfigHolder {
 
@@ -141,16 +143,16 @@ public class LoadBalancerConfigHolder {
     }
 
     /**
-     * @param endpoints <p>
-     *                  Populates cookie handling maps.
+     * @param lbOutboundEndpoints <p>
+     *                            Populates cookie handling maps.
      */
-    private void populateCookieMaps(Map<String, OutboundEndpoint> endpoints) {
+    private void populateCookieMaps(Map<String, LBOutboundEndpoint> lbOutboundEndpoints) {
 
         //Initializing cookie maps.
         context.initCookieMaps();
         int index = 1;
 
-        Set<Map.Entry<String, OutboundEndpoint>> entrySet = endpoints.entrySet();
+        Set<Map.Entry<String, LBOutboundEndpoint>> entrySet = lbOutboundEndpoints.entrySet();
         for (Map.Entry entry : entrySet) {
 
             context.addToCookieToOutboundEPKeyMap(
@@ -158,7 +160,8 @@ public class LoadBalancerConfigHolder {
                     entry.getKey().toString());
 
             context.addToOutboundEPTOCookieMap(
-                    CommonUtil.getHostAndPort(((OutboundEndpoint) entry.getValue()).getUri()),
+                    CommonUtil.getHostAndPort(
+                            ((LBOutboundEndpoint) entry.getValue()).getOutboundEndpoint().getUri()),
                     LoadBalancerConstants.COOKIE_PREFIX + String.valueOf(index));
 
 
@@ -167,7 +170,9 @@ public class LoadBalancerConfigHolder {
 
     }
 
-    /**Algorithm related validations.*/
+    /**
+     * Algorithm related validations.
+     */
 
     private void validateAlgorithm() {
 
@@ -189,7 +194,9 @@ public class LoadBalancerConfigHolder {
 
     }
 
-    /**Session persistence related validations.*/
+    /**
+     * Session persistence related validations.
+     */
 
     private void validatePersistence() {
 
@@ -204,7 +211,7 @@ public class LoadBalancerConfigHolder {
 
             context.setPersistence(persistenceType);
             log.info("Persistence : " + context.getPersistence());
-            populateCookieMaps(integrationFlow.getGWConfigHolder().getOutboundEndpoints());
+            populateCookieMaps(context.getLbOutboundEndpoints());
 
 
         } else if (persistenceType.equals(LoadBalancerConstants.LB_COOKIE)) {
@@ -242,7 +249,7 @@ public class LoadBalancerConfigHolder {
              "Persistence Timeout :  " + context.getSessionPersistenceTimeout());
 
              }**/
-            populateCookieMaps(integrationFlow.getGWConfigHolder().getOutboundEndpoints());
+            populateCookieMaps(context.getLbOutboundEndpoints());
         } else if (persistenceType.equals(LoadBalancerConstants.CLIENT_IP_HASHING)) {
 
             context.setPersistence(persistenceType);
@@ -251,7 +258,9 @@ public class LoadBalancerConfigHolder {
 
     }
 
-    /**SSL related validations.**/
+    /**
+     * SSL related validations.
+     **/
 
     private void validateSSL() {
 
@@ -269,7 +278,9 @@ public class LoadBalancerConfigHolder {
 
     }
 
-    /**HealthCheck related validations.*/
+    /**
+     * HealthCheck related validations.
+     */
 
     private void validateHealthCheck() {
 

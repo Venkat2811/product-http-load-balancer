@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
- * Holds LB Configuration context.
+ * Holds runtime LB Configuration context.
  * <p>
  * Context object will be passed to mediators so that they can use config whenever necessary.
  */

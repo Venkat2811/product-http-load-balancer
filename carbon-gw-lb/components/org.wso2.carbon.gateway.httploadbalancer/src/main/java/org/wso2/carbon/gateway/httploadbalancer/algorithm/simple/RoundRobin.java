@@ -124,7 +124,6 @@ public class RoundRobin implements LoadBalancingAlgorithm {
             } else {
 
                 log.error("No OutboundEndpoint is available..");
-                //TODO: throw appropriate exceptions also.
 
             }
         }

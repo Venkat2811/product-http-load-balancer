@@ -18,7 +18,6 @@ import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.scheduled.BackToH
 import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.scheduled.TimeoutHandler;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -413,7 +412,7 @@ public class LoadBalancerMediator extends AbstractMediator {
                             }
                         }
 
-                    } else {
+                    } else { //If algorithm returns null, there is no endpoint available.
 
                         sendResponse(carbonCallback, false);
                         return false;
