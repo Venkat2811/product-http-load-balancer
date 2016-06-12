@@ -119,15 +119,15 @@ public class LoadBalancerMediator extends AbstractMediator {
          *
          * This is started only if health check is enabled.
          */
-            if (!this.context.getHealthCheck().equals(LoadBalancerConstants.NO_HEALTH_CHECK)) {
-         BackToHealthyHandler backToHealthyHandler = new BackToHealthyHandler(this.context,
-         this.lbAlgorithm, this.lbCallMediatorMap, this.configName);
+        if (!this.context.getHealthCheck().equals(LoadBalancerConstants.NO_HEALTH_CHECK)) {
+            BackToHealthyHandler backToHealthyHandler = new BackToHealthyHandler(this.context,
+                    this.lbAlgorithm, this.lbCallMediatorMap, this.configName);
 
-         Timer timerForHealthyHandler = new Timer(backToHealthyHandler.getHandlerName(), true);
+            Timer timerForHealthyHandler = new Timer(backToHealthyHandler.getHandlerName(), true);
 
-         timerForHealthyHandler.schedule(backToHealthyHandler, 0,
-         context.getHealthycheckInterval());
-         }
+            timerForHealthyHandler.schedule(backToHealthyHandler, 0,
+                    context.getHealthycheckInterval());
+        }
 
 
     }
@@ -323,9 +323,14 @@ public class LoadBalancerMediator extends AbstractMediator {
             log.info("IP address retrieved is : " + ipAddress);
             if (CommonUtil.isValidIP(ipAddress)) {
 
+                //getting endpoint name for this ipAddress.
+                String endpointName = context.getStrictClientIPHashing().getHash().get(ipAddress);
+
                 //Chosing endpoint based on IP Hashing.
-                nextLBOutboundEndpoint = context.getLBOutboundEndpoint(
-                        context.getStrictClientIPHashing().getHash().get(ipAddress));
+                // If no endpoints are available, hash will return null.
+                if (endpointName != null) {
+                    nextLBOutboundEndpoint = context.getLBOutboundEndpoint(endpointName);
+                }
 
             } else {
 
@@ -460,7 +465,7 @@ public class LoadBalancerMediator extends AbstractMediator {
     private void sendResponse(CarbonCallback carbonCallback, boolean isInternalError) throws Exception {
 
         if (!isInternalError) {
-            log.error("All LBOutboundEndpoints are unHealthy..");
+            log.error("All OutboundEndpoints are unHealthy..");
             new LBErrorHandler().handleFault
                     ("503", new Throwable("Service Unavailable.. " +
                             "Kindly try after some time.."), null, carbonCallback);

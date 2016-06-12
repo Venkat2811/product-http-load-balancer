@@ -8,8 +8,6 @@ import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContex
 import org.wso2.carbon.gateway.httploadbalancer.invokers.LoadBalancerCallMediator;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 import org.wso2.carbon.messaging.CarbonMessage;
-
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

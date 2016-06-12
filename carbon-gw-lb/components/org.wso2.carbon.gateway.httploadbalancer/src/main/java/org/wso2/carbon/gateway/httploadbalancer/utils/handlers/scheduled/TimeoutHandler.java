@@ -115,7 +115,6 @@ public class TimeoutHandler extends TimerTask {
                         if (((currentTime - callBack.getTimeout()) > context.getReqTimeout())) {
                             //This callBack is in pool after it has timedOut.
 
-
                             //This operation is on Concurrent HashMap, so no synchronization is required.
                             if (!context.isInCallBackPool(callBack)) {
                                 //If response arrives at this point, callBack would have been removed from pool

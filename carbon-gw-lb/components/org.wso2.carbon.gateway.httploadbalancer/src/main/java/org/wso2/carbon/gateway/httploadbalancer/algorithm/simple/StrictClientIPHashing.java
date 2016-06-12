@@ -145,7 +145,11 @@ public class StrictClientIPHashing implements LoadBalancingAlgorithm {
                 log.info("IP address retrieved is : " + ipAddress);
                 if (CommonUtil.isValidIP(ipAddress)) {
 
-                    endPoint = context.getLBOutboundEndpoint(hash.get(ipAddress));
+                    //getting endpoint name for this ipAddress.
+                    String endpointName = context.getStrictClientIPHashing().getHash().get(ipAddress);
+                    if (endpointName != null) {
+                        endPoint = context.getLBOutboundEndpoint(endpointName);
+                    }
 
                 } else {
 
