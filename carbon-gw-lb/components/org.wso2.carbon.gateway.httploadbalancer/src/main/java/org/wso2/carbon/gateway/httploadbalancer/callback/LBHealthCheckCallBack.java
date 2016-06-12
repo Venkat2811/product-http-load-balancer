@@ -71,6 +71,8 @@ public class LBHealthCheckCallBack implements CarbonCallback {
 
             }
 
+            return;
+
         } else {
             log.error(" HealthCheck Response received after removing callback from pool.." +
                     "You might have to adjust timeOut value to avoid this from happening.");

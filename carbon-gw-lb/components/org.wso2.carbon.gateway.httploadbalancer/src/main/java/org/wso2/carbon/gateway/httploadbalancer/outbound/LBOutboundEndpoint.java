@@ -18,6 +18,7 @@ public class LBOutboundEndpoint {
 
     private static final Logger log = LoggerFactory.getLogger(LBOutboundEndpoint.class);
 
+    // This ref to carbonMessage will only be used for health Checking.
     private CarbonMessage carbonMessage;
 
     // HTTP or HTTPS Endpoint.

@@ -15,6 +15,7 @@ import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 import org.wso2.carbon.gateway.httploadbalancer.utils.CommonUtil;
 import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.error.LBErrorHandler;
 
+import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.scheduled.BackToHealthyHandler;
 import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.scheduled.TimeoutHandler;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -118,15 +119,15 @@ public class LoadBalancerMediator extends AbstractMediator {
          *
          * This is started only if health check is enabled.
          */
-        /**    if (!this.context.getHealthCheck().equals(LoadBalancerConstants.NO_HEALTH_CHECK)) {
+            if (!this.context.getHealthCheck().equals(LoadBalancerConstants.NO_HEALTH_CHECK)) {
          BackToHealthyHandler backToHealthyHandler = new BackToHealthyHandler(this.context,
          this.lbAlgorithm, this.lbCallMediatorMap, this.configName);
 
          Timer timerForHealthyHandler = new Timer(backToHealthyHandler.getHandlerName(), true);
 
          timerForHealthyHandler.schedule(backToHealthyHandler, 0,
-         context.getHealthycheckInterval()); //TODO: time
-         }**/
+         context.getHealthycheckInterval());
+         }
 
 
     }

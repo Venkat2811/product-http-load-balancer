@@ -7,8 +7,8 @@ import org.wso2.carbon.gateway.httploadbalancer.callback.LBHealthCheckCallBack;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.invokers.LoadBalancerCallMediator;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
-import org.wso2.carbon.messaging.Constants;
-import org.wso2.carbon.messaging.DefaultCarbonMessage;
+import org.wso2.carbon.messaging.CarbonMessage;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -99,22 +99,26 @@ public class BackToHealthyHandler extends TimerTask {
 
                 LBOutboundEndpoint lbOutboundEndpoint = list.get(i);
 
-                //TODO: Think How will you make a call to endpoint to check its health..?
-                //TODO: otherwise, after time has elapsed add it back to list,
-                //TODO:Again if it fails we can add it back to unHealthy list.
-
-
                 while (true) {
 
-
                     LBHealthCheckCallBack callBack = new LBHealthCheckCallBack(context, lbOutboundEndpoint);
+                    //TODO: request params are to be removed.
+                    CarbonMessage carbonMessage = lbOutboundEndpoint.getCarbonMessage();
+                    carbonMessage.setHeader("User-Agent", "carbon-gw-LB");
 
-                    DefaultCarbonMessage carbonMessage = new DefaultCarbonMessage();
-                    //TODO: construct carbonMessage.
-                    carbonMessage.setHeader("User-Agent", "gwLB");
-                    carbonMessage.setProperty(Constants.PROTOCOL, "HTTP");
-                    carbonMessage.setProperty(Constants.HTTP_VERSION, "HTTP/1.1");
-                    carbonMessage.setProperty(Constants.CALL_BACK, callBack);
+
+                    // DefaultCarbonMessage carbonMessage1 = new DefaultCarbonMessage();
+                    /** carbonMessage1.setHeader("User-Agent", "carbon-gw-LB");
+                     carbonMessage1.setProperty(Constants.SRC_HNDLR, carbonMessage.getProperty(Constants.SRC_HNDLR));
+                     carbonMessage1.setProperty(Constants.HTTP_METHOD,
+                     carbonMessage.getProperty(Constants.HTTP_METHOD));
+                     carbonMessage1.setProperty(Constants.PROTOCOL, carbonMessage.getProperty(Constants.PROTOCOL));
+                     carbonMessage1.setProperty(Constants.HTTP_VERSION,
+                     carbonMessage.getProperty(Constants.HTTP_VERSION));
+                     carbonMessage1.setProperty(Constants.CALL_BACK, callBack);
+                     carbonMessage1.setProperty(Constants.DISRUPTOR, carbonMessage.getProperty(Constants.DISRUPTOR));
+                     carbonMessage1.setProperty(Constants.CHNL_HNDLR_CTX,
+                     carbonMessage.getProperty(Constants.CHNL_HNDLR_CTX));**/
 
                     try {
                         this.lbCallMediatorMap.get(lbOutboundEndpoint.getName()).receive(
@@ -127,7 +131,7 @@ public class BackToHealthyHandler extends TimerTask {
 
                     try {
                         //Waiting for response to come.
-                        Thread.sleep(context.getReqTimeout() + 10);
+                        Thread.sleep(context.getReqTimeout());
 
                     } catch (InterruptedException e) {
                         log.error(e.toString());
@@ -138,11 +142,8 @@ public class BackToHealthyHandler extends TimerTask {
 
                         context.removeFromCallBackPool(callBack);
 
-
-                        //Adding back to queue since it is unHealthy.
                         lbOutboundEndpoint.setHealthCheckedTime(this.getCurrentTime());
                         lbOutboundEndpoint.setHealthyRetriesCount(0);
-
 
                         log.warn(lbOutboundEndpoint.getName() + " is still unHealthy..");
                         break;
@@ -151,11 +152,8 @@ public class BackToHealthyHandler extends TimerTask {
 
                         if (reachedHealthyRetriesThreshold(lbOutboundEndpoint)) {
 
-                            //TODO: If it is healthy, remove it from Queue.
-
                             lbOutboundEndpoint.resetToDefault(); //Endpoint is back to healthy.
                             log.info(lbOutboundEndpoint.getName() + " is back to healthy..");
-                            context.getUnHealthyLBEPQueue().remove(lbOutboundEndpoint);
 
                             /**
                              * When request is received at LoadBalancerMediator,
@@ -188,11 +186,16 @@ public class BackToHealthyHandler extends TimerTask {
 
                             }
 
+                            //Removing endpoint from unHealthy Queue.
+                            context.getUnHealthyLBEPQueue().remove(lbOutboundEndpoint);
+
                         } else {
-                            log.info("To be implemented..");
-                            break;
+                            log.info("No of retries not yet reached...");
+                            continue;
                         }
 
+                        //This break is necessary.
+                        break;
                     }
 
 
@@ -200,7 +203,15 @@ public class BackToHealthyHandler extends TimerTask {
 
 
             }
-            log.info("Size : " + context.getUnHealthyLBEPQueue().size());
+            if (context.getUnHealthyLBEPQueue().size() == 0) {
+
+                log.info("All endpoints are back to healthy state.");
+
+            } else {
+
+                log.warn("There are " + context.getUnHealthyLBEPQueue().size() + " unHealthy endpoints.");
+            }
+
 
         }
 
