@@ -191,7 +191,10 @@ public class TimeoutHandler extends TimerTask {
                                         //Adding to unHealthy List.
                                         synchronized (context.getUnHealthyLBEPQueue()) {
 
-                                            context.getUnHealthyLBEPQueue().add(callBack.getLbOutboundEndpoint());
+                                            if (!context.getUnHealthyLBEPQueue().
+                                                    contains(callBack.getLbOutboundEndpoint())) {
+                                                context.getUnHealthyLBEPQueue().add(callBack.getLbOutboundEndpoint());
+                                            }
                                         }
 
                                     }
