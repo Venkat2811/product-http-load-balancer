@@ -3,6 +3,7 @@ package org.wso2.carbon.gateway.httploadbalancer.invokers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.core.flow.AbstractMediator;
+import org.wso2.carbon.gateway.httploadbalancer.callback.LBHealthCheckCallBack;
 import org.wso2.carbon.gateway.httploadbalancer.callback.LoadBalancerMediatorCallBack;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
@@ -57,13 +58,19 @@ public class LoadBalancerCallMediator extends AbstractMediator {
 
         CarbonCallback callback;
 
-        if (carbonCallback instanceof LoadBalancerMediatorCallBack) {
+        if (carbonCallback instanceof LBHealthCheckCallBack) {
+
+            callback = carbonCallback;
+
+
+        } else {
+
+
             //Using separate LBMediatorCallBack because, we are handling headers in CallBack for session persistence.
             callback = new LoadBalancerMediatorCallBack(carbonCallback, this,
                     this.context, this.lbOutboundEndpoint);
-        } else {
 
-            callback = carbonCallback;
+
 
         }
 

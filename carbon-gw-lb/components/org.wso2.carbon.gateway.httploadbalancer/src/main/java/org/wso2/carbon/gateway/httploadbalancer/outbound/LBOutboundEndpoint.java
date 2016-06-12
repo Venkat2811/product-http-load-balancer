@@ -18,6 +18,8 @@ public class LBOutboundEndpoint {
 
     private static final Logger log = LoggerFactory.getLogger(LBOutboundEndpoint.class);
 
+    private CarbonMessage carbonMessage;
+
     // HTTP or HTTPS Endpoint.
     private OutboundEndpoint outboundEndpoint;
 
@@ -41,6 +43,14 @@ public class LBOutboundEndpoint {
         this.healthyRetriesCount = 0;
         this.unHealthyRetriesCount = 0;
         this.healthCheckedTime = 0;
+    }
+
+    public void setCarbonMessage(CarbonMessage carbonMessage) {
+        this.carbonMessage = carbonMessage;
+    }
+
+    public CarbonMessage getCarbonMessage() {
+        return this.carbonMessage;
     }
 
     public OutboundEndpoint getOutboundEndpoint() {
@@ -97,8 +107,10 @@ public class LBOutboundEndpoint {
 
          log.info("Properties...");
          log.info(carbonMessage.getProperties().toString());
+         **/
 
-         this.outboundEndpoint.receive(carbonMessage, carbonCallback);**/
+        this.setCarbonMessage(carbonMessage);
+        this.outboundEndpoint.receive(carbonMessage, carbonCallback);
 
         //No need to synchronize as we are operating on concurrent HashMap.
         context.addToCallBackPool(carbonCallback);
@@ -134,6 +146,7 @@ public class LBOutboundEndpoint {
         setHealthyRetriesCount(0);
         setUnHealthyRetriesCount(0);
         setHealthCheckedTime(0);
+
 
     }
 

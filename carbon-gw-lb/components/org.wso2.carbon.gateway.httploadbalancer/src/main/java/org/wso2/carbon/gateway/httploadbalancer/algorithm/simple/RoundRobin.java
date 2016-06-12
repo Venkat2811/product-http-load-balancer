@@ -140,7 +140,7 @@ public class RoundRobin implements LoadBalancingAlgorithm {
 
         synchronized (lock) {
 
-            if (endPointsCount > 0) {
+            if (endPointsCount > 0 && index >= endPointsCount) {
                 index %= endPointsCount;
             } else {
                 index = 0;
