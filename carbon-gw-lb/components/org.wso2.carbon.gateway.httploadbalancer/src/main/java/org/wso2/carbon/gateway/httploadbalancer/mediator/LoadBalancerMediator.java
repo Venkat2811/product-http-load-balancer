@@ -14,16 +14,15 @@ import org.wso2.carbon.gateway.httploadbalancer.invokers.LoadBalancerCallMediato
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 import org.wso2.carbon.gateway.httploadbalancer.utils.CommonUtil;
 import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.error.LBErrorHandler;
-
 import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.scheduled.BackToHealthyHandler;
 import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.scheduled.TimeoutHandler;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
-
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -99,34 +98,42 @@ public class LoadBalancerMediator extends AbstractMediator {
         for (LBOutboundEndpoint lbOutboundEP : lbOutboundEndpoints) {
             lbCallMediatorMap.put(lbOutboundEP.getName(), new LoadBalancerCallMediator(lbOutboundEP, context));
         }
-
         //At this point everything is initialized.
 
+        //In case of NO_HEALTH_CHECK only timeOutHandler has to be started.
+        if (this.context.getHealthCheck().equals(LoadBalancerConstants.NO_HEALTH_CHECK)) {
 
-        /**
-         * TimeoutHandler.
-         */
-        TimeoutHandler timeoutHandler = new TimeoutHandler(this.context, this.lbAlgorithm, this.configName);
+            ScheduledThreadPoolExecutor threadPoolExecutor = new ScheduledThreadPoolExecutor(1);
+            //We will be shutting down executor, but this ensures scheduled tasks will be running even after shutdown.
+            threadPoolExecutor.setContinueExistingPeriodicTasksAfterShutdownPolicy(true);
 
-        Timer timerForTimeout = new Timer(timeoutHandler.getHandlerName(), true);
+            TimeoutHandler timeOutHandler = new TimeoutHandler(this.context, this.lbAlgorithm, this.configName);
 
-        timerForTimeout.schedule(timeoutHandler, 0, LoadBalancerConstants.DEFAULT_TIMER_PERIOD); //TODO: time
+            threadPoolExecutor.scheduleAtFixedRate(
+                    timeOutHandler, 0, LoadBalancerConstants.DEFAULT_TIMEOUT_TIMER_PERIOD, TimeUnit.MILLISECONDS);
+            //This is a good practise.
+            threadPoolExecutor.shutdown();
 
+        } else {
+            //In this case, both timeOut and healthyHandler are to be started.
 
-        //TODO: are two timers okay..?
-        /**
-         * BackToHealthyHandler.
-         *
-         * This is started only if health check is enabled.
-         */
-        if (!this.context.getHealthCheck().equals(LoadBalancerConstants.NO_HEALTH_CHECK)) {
+            ScheduledThreadPoolExecutor threadPoolExecutor = new ScheduledThreadPoolExecutor(2);
+            //We will be shutting down executor, but this ensures scheduled tasks will be running even after shutdown.
+            threadPoolExecutor.setContinueExistingPeriodicTasksAfterShutdownPolicy(true);
+
+            TimeoutHandler timeOutHandler = new TimeoutHandler(this.context, this.lbAlgorithm, this.configName);
+
             BackToHealthyHandler backToHealthyHandler = new BackToHealthyHandler(this.context,
                     this.lbAlgorithm, this.lbCallMediatorMap, this.configName);
 
-            Timer timerForHealthyHandler = new Timer(backToHealthyHandler.getHandlerName(), true);
+            threadPoolExecutor.scheduleAtFixedRate(
+                    timeOutHandler, 0, LoadBalancerConstants.DEFAULT_TIMEOUT_TIMER_PERIOD, TimeUnit.MILLISECONDS);
+            threadPoolExecutor.scheduleAtFixedRate(
+                    backToHealthyHandler, 0, context.getHealthycheckInterval(), TimeUnit.MILLISECONDS);
+            //This is a good practise.
+            threadPoolExecutor.shutdown();
 
-            timerForHealthyHandler.schedule(backToHealthyHandler, 0,
-                    context.getHealthycheckInterval());
+
         }
 
 
