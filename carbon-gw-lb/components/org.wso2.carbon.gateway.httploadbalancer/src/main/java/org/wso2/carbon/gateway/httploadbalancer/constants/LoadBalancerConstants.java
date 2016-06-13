@@ -144,7 +144,7 @@ public class LoadBalancerConstants {
     public static final int DEFAULT_HEALTHY_CHECK_INTERVAL = (int) TimeUnit.MINUTES.toMillis(1); //1 mins.
 
     //Scheduled time Interval to execute TimeoutHandler.
-    public static final int DEFAULT_TIMER_PERIOD = (int) TimeUnit.SECONDS.toMillis(10); //10 sec
+    public static final int DEFAULT_TIMEOUT_TIMER_PERIOD = (int) TimeUnit.SECONDS.toMillis(10); //10 sec
 
     //Default grace period to be added to timeOut value (in milliseconds) while creating LBMediatorCallBack.
     public static final int DEFAULT_GRACE_PERIOD = 5; //5 ms
