@@ -8,14 +8,12 @@ import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.error.LBErrorHandler;
-
-import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 /**
  * TimeoutHandler for LoadBalancerMediatorCallBack.
  */
-public class TimeoutHandler extends TimerTask {
+public class TimeoutHandler implements Runnable {
 
     private static final Logger log = LoggerFactory.getLogger(TimeoutHandler.class);
 

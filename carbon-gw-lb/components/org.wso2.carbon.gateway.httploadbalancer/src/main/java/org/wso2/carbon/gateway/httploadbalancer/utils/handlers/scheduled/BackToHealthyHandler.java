@@ -11,14 +11,13 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 /**
  * This handler is responsible for periodic checking of
  * UnHealthyLBOutboundEndpoint list to see if any endpoint is back to healthy state again.
  */
-public class BackToHealthyHandler extends TimerTask {
+public class BackToHealthyHandler implements Runnable {
 
     private static final Logger log = LoggerFactory.getLogger(BackToHealthyHandler.class);
 
@@ -93,9 +92,7 @@ public class BackToHealthyHandler extends TimerTask {
 
             List<LBOutboundEndpoint> list = new ArrayList<>(context.getUnHealthyLBEPQueue());
 
-            for (int i = 0; i < list.size(); i++) {
-
-                LBOutboundEndpoint lbOutboundEndpoint = list.get(i);
+            for (LBOutboundEndpoint lbOutboundEndpoint : list) {
 
                 while (true) {
 
@@ -184,7 +181,7 @@ public class BackToHealthyHandler extends TimerTask {
 
                             }
 
-                            //Removing endpoint from unHealthy Queue.
+                            //IMPORTANT: Removing endpoint from unHealthy Queue.
                             context.getUnHealthyLBEPQueue().remove(lbOutboundEndpoint);
 
                         } else {
