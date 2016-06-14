@@ -36,12 +36,12 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
     //This will be used to locate specific lbOutboundEndpoint for healthChecking purposes.
     private final LBOutboundEndpoint lbOutboundEndpoint;
 
-    //To store scheduled value for this callback.
-    private final long timeOut;
+    //Time in milli seconds at which request has been made.
+    private final long createdTime;
 
-    public long getTimeout() {
+    public long getCreatedTime() {
 
-        return this.timeOut;
+        return this.createdTime;
     }
 
     public LBOutboundEndpoint getLbOutboundEndpoint() {
@@ -72,7 +72,7 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
         // Note that we are assigning scheduled value way ahead before invoking outboundEndpoint.
         // this will be atleast 2 to 5 milli second difference, which might cause removal of
         // object from pool before response arrives. So we are adding a grace period of 5 ms time to it.
-        this.timeOut = TimeUnit.NANOSECONDS.toMillis(System.nanoTime()) +
+        this.createdTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime()) +
                 LoadBalancerConstants.DEFAULT_GRACE_PERIOD;
 
 
@@ -111,7 +111,7 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
                      *
                      * We are doing reset because, due to some delay though an endpoint is healthy,
                      * we might have got request timeout. But the we would have got the other response
-                     * within timeOut. In such cases resetting has to be done.
+                     * within createdTime. In such cases resetting has to be done.
                      */
                     synchronized (this.lbOutboundEndpoint) {
 

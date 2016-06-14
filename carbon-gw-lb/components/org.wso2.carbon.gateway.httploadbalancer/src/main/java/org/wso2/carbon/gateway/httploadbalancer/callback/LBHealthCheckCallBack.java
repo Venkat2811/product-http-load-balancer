@@ -24,8 +24,7 @@ public class LBHealthCheckCallBack implements CarbonCallback {
     //This will be used to locate specific lbOutboundEndpoint for healthChecking purposes.
     private final LBOutboundEndpoint lbOutboundEndpoint;
 
-    //To store scheduled value for this callback.
-    private final long timeOut;
+
 
     private final LoadBalancerConfigContext context;
 
@@ -35,13 +34,6 @@ public class LBHealthCheckCallBack implements CarbonCallback {
 
         this.lbOutboundEndpoint = lbOutboundEndpoint;
         this.context = context;
-        this.timeOut = TimeUnit.NANOSECONDS.toMillis(System.nanoTime()) +
-                LoadBalancerConstants.DEFAULT_GRACE_PERIOD;
-
-    }
-
-    public long getHCTimeOut() {
-        return timeOut;
     }
 
     @Override
@@ -59,19 +51,9 @@ public class LBHealthCheckCallBack implements CarbonCallback {
             //From this point, this callback will not be available in pool.
 
             /**
-             * We are locking on this LBOutboundEndpoint object because,
-             * this might be used in BackToHandler.
-             *
-             * Since we are changing the properties lock is must.
-             *
+             * Locking is done within method itself.
              */
-            synchronized (this.lbOutboundEndpoint) {
-
                 this.lbOutboundEndpoint.incrementHealthyRetries();
-
-            }
-
-            return;
 
         } else {
             log.error(" HealthCheck Response received after removing callback from pool.." +

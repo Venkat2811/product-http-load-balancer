@@ -41,7 +41,7 @@ public class TimeoutHandler implements Runnable {
         return "TimeoutHandler";
     }
 
-    public String getHandlerName() {
+    private String getHandlerName() {
         return handlerName;
     }
 
@@ -112,7 +112,7 @@ public class TimeoutHandler implements Runnable {
                      */
                     if (callBack != null) {
 
-                        if (((currentTime - callBack.getTimeout()) > context.getReqTimeout())) {
+                        if (((currentTime - callBack.getCreatedTime()) > context.getReqTimeout())) {
                             //This callBack is in pool after it has timedOut.
 
                             //This operation is on Concurrent HashMap, so no synchronization is required.
@@ -146,7 +146,7 @@ public class TimeoutHandler implements Runnable {
                                  *
                                  * NOTE: The below code does only HealthCheck related activities.
                                  */
-                                synchronized (callBack.getLbOutboundEndpoint()) {
+                                synchronized (callBack.getLbOutboundEndpoint().getLock()) {
 
                                     callBack.getLbOutboundEndpoint().incrementUnHealthyRetries();
 
@@ -170,7 +170,7 @@ public class TimeoutHandler implements Runnable {
                                         //as persistence policy.
                                         if (context.getStrictClientIPHashing() != null) {
 
-                                            synchronized (context.getStrictClientIPHashing()) {
+                                            synchronized (context.getStrictClientIPHashing().getLock()) {
 
                                                 context.getStrictClientIPHashing().
                                                         removeLBOutboundEndpoint(callBack.getLbOutboundEndpoint());
@@ -187,14 +187,16 @@ public class TimeoutHandler implements Runnable {
 
                                         }
 
-                                        //Adding to unHealthy List.
-                                        synchronized (context.getUnHealthyLBEPQueue()) {
+                                        /**
+                                         * Adding to unHealthy List if it is not already in least.
+                                         * Synchronization is not necessary because, it is ConcurrentLinkedQueue.
+                                         **/
 
-                                            if (!context.getUnHealthyLBEPQueue().
-                                                    contains(callBack.getLbOutboundEndpoint())) {
-                                                context.getUnHealthyLBEPQueue().add(callBack.getLbOutboundEndpoint());
-                                            }
+                                        if (!context.getUnHealthyLBEPQueue().
+                                                contains(callBack.getLbOutboundEndpoint())) {
+                                            context.getUnHealthyLBEPQueue().add(callBack.getLbOutboundEndpoint());
                                         }
+
 
                                     }
                                 }
@@ -203,7 +205,7 @@ public class TimeoutHandler implements Runnable {
 
                         }
                     }
-                } else {
+                } else { // TODO: Remove this later.
                     log.info(key + " Object is in callBackPool..");
                 }
             }

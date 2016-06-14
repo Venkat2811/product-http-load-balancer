@@ -48,7 +48,7 @@ public class BackToHealthyHandler implements Runnable {
         return "BackToHealthyHandler";
     }
 
-    public String getHandlerName() {
+    private String getHandlerName() {
         return handlerName;
     }
 
@@ -103,6 +103,7 @@ public class BackToHealthyHandler implements Runnable {
                     healthCheckCMsg.setProperty(Constants.CALL_BACK, callBack);
 
                     try {
+                        // Here we are invoking call mediator.
                         this.lbCallMediatorMap.get(lbOutboundEndpoint.getName()).receive(
                                 healthCheckCMsg,
                                 callBack);
@@ -112,7 +113,10 @@ public class BackToHealthyHandler implements Runnable {
                     }
 
                     try {
-                        //Waiting for response to come.
+                        // Waiting for response to come.
+                        // BackToHealthyHandler will usually be scheduled to run with very large timeInterval.
+                        // This will iteratively check whether unHealthy endpoints (if any) are healthy or not.
+                        // So, it is okay for this thread to sleep.
                         Thread.sleep(context.getReqTimeout());
 
                     } catch (InterruptedException e) {
@@ -124,8 +128,10 @@ public class BackToHealthyHandler implements Runnable {
 
                         context.removeFromCallBackPool(callBack);
 
-                        lbOutboundEndpoint.setHealthCheckedTime(this.getCurrentTime());
-                        lbOutboundEndpoint.setHealthyRetriesCount(0);
+                        synchronized (lbOutboundEndpoint.getLock()) {
+                            lbOutboundEndpoint.setHealthCheckedTime(this.getCurrentTime());
+                            lbOutboundEndpoint.setHealthyRetriesCount(0);
+                        }
 
                         log.warn(lbOutboundEndpoint.getName() + " is still unHealthy..");
                         break;
@@ -151,7 +157,7 @@ public class BackToHealthyHandler implements Runnable {
                             //as persistence policy.
                             if (context.getStrictClientIPHashing() != null) {
 
-                                synchronized (context.getStrictClientIPHashing()) {
+                                synchronized (context.getStrictClientIPHashing().getLock()) {
 
                                     context.getStrictClientIPHashing().addLBOutboundEndpoint(lbOutboundEndpoint);
 
@@ -168,7 +174,9 @@ public class BackToHealthyHandler implements Runnable {
 
                             }
 
-                            //IMPORTANT: Removing endpoint from unHealthy Queue.
+                            /**
+                             * IMPORTANT: Removing endpoint from unHealthy Queue.
+                             */
                             context.getUnHealthyLBEPQueue().remove(lbOutboundEndpoint);
 
                         } else {

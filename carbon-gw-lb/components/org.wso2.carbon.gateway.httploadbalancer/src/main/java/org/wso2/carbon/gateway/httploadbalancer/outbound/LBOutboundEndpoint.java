@@ -18,8 +18,18 @@ import org.wso2.carbon.messaging.CarbonMessage;
 public class LBOutboundEndpoint {
 
     private static final Logger log = LoggerFactory.getLogger(LBOutboundEndpoint.class);
+    private final Object lock = new Object();
 
-    // This ref to healthCheckCMsg will only be used for health Checking.
+    private int avgResponseTime = 0;
+
+    private int activeConnections = 0;
+
+    /**
+     * This ref to healthCheckCMsg will only be used for health Checking.
+     * <p>
+     * We will be trimming off all request related params from this carbonMessage.
+     * So don't worry.
+     */
     private CarbonMessage healthCheckCMsg;
 
     // HTTP or HTTPS Endpoint.
@@ -47,12 +57,58 @@ public class LBOutboundEndpoint {
         this.healthCheckedTime = 0;
     }
 
-    public void setHealthCheckCMsg(CarbonMessage healthCheckCMsg) {
+    public Object getLock() {
+        return this.lock;
+    }
+
+    public int computeAvgResponseTime(int newTime) {
+
+        synchronized (this.lock) {
+
+            if (avgResponseTime != 0) { //For first time we should not divide by 2.
+
+                this.avgResponseTime = (avgResponseTime + newTime) >> 2; // Dividing by 2.
+            } else {
+
+                this.avgResponseTime = newTime;
+            }
+        }
+        return this.avgResponseTime;
+    }
+
+    public int getAvgResponseTime() {
+
+        synchronized (lock) {
+            return this.avgResponseTime;
+        }
+    }
+
+    public void incrementActiveconnections() {
+        synchronized (lock) {
+            this.activeConnections++;
+        }
+    }
+
+    public void decrementActiveConnections() {
+        synchronized (lock) {
+            this.activeConnections++;
+        }
+    }
+
+    public int getActiveConnections() {
+        synchronized (lock) {
+            return this.activeConnections;
+        }
+    }
+
+    private void setHealthCheckCMsg(CarbonMessage healthCheckCMsg) {
         this.healthCheckCMsg = healthCheckCMsg;
     }
 
     public CarbonMessage getHealthCheckCMsg() {
-        return this.healthCheckCMsg;
+        synchronized (lock) {
+            return this.healthCheckCMsg;
+        }
     }
 
     public OutboundEndpoint getOutboundEndpoint() {
@@ -64,34 +120,56 @@ public class LBOutboundEndpoint {
     }
 
     public boolean isHealthy() {
-        return isHealthy;
+        synchronized (lock) {
+            return isHealthy;
+        }
     }
 
-    public void setHealthy(boolean healthy) {
+    private void setHealthy(boolean healthy) {
+
         isHealthy = healthy;
+
     }
 
     public int getHealthyRetriesCount() {
-        return healthyRetriesCount;
+        synchronized (lock) {
+            return healthyRetriesCount;
+        }
     }
 
+    /**
+     * NOTE: This method MUST be accessed after acquiring lock on lock Object.
+     */
     public void setHealthyRetriesCount(int healthyRetriesCount) {
+
         this.healthyRetriesCount = healthyRetriesCount;
     }
 
+    /**
+     * NOTE: This method MUST be accessed after acquiring lock on lock Object.
+     */
     public int getUnHealthyRetriesCount() {
+
         return unHealthyRetriesCount;
+
     }
 
-    public void setUnHealthyRetriesCount(int unHealthyRetriesCount) {
+    private void setUnHealthyRetriesCount(int unHealthyRetriesCount) {
         this.unHealthyRetriesCount = unHealthyRetriesCount;
+
     }
 
     public long getHealthCheckedTime() {
-        return healthCheckedTime;
+        synchronized (lock) {
+            return healthCheckedTime;
+        }
     }
 
+    /**
+     * NOTE: This method MUST be accessed after acquiring lock on lock Object.
+     */
     public void setHealthCheckedTime(long healthCheckedTime) {
+
         this.healthCheckedTime = healthCheckedTime;
     }
 
@@ -113,41 +191,55 @@ public class LBOutboundEndpoint {
 
         this.outboundEndpoint.receive(carbonMessage, carbonCallback);
 
-        this.setHealthCheckCMsg(CommonUtil.getHealthCheckMessage(carbonMessage));
+        synchronized (lock) {
+            this.setHealthCheckCMsg(CommonUtil.getHealthCheckMessage(carbonMessage));
+        }
         //No need to synchronize as we are operating on concurrent HashMap.
         context.addToCallBackPool(carbonCallback);
 
         return false;
     }
 
+    /**
+     * NOTE: This method MUST be accessed after acquiring lock on lock Object.
+     */
     public void incrementUnHealthyRetries() {
 
+
         this.unHealthyRetriesCount++;
+
         log.warn("Incremented UnHealthyRetries count for endPoint : " + this.getName());
     }
 
     public void incrementHealthyRetries() {
 
-        this.healthyRetriesCount++;
+        synchronized (lock) {
+            this.healthyRetriesCount++;
+        }
         log.info("Incremented HealthyRetries count for endPoint : " + this.getName());
     }
 
+    /**
+     * NOTE: This method MUST be accessed after acquiring lock on lock Object.
+     */
     public void markAsUnHealthy() {
 
         isHealthy = false;
+
         log.warn(this.getName() + " is unHealthy");
     }
 
     /**
      * Call this method only when unHealthy LBEndpoint becomes Healthy.
      * <p>
-     * NOTE: Have a lock on the LBOutboundEndpoint before calling this.
      */
     public void resetToDefault() {
-        setHealthy(true);
-        setHealthyRetriesCount(0);
-        setUnHealthyRetriesCount(0);
-        setHealthCheckedTime(0);
+        synchronized (lock) {
+            this.isHealthy = true;
+            this.unHealthyRetriesCount = 0;
+            this.healthyRetriesCount = 0;
+            this.healthCheckedTime = 0;
+        }
 
 
     }
