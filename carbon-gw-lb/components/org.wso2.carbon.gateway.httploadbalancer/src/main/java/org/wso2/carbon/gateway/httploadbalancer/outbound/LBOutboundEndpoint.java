@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.core.outbound.OutboundEndpoint;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
+import org.wso2.carbon.gateway.httploadbalancer.utils.CommonUtil;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -18,8 +19,8 @@ public class LBOutboundEndpoint {
 
     private static final Logger log = LoggerFactory.getLogger(LBOutboundEndpoint.class);
 
-    // This ref to carbonMessage will only be used for health Checking.
-    private CarbonMessage carbonMessage;
+    // This ref to healthCheckCMsg will only be used for health Checking.
+    private CarbonMessage healthCheckCMsg;
 
     // HTTP or HTTPS Endpoint.
     private OutboundEndpoint outboundEndpoint;
@@ -46,12 +47,12 @@ public class LBOutboundEndpoint {
         this.healthCheckedTime = 0;
     }
 
-    public void setCarbonMessage(CarbonMessage carbonMessage) {
-        this.carbonMessage = carbonMessage;
+    public void setHealthCheckCMsg(CarbonMessage healthCheckCMsg) {
+        this.healthCheckCMsg = healthCheckCMsg;
     }
 
-    public CarbonMessage getCarbonMessage() {
-        return this.carbonMessage;
+    public CarbonMessage getHealthCheckCMsg() {
+        return this.healthCheckCMsg;
     }
 
     public OutboundEndpoint getOutboundEndpoint() {
@@ -104,15 +105,15 @@ public class LBOutboundEndpoint {
         /**  log.info("Inside LBOutboundEndpoint...");
 
          log.info("Transport Headers...");
-         log.info(carbonMessage.getHeaders().toString());
+         log.info(healthCheckCMsg.getHeaders().toString());
 
          log.info("Properties...");
-         log.info(carbonMessage.getProperties().toString());
+         log.info(healthCheckCMsg.getProperties().toString());
          **/
 
-        this.setCarbonMessage(carbonMessage);
         this.outboundEndpoint.receive(carbonMessage, carbonCallback);
 
+        this.setHealthCheckCMsg(CommonUtil.getHealthCheckMessage(carbonMessage));
         //No need to synchronize as we are operating on concurrent HashMap.
         context.addToCallBackPool(carbonCallback);
 

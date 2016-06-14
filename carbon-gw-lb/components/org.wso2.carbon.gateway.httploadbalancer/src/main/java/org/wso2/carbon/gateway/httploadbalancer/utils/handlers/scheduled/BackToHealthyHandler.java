@@ -8,6 +8,8 @@ import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContex
 import org.wso2.carbon.gateway.httploadbalancer.invokers.LoadBalancerCallMediator;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.Constants;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -97,27 +99,12 @@ public class BackToHealthyHandler implements Runnable {
                 while (true) {
 
                     LBHealthCheckCallBack callBack = new LBHealthCheckCallBack(context, lbOutboundEndpoint);
-                    //TODO: request params are to be removed.
-                    CarbonMessage carbonMessage = lbOutboundEndpoint.getCarbonMessage();
-                    carbonMessage.setHeader("User-Agent", "carbon-gw-LB");
-
-
-                    // DefaultCarbonMessage carbonMessage1 = new DefaultCarbonMessage();
-                    /** carbonMessage1.setHeader("User-Agent", "carbon-gw-LB");
-                     carbonMessage1.setProperty(Constants.SRC_HNDLR, carbonMessage.getProperty(Constants.SRC_HNDLR));
-                     carbonMessage1.setProperty(Constants.HTTP_METHOD,
-                     carbonMessage.getProperty(Constants.HTTP_METHOD));
-                     carbonMessage1.setProperty(Constants.PROTOCOL, carbonMessage.getProperty(Constants.PROTOCOL));
-                     carbonMessage1.setProperty(Constants.HTTP_VERSION,
-                     carbonMessage.getProperty(Constants.HTTP_VERSION));
-                     carbonMessage1.setProperty(Constants.CALL_BACK, callBack);
-                     carbonMessage1.setProperty(Constants.DISRUPTOR, carbonMessage.getProperty(Constants.DISRUPTOR));
-                     carbonMessage1.setProperty(Constants.CHNL_HNDLR_CTX,
-                     carbonMessage.getProperty(Constants.CHNL_HNDLR_CTX));**/
+                    CarbonMessage healthCheckCMsg = lbOutboundEndpoint.getHealthCheckCMsg();
+                    healthCheckCMsg.setProperty(Constants.CALL_BACK, callBack);
 
                     try {
                         this.lbCallMediatorMap.get(lbOutboundEndpoint.getName()).receive(
-                                carbonMessage,
+                                healthCheckCMsg,
                                 callBack);
                     } catch (Exception e) {
 
