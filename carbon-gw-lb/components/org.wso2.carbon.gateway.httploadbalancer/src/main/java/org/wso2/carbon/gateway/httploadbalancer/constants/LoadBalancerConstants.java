@@ -7,6 +7,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class LoadBalancerConstants {
 
+    public static final String USER_AGENT = "carbon-gw-LB";
+
     /**
      * Config Keys.
      */
