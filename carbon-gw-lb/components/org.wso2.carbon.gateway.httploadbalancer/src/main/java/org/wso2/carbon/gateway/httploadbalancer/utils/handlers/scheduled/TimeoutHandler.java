@@ -8,6 +8,8 @@ import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.error.LBErrorHandler;
+import org.wso2.carbon.messaging.DefaultCarbonMessage;
+
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -120,13 +122,13 @@ public class TimeoutHandler implements Runnable {
                                 break;
                             } else {
                                 context.removeFromCallBackPool(callBack);
-
                                 //From this point, this callback will not be available in pool.
                                 //So if response arrives it will be discarded.
 
 
                                 new LBErrorHandler().handleFault
-                                        ("504", new Throwable("Gateway TimeOut"), null, callBack);
+                                        ("504", new Throwable("Gateway TimeOut"),
+                                                new DefaultCarbonMessage(true), callBack);
 
 
                             }

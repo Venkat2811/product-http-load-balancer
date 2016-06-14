@@ -18,6 +18,8 @@ import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.scheduled.BackToH
 import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.scheduled.TimeoutHandler;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.DefaultCarbonMessage;
+
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -475,11 +477,12 @@ public class LoadBalancerMediator extends AbstractMediator {
             log.error("All OutboundEndpoints are unHealthy..");
             new LBErrorHandler().handleFault
                     ("503", new Throwable("Service Unavailable.. " +
-                            "Kindly try after some time.."), null, carbonCallback);
+                            "Kindly try after some time.."), new DefaultCarbonMessage(true), carbonCallback);
         } else {
 
             new LBErrorHandler().handleFault
-                    ("500", new Throwable("Internal Server Error.."), null, carbonCallback);
+                    ("500", new Throwable("Internal Server Error.."),
+                            new DefaultCarbonMessage(true), carbonCallback);
 
         }
 
