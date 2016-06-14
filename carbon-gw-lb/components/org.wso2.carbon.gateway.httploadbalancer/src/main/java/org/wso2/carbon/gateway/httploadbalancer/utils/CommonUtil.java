@@ -10,15 +10,60 @@ import org.wso2.carbon.messaging.Constants;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * A util class for LB specific operations.
  */
 public class CommonUtil {
+
+    /**
+     * This set contains only those carbonMessage properties that will be required for making
+     * healthCheck calls.
+     * <p>
+     * We are re-using incoming carbonMessage for making healthCheck.
+     * <p>
+     * If it contains parameters that would make any change to data on invoking endpoint, it is not good for us.
+     * <p>
+     * So we are trimming of other properties that are not required to know the health status of an endpoint.
+     */
+    private static final Set<String> healthCheckProperties = Stream.of
+            (Constants.SRC_HNDLR,
+                    Constants.PROTOCOL,
+                    Constants.DISRUPTOR,
+                    Constants.CHNL_HNDLR_CTX,
+                    Constants.HTTP_HOST,
+                    Constants.HTTP_METHOD,
+                    Constants.HTTP_VERSION,
+                    Constants.HTTP_CONNECTION,
+                    Constants.HTTP_CONTENT_ENCODING,
+                    Constants.HTTP_CONTENT_LENGTH,
+                    Constants.HTTP_TRANSFER_ENCODING,
+                    Constants.HTTP_CONTENT_TYPE,
+                    org.wso2.carbon.transport.http.netty.common.Constants.IS_DISRUPTOR_ENABLE
+            )
+            .collect(Collectors.toCollection(HashSet::new));
+
+    /**
+     * This map contains carbonMessage headers that will be required for making healthCheck calls.
+     * <p>
+     * The purpose is the same as it is mentioned above.
+     */
+
+    private static final Map<String, String> healthCheckHeader = Stream.of
+            (
+                    new AbstractMap.SimpleEntry<>("User-Agent", LoadBalancerConstants.USER_AGENT)
+            )
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
 
     /**
      * @param map LBOutboundEndpoint map.
@@ -105,40 +150,37 @@ public class CommonUtil {
 
         return url.getHost() + ":" + String.valueOf(port);
     }
+/**
+ public static String getHostAndPortWithProtocol(String uri) {
 
-    public static String getHostAndPortWithProtocol(String uri) {
+ URL url = null;
+ try {
+ url = new URL(uri);
+ } catch (MalformedURLException ex) {
+ ex.printStackTrace();
+ return null;
+ }
 
-        URL url = null;
-        try {
-            url = new URL(uri);
-        } catch (MalformedURLException ex) {
-            ex.printStackTrace();
-            return null;
-        }
+ int port = (url.getPort() == -1) ? 80 : url.getPort();
 
-        int port = (url.getPort() == -1) ? 80 : url.getPort();
+ return url.getProtocol() + "://" + url.getHost() + ":" + String.valueOf(port);
 
-        return url.getProtocol() + "://" + url.getHost() + ":" + String.valueOf(port);
+ } **/
 
-    }
 
-    /**
-     * @param uri Uri
-     * @return UrlPath
-     */
-    public static String getUrlPath(String uri) {
+    /** public static String getUrlPath(String uri) {
 
-        URL url = null;
-        try {
-            url = new URL(uri);
-        } catch (MalformedURLException ex) {
-            ex.printStackTrace();
-            return null;
-        }
+     URL url = null;
+     try {
+     url = new URL(uri);
+     } catch (MalformedURLException ex) {
+     ex.printStackTrace();
+     return null;
+     }
 
-        return url.getPath();
+     return url.getPath();
 
-    }
+     } **/
 
     /**
      * @param carbonMessage Response from which host and port are to be identified.
@@ -281,5 +323,21 @@ public class CommonUtil {
             return false;
         }
 
+    }
+
+    /**
+     * @param carbonMessage CarbonMessage that has user request.
+     * @return trimmed carbonMessage that is safe to be re-used for making healthCheck calls.
+     */
+    public static CarbonMessage getHealthCheckMessage(CarbonMessage carbonMessage) {
+
+        carbonMessage.setHeaders(healthCheckHeader);
+
+        Map<String, Object> properties = carbonMessage.getProperties();
+
+        properties.keySet().stream().
+                filter(key -> !healthCheckProperties.contains(key)).forEach(carbonMessage::removeProperty);
+
+        return carbonMessage;
     }
 }
