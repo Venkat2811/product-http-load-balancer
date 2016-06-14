@@ -157,16 +157,14 @@ public class BackToHealthyHandler implements Runnable {
                             //as persistence policy.
                             if (context.getStrictClientIPHashing() != null) {
 
-                                synchronized (context.getStrictClientIPHashing().getLock()) {
-
-                                    context.getStrictClientIPHashing().addLBOutboundEndpoint(lbOutboundEndpoint);
-
-                                }
+                                context.getStrictClientIPHashing().addLBOutboundEndpoint(lbOutboundEndpoint);
                             }
 
                             //We are acquiring lock on Object that is available in algorithm.
                             //We are removing the UnHealthyEndpoint from Algorithm List so that it
                             //will not be chosen by algorithm.
+                            //Locking here is MUST because we want the below
+                            //operations to happen without any interference.
                             synchronized (algorithm.getLock()) {
 
                                 algorithm.addLBOutboundEndpoint(lbOutboundEndpoint);
@@ -184,7 +182,7 @@ public class BackToHealthyHandler implements Runnable {
                             continue;
                         }
 
-                        //This break is necessary.
+                        //This break is MUST.
                         break;
                     }
 

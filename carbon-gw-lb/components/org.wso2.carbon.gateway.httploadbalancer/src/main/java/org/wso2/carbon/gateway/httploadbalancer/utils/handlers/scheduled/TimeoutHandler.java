@@ -142,9 +142,13 @@ public class TimeoutHandler implements Runnable {
                                  * We will be changing LBOutboundEndpoint's properties here.
                                  *
                                  * If an LBOutboundEndpoint is unHealthy it should not be available else where.
-                                 * So we are locking on it, till we remove it from all the places where it is available.
+                                 * So we are locking on it, till we remove it from all the places
+                                 * where it is available.
                                  *
                                  * NOTE: The below code does only HealthCheck related activities.
+                                 *
+                                 * Locking here is MUST because we want the below operations
+                                 * to happen without any interference.
                                  */
                                 synchronized (callBack.getLbOutboundEndpoint().getLock()) {
 
@@ -170,16 +174,16 @@ public class TimeoutHandler implements Runnable {
                                         //as persistence policy.
                                         if (context.getStrictClientIPHashing() != null) {
 
-                                            synchronized (context.getStrictClientIPHashing().getLock()) {
+                                            context.getStrictClientIPHashing().
+                                                    removeLBOutboundEndpoint(callBack.getLbOutboundEndpoint());
 
-                                                context.getStrictClientIPHashing().
-                                                        removeLBOutboundEndpoint(callBack.getLbOutboundEndpoint());
-                                            }
                                         }
 
                                         //We are acquiring lock on Object that is available in algorithm.
                                         //We are removing the UnHealthyEndpoint from Algorithm List so that it
                                         //will not be chosen by algorithm.
+                                        //Locking here is MUST because we want the below
+                                        //operations to happen without any interference.
                                         synchronized (algorithm.getLock()) {
 
                                             algorithm.removeLBOutboundEndpoint(callBack.getLbOutboundEndpoint());
