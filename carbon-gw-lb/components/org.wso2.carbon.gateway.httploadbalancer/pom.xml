@@ -46,6 +46,10 @@
             <artifactId>org.wso2.carbon.gateway.outbounds.http</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.wso2.carbon.transport</groupId>
+            <artifactId>org.wso2.carbon.transport.http.netty</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.wso2.carbon.messaging</groupId>
             <artifactId>org.wso2.carbon.messaging</artifactId>
         </dependency>
@@ -82,7 +86,6 @@
         </dependency>
 
     </dependencies>
-
     <build>
         <pluginManagement>
             <plugins>
@@ -126,6 +129,7 @@
             org.wso2.carbon.gateway.outbounds.http,
             org.wso2.carbon.gateway.outbounds.http.builder,
             org.wso2.carbon.gateway.core.*;version="${carbon.gw.package.export.version}",
+            org.wso2.carbon.transport.*;version="${carbon.transport.package.import.version.range}",
             org.wso2.carbon.messaging.*;version="${carbon.messaging.package.import.version.range}",
             org.slf4j.*,
            <!-- javax.servlet.*;version="${javax.servlet.version}" -->
