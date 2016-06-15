@@ -144,7 +144,9 @@ public class LoadBalancerMediator extends AbstractMediator {
     @Override
     public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback) throws Exception {
 
-        log.info(logMessage);
+        if (log.isDebugEnabled()) {
+            log.debug(logMessage);
+        }
 
 
 /**

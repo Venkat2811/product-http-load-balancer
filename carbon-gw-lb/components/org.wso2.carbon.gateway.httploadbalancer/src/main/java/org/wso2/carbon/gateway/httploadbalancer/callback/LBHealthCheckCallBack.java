@@ -2,14 +2,12 @@ package org.wso2.carbon.gateway.httploadbalancer.callback;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.Constants;
 
-import java.util.concurrent.TimeUnit;
 
 /**
  * Health Check callBack for LB.

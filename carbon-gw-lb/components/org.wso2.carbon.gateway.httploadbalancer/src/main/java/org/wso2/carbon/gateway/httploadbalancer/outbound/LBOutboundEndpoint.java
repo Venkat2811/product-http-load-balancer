@@ -125,7 +125,7 @@ public class LBOutboundEndpoint {
         }
     }
 
-    private void setHealthy(boolean healthy) {
+    public void setHealthy(boolean healthy) {
 
         isHealthy = healthy;
 
@@ -154,7 +154,7 @@ public class LBOutboundEndpoint {
 
     }
 
-    private void setUnHealthyRetriesCount(int unHealthyRetriesCount) {
+    public void setUnHealthyRetriesCount(int unHealthyRetriesCount) {
         this.unHealthyRetriesCount = unHealthyRetriesCount;
 
     }
