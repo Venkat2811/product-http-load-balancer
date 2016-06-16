@@ -48,20 +48,18 @@ public class StrictClientIPHashing implements LoadBalancingAlgorithm {
      */
     public StrictClientIPHashing(List<LBOutboundEndpoint> lbOutboundEndpoints) {
 
-        synchronized (lock) {
+        this.lbOutboundEndpoints = lbOutboundEndpoints;
+        /**
+         * Two points are to be noted here.
+         *
+         * 1) You can also implement your own hashing mechanism. Eg: ModuloHash.
+         *
+         * 2) ConsistentHash needs a HashFunction.  We are using MD5 here. Another example is BasicHash.
+         *    You can also implement your own HashFunction.
+         */
+        this.hash = new ConsistentHash(new MD5(),
+                CommonUtil.getLBOutboundEndpointNamesList(this.lbOutboundEndpoints));
 
-            this.lbOutboundEndpoints = lbOutboundEndpoints;
-            /**
-             * Two points are to be noted here.
-             *
-             * 1) You can also implement your own hashing mechanism. Eg: ModuloHash.
-             *
-             * 2) ConsistentHash needs a HashFunction.  We are using MD5 here. Another example is BasicHash.
-             *    You can also implement your own HashFunction.
-             */
-            this.hash = new ConsistentHash(new MD5(),
-                    CommonUtil.getLBOutboundEndpointNamesList(this.lbOutboundEndpoints));
-        }
     }
 
     /**
@@ -87,7 +85,7 @@ public class StrictClientIPHashing implements LoadBalancingAlgorithm {
     @Override
     public void setLBOutboundEndpoints(List<LBOutboundEndpoint> lbOutboundEPs) {
 
-        synchronized (lock) {
+        synchronized (this.lock) {
             this.lbOutboundEndpoints = lbOutboundEPs;
             /**
              * Two points are to be noted here.
@@ -108,9 +106,13 @@ public class StrictClientIPHashing implements LoadBalancingAlgorithm {
     @Override
     public void addLBOutboundEndpoint(LBOutboundEndpoint lbOutboundEndpoint) {
 
-        synchronized (lock) {
-            lbOutboundEndpoints.add(lbOutboundEndpoint);
-            hash.addEndpoint(lbOutboundEndpoint.getName());
+        synchronized (this.lock) {
+            if (!this.lbOutboundEndpoints.contains(lbOutboundEndpoint)) {
+                this.lbOutboundEndpoints.add(lbOutboundEndpoint);
+                this.hash.addEndpoint(lbOutboundEndpoint.getName());
+            } else {
+                log.error(lbOutboundEndpoint.getName() + " already exists in list..");
+            }
         }
 
     }
@@ -121,9 +123,13 @@ public class StrictClientIPHashing implements LoadBalancingAlgorithm {
     @Override
     public void removeLBOutboundEndpoint(LBOutboundEndpoint lbOutboundEndpoint) {
 
-        synchronized (lock) {
-            lbOutboundEndpoints.remove(lbOutboundEndpoint);
-            hash.removeEndpoint(lbOutboundEndpoint.getName());
+        synchronized (this.lock) {
+            if (this.lbOutboundEndpoints.contains(lbOutboundEndpoint)) {
+                this.lbOutboundEndpoints.remove(lbOutboundEndpoint);
+                this.hash.removeEndpoint(lbOutboundEndpoint.getName());
+            } else {
+                log.error(lbOutboundEndpoint.getName() + " is not in list..");
+            }
         }
 
     }
@@ -138,8 +144,8 @@ public class StrictClientIPHashing implements LoadBalancingAlgorithm {
 
         LBOutboundEndpoint endPoint = null;
 
-        synchronized (lock) {
-            if (lbOutboundEndpoints != null && lbOutboundEndpoints.size() > 0) {
+        synchronized (this.lock) {
+            if (this.lbOutboundEndpoints != null && this.lbOutboundEndpoints.size() > 0) {
 
                 String ipAddress = CommonUtil.getClientIP(cMsg);
                 log.info("IP address retrieved is : " + ipAddress);

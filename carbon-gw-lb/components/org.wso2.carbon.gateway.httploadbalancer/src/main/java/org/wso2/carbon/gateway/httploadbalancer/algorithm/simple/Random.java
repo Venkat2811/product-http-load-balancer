@@ -10,65 +10,44 @@ import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.List;
 
-
 /**
- * Implementation of Round Robin Algorithm.
+ * Implementation of Random Algorithm.
  * <p>
  * All Endpoints are assumed to have equal weights.
  */
-public class RoundRobin implements LoadBalancingAlgorithm {
+public class Random implements LoadBalancingAlgorithm {
 
     private static final Logger log = LoggerFactory.getLogger(RoundRobin.class);
     private final Object lock = new Object();
 
-    private int index = 0;
-    private int endPointsCount = 0;
-
     private List<LBOutboundEndpoint> lbOutboundEndpoints;
 
-
-    /**
-     * @param lbOutboundEndpoints list of LBOutboundEndpoints to be load balanced.
-     *                            <p>
-     *                            EndpointsCount is also initialized here.
-     */
-    public RoundRobin(List<LBOutboundEndpoint> lbOutboundEndpoints) {
-
-            this.lbOutboundEndpoints = lbOutboundEndpoints;
-            endPointsCount = this.lbOutboundEndpoints.size();
-
+    public Random(List<LBOutboundEndpoint> lbOutboundEndpoints) {
+        this.lbOutboundEndpoints = lbOutboundEndpoints;
     }
 
-
     /**
-     * @return Algorithm name.
+     * @return the name of implemented LB algorithm.
      */
+
     @Override
     public String getName() {
-
-        return LoadBalancerConstants.ROUND_ROBIN;
+        return LoadBalancerConstants.RANDOM;
     }
 
     /**
-     * @param lbOutboundEndpoints list of LBOutboundEndpoints to be load balanced.
-     *                            <p>
-     *                            EndpointsCount is also initialized here.
+     * @param lbOutboundEPs list of all Outbound Endpoints to be load balanced.
      */
     @Override
-    public void setLBOutboundEndpoints(List<LBOutboundEndpoint> lbOutboundEndpoints) {
+    public void setLBOutboundEndpoints(List<LBOutboundEndpoint> lbOutboundEPs) {
 
         synchronized (this.lock) {
-            this.lbOutboundEndpoints = lbOutboundEndpoints;
-            endPointsCount = this.lbOutboundEndpoints.size();
+            this.lbOutboundEndpoints = lbOutboundEPs;
         }
-
     }
 
-
     /**
-     * @param lbOutboundEndpoint LBOutboundEndpoint to be added to the existing list.
-     *                           <p>
-     *                           EndpointsCount is also updated here.
+     * @param lbOutboundEndpoint outboundEndpoint to be added to the existing list.
      */
     @Override
     public void addLBOutboundEndpoint(LBOutboundEndpoint lbOutboundEndpoint) {
@@ -76,18 +55,14 @@ public class RoundRobin implements LoadBalancingAlgorithm {
         synchronized (this.lock) {
             if (!this.lbOutboundEndpoints.contains(lbOutboundEndpoint)) {
                 this.lbOutboundEndpoints.add(lbOutboundEndpoint);
-                endPointsCount = this.lbOutboundEndpoints.size();
             } else {
                 log.error(lbOutboundEndpoint.getName() + " already exists in list..");
             }
         }
-
     }
 
     /**
-     * @param lbOutboundEndpoint LBOutboundEndpoint to be removed from existing list.
-     *                           <p>
-     *                           EndpointsCount is also updated here.
+     * @param lbOutboundEndpoint outboundEndpoint to be removed from existing list.
      */
     @Override
     public void removeLBOutboundEndpoint(LBOutboundEndpoint lbOutboundEndpoint) {
@@ -95,40 +70,26 @@ public class RoundRobin implements LoadBalancingAlgorithm {
         synchronized (this.lock) {
             if (this.lbOutboundEndpoints.contains(lbOutboundEndpoint)) {
                 this.lbOutboundEndpoints.remove(lbOutboundEndpoint);
-                endPointsCount = this.lbOutboundEndpoints.size();
             } else {
                 log.error(lbOutboundEndpoint.getName() + " is not in list..");
             }
         }
-    }
 
-    /**
-     * For getting next LBOutboundEndpoinnt.
-     * This method is called after locking, so don't worry.
-     */
-    private void incrementIndex() {
-
-        this.index++;
-        this.index %= this.endPointsCount;
     }
 
     /**
      * @param cMsg    Carbon Message has all headers required to make decision.
      * @param context LoadBalancerConfigContext.
-     * @return chosen OutboundEndpoint
+     * @return the next LBOutboundEndpoint according to implemented LB algorithm.
      */
-
     @Override
     public LBOutboundEndpoint getNextLBOutboundEndpoint(CarbonMessage cMsg, LoadBalancerConfigContext context) {
-
         LBOutboundEndpoint endPoint = null;
 
         synchronized (this.lock) {
             if (this.lbOutboundEndpoints != null && this.lbOutboundEndpoints.size() > 0) {
 
-                endPoint = this.lbOutboundEndpoints.get(this.index);
-                incrementIndex();
-
+                endPoint = this.lbOutboundEndpoints.get((int) (Math.random() * (this.lbOutboundEndpoints.size())));
             } else {
 
                 log.error("No OutboundEndpoint is available..");
@@ -140,24 +101,20 @@ public class RoundRobin implements LoadBalancingAlgorithm {
     }
 
     /**
-     * Resets the index.
+     * Each implementation of LB algorithm will have certain values pertained to it.
+     * (Eg: Round robin keeps track of index of OutboundEndpoint).
+     * Implementation of this method will resetHealthPropertiesToDefault them.
      */
     @Override
     public void reset() {
 
-        synchronized (this.lock) {
-
-            if (this.endPointsCount > 0 && this.index >= this.endPointsCount) {
-                this.index %= this.endPointsCount;
-            } else {
-                this.index = 0;
-            }
-        }
     }
 
+    /**
+     * @return Object used for locking.
+     */
     @Override
     public Object getLock() {
-
         return this.lock;
     }
 }

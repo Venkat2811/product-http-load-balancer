@@ -187,6 +187,18 @@ public class LoadBalancerConfigHolder {
 
             context.setAlgorithm(this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue());
             log.info("Algorithm : " + context.getAlgorithm());
+
+        } else if (this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue().
+                equals(LoadBalancerConstants.LEAST_RESPONSE_TIME)) {
+
+            context.setAlgorithm(this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue());
+            log.info("Algorithm : " + context.getAlgorithm());
+
+        } else if (this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue().
+                equals(LoadBalancerConstants.RANDOM)) {
+
+            context.setAlgorithm(this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue());
+            log.info("Algorithm : " + context.getAlgorithm());
         } else {
             log.error("Currently this algorithm type is not supported...");
 
@@ -388,7 +400,6 @@ public class LoadBalancerConfigHolder {
 
             }
 
-            validateTestRequest();
 
             //For DEFAULT_HEALTH_CHECK
         } else if (this.getFromConfig(LoadBalancerConstants.HEALTH_CHECK_TYPE).getValue().
@@ -402,7 +413,7 @@ public class LoadBalancerConfigHolder {
             context.setHealthyRetries(LoadBalancerConstants.DEFAULT_RETRIES);
             context.setReqTimeout(LoadBalancerConstants.DEFAULT_REQ_TIMEOUT);
             context.setHealthycheckInterval(LoadBalancerConstants.DEFAULT_HEALTHY_CHECK_INTERVAL);
-            validateTestRequest();
+
 
             //FOR NO_HEALTH_CHECK
         } else if (this.getFromConfig(LoadBalancerConstants.HEALTH_CHECK_TYPE).getValue().
@@ -411,24 +422,6 @@ public class LoadBalancerConfigHolder {
             context.setHealthCheck(this.getFromConfig(LoadBalancerConstants.HEALTH_CHECK_TYPE).getValue());
 
             log.info("HEALTH CHECK TYPE : " + context.getHealthCheck());
-
-        }
-
-    }
-
-    private void validateTestRequest() {
-
-        if (this.getFromConfig(LoadBalancerConstants.HEALTH_CHECK_TEST_REQUEST) != null) {
-
-            this.context.setTestRequest(
-                    this.getFromConfig(LoadBalancerConstants.HEALTH_CHECK_TEST_REQUEST).getValue());
-            log.info("TestRequest : " + context.getTestRequest());
-
-        } else {
-
-            log.info("TestRequest : " + context.getTestRequest());
-            log.error("Health Check is enabled, but no testRequest is provided. LB will try only to make" +
-                    "Inet Socket connection to check timeOut. ");
 
         }
 

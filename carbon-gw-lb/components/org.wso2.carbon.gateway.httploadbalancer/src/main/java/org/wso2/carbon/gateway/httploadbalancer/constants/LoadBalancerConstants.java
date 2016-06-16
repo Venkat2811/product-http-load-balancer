@@ -35,7 +35,6 @@ public class LoadBalancerConstants {
     // Scheduled time interval after which LB has to check if an OutboundEndpoint is healthy again.
     public static final String HEALTH_CHECK_HEALTHY_CHECK_INTERVAL = "healthyCheckInterval";
 
-    public static final String HEALTH_CHECK_TEST_REQUEST = "testRequest";
 
 
     /**
@@ -66,6 +65,9 @@ public class LoadBalancerConstants {
 
 
     public static final String LEAST_RESPONSE_TIME = "LEAST_RESPONSE_TIME";
+
+    public static final String RANDOM = "RANDOM";
+
 
 
     /**

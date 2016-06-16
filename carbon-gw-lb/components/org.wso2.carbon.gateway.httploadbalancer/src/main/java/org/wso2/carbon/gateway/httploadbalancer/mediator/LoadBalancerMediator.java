@@ -5,6 +5,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.core.flow.AbstractMediator;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancingAlgorithm;
+import org.wso2.carbon.gateway.httploadbalancer.algorithm.simple.LeastResponseTime;
+import org.wso2.carbon.gateway.httploadbalancer.algorithm.simple.Random;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.simple.RoundRobin;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.simple.StrictClientIPHashing;
 import org.wso2.carbon.gateway.httploadbalancer.callback.LoadBalancerMediatorCallBack;
@@ -82,6 +84,9 @@ public class LoadBalancerMediator extends AbstractMediator {
 
             lbAlgorithm = new RoundRobin(lbOutboundEndpoints);
 
+            /**
+             * This is MUST.
+             */
             if (context.getPersistence().equals(LoadBalancerConstants.CLIENT_IP_HASHING)) {
 
                 context.initStrictClientIPHashing(lbOutboundEndpoints);
@@ -91,6 +96,29 @@ public class LoadBalancerMediator extends AbstractMediator {
 
             lbAlgorithm = new StrictClientIPHashing(lbOutboundEndpoints);
 
+        } else if (context.getAlgorithm().equals(LoadBalancerConstants.LEAST_RESPONSE_TIME)) {
+
+            lbAlgorithm = new LeastResponseTime(lbOutboundEndpoints);
+
+            /**
+             * This is MUST.
+             */
+            if (context.getPersistence().equals(LoadBalancerConstants.CLIENT_IP_HASHING)) {
+
+                context.initStrictClientIPHashing(lbOutboundEndpoints);
+            }
+
+        } else if (context.getAlgorithm().equals(LoadBalancerConstants.RANDOM)) {
+
+            lbAlgorithm = new Random(lbOutboundEndpoints);
+
+            /**
+             * This is MUST.
+             */
+            if (context.getPersistence().equals(LoadBalancerConstants.CLIENT_IP_HASHING)) {
+
+                context.initStrictClientIPHashing(lbOutboundEndpoints);
+            }
         } else {
             lbAlgorithm = null;
             return;
