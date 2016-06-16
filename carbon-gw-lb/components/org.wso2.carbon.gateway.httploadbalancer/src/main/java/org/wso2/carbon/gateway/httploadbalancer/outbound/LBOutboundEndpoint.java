@@ -20,9 +20,7 @@ public class LBOutboundEndpoint {
     private static final Logger log = LoggerFactory.getLogger(LBOutboundEndpoint.class);
     private final Object lock = new Object();
 
-    private int avgResponseTime = 0;
-
-    private int activeConnections = 0;
+    private volatile int avgResponseTime = 0;
 
     /**
      * This ref to healthCheckCMsg will only be used for health Checking.
@@ -61,13 +59,23 @@ public class LBOutboundEndpoint {
         return this.lock;
     }
 
-    public int computeAvgResponseTime(int newTime) {
+    public int computeAndSetAvgResponseTime(int newTime) {
+
 
         synchronized (this.lock) {
 
-            if (avgResponseTime != 0) { //For first time we should not divide by 2.
+            if (this.avgResponseTime != 0) { //For first time we should not divide by 2.
 
-                this.avgResponseTime = (avgResponseTime + newTime) >> 2; // Dividing by 2.
+                log.info("ART : " + this.avgResponseTime + " LAT: " + newTime);
+                if ((this.avgResponseTime + newTime) % 2 == 0) {
+                    this.avgResponseTime = (this.avgResponseTime + newTime) / 2; // Dividing by 2.
+
+                } else {
+                    this.avgResponseTime = (((this.avgResponseTime + newTime) / 2) + 1);
+
+                }
+
+                log.info("ART : " + this.avgResponseTime);
             } else {
 
                 this.avgResponseTime = newTime;
@@ -80,24 +88,6 @@ public class LBOutboundEndpoint {
 
         synchronized (lock) {
             return this.avgResponseTime;
-        }
-    }
-
-    public void incrementActiveconnections() {
-        synchronized (lock) {
-            this.activeConnections++;
-        }
-    }
-
-    public void decrementActiveConnections() {
-        synchronized (lock) {
-            this.activeConnections++;
-        }
-    }
-
-    public int getActiveConnections() {
-        synchronized (lock) {
-            return this.activeConnections;
         }
     }
 
@@ -192,7 +182,9 @@ public class LBOutboundEndpoint {
         this.outboundEndpoint.receive(carbonMessage, carbonCallback);
 
         synchronized (lock) {
+
             this.setHealthCheckCMsg(CommonUtil.getHealthCheckMessage(carbonMessage));
+
         }
         //No need to synchronize as we are operating on concurrent HashMap.
         context.addToCallBackPool(carbonCallback);
@@ -229,16 +221,22 @@ public class LBOutboundEndpoint {
         log.warn(this.getName() + " is unHealthy");
     }
 
+    public void resetAvgResponseTimeToDefault() {
+
+        this.avgResponseTime = 0;
+    }
+
     /**
      * Call this method only when unHealthy LBEndpoint becomes Healthy.
      * <p>
      */
-    public void resetToDefault() {
+    public void resetHealthPropertiesToDefault() {
         synchronized (lock) {
             this.isHealthy = true;
             this.unHealthyRetriesCount = 0;
             this.healthyRetriesCount = 0;
             this.healthCheckedTime = 0;
+
         }
 
 

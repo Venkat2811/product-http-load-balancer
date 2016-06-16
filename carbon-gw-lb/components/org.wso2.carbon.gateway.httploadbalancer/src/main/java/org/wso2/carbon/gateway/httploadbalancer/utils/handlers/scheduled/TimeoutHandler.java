@@ -112,7 +112,8 @@ public class TimeoutHandler implements Runnable {
                      */
                     if (callBack != null) {
 
-                        if (((currentTime - callBack.getCreatedTime()) > context.getReqTimeout())) {
+                        if (((currentTime - (callBack.getCreatedTime()
+                                + LoadBalancerConstants.DEFAULT_GRACE_PERIOD)) > context.getReqTimeout())) {
                             //This callBack is in pool after it has timedOut.
 
                             //This operation is on Concurrent HashMap, so no synchronization is required.
@@ -153,6 +154,16 @@ public class TimeoutHandler implements Runnable {
                                 synchronized (callBack.getLbOutboundEndpoint().getLock()) {
 
                                     callBack.getLbOutboundEndpoint().incrementUnHealthyRetries();
+                                    /**
+                                     * IMPORTANT: Here in case of LeastResponseTime algorithm,
+                                     * we are doing send response time as 0,
+                                     * other wise detection of unHealthyEndpoint will be late.
+                                     */
+                                    if (context.getAlgorithm().equals(LoadBalancerConstants.LEAST_RESPONSE_TIME)) {
+
+                                        callBack.getLbOutboundEndpoint().
+                                                computeAndSetAvgResponseTime(0);
+                                    }
 
                                     if (this.reachedUnHealthyRetriesThreshold(callBack.getLbOutboundEndpoint())) {
 
