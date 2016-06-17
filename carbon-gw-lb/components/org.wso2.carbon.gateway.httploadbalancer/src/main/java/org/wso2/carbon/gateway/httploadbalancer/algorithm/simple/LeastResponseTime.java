@@ -15,71 +15,70 @@ import java.util.List;
  * Implementation of LeastResponseTime.
  * <p>
  * All Endpoints are assumed to have equal weights.
- * <p>
- *
- * ===========================================IMPLEMENTATION LOGIC=================================================
- *
- * FACT : If there is more load on a server, response time will be more & also a newly started server will
- *        have high response time initially because of its warm-up time. So till initial WINDOW no of requests
- *        it'll be ROUND-ROBIN.
- *
- * EXPLANATION: See the below example to understand how this algorithm works. Below are the factors that influence
- *              our decision.
- *
- *              1) Average Response Time - This is calculated as "Running-Average" (i.e) at any point
- *                                         average-response time attribute of an LBOutbound endpoint gives
- *                                         the average of all its response time
- *
- *              2) WINDOW - This attribute defined below determines the number of requests after which
- *                          we should perform computation to find out load distribution.
- *
- *              3) Max Request Per Window - This determines the maximum number of requests that can
- *                                          be sent to this endpoint in current WINDOW period.
- *
- *
- *    NOTE: You should also note that, when this algorithm mode is selected, averageResponseTime and
- *          windowTracker will be computed for each and every requests whatever may be the persistence
- *          policy.
- *
- *    EXAMPLE: Assume that we are having 4 endpoints A,B,C,D with their averageResponseTime (running average)
- *             2,2,8,8 (milli seconds) respectively.  This running average value is after WINDOW number of
- *             requests are being processed.
- *
- *             The below calculations will be performed once if (windowTracker > WINDOW).  windowTracker will be
- *             reset to 0 each and every time it satisfies this condition.
- *
- *    CALCULATION:
- *                 Now, (2+2+8+8)/4 = 5
- *                 So, the ideal average response time has to be 5, if we want to distribute load evenly.
- *
- *                 Now, 2/5 = 0.4
- *                      0.4*100 = 40% i.e., 100-40 = 60% which is ideal percentage of load to be handled
- *                                                   by this endpoint. ( For A & B )
- *
- *                 Again, 8/5 = 1.6
- *                        1.6*100 = 160% i.e., 100-160 = -60% which is ideal percentage of load to be handled
- *                                                       by this endpoint. ( For C & D )
- *
- *
- *                 NOTE: Incaseof negative % we mark Max Req Per Window as 1.
- *                       Also, endpoints chosen based on persistence policy will not care about this window max.
- *                       Endpoints will be chosen based on persistence.
- *
- *                       Otherwise,   maxRequestsPerWindow = (percentage * WINDOW)/100
- *                       Kindly note that this is maxReq.
- *
- *                       So when any new requests without any persistence policy arrives,
- *                       this algorithm will choose endpoint that have not exceeded this
- *                       maxReqPerWindow in ROUND-ROBIN manner.  This load distribution
- *                       is done.
- *
- *
- *===================================================================================================================
- *
- *
- *
  */
 public class LeastResponseTime implements LoadBalancingAlgorithm {
+
+
+/*
+     * =====================================IMPLEMENTATION LOGIC==================================================== *
+     *                                                                                                               *
+     * FACT : If there is more load on a server, response time will be more & also a newly started server will       *
+     *        have high response time initially because of its warm-up time. So till initial WINDOW no of requests   *
+     *        it'll be ROUND-ROBIN.                                                                                  *
+     *                                                                                                               *
+     * EXPLANATION: See the below example to understand how this algorithm works. Below are the factors that         *
+     *              influence our decision.                                                                          *
+     *                                                                                                               *
+     *              1) Average Response Time - This is calculated as "Running-Average" (i.e) at any point            *
+     *                                         average-response time attribute of an LBOutbound endpoint gives       *
+     *                                         the average of all its response time                                  *
+     *                                                                                                               *
+     *              2) WINDOW - This attribute defined below determines the number of requests after which           *
+     *                          we should perform computation to find out load distribution.                         *
+     *                                                                                                               *
+     *              3) Max Request Per Window - This determines the maximum number of requests that can              *
+     *                                          be sent to this endpoint in current WINDOW period.                   *
+     *                                                                                                               *
+     *                                                                                                               *
+     *    NOTE: You should also note that, when this algorithm mode is selected, averageResponseTime and             *
+     *          windowTracker will be computed for each and every requests whatever may be the persistence           *
+     *          policy.                                                                                              *
+     *                                                                                                               *
+     *    EXAMPLE: Assume that we are having 4 endpoints A,B,C,D with their averageResponseTime (running average)    *
+     *             2,2,8,8 (milli seconds) respectively.  This running average value is after WINDOW number of       *
+     *             requests are being processed.                                                                     *
+     *                                                                                                               *
+     *             The below calculations will be performed once if (windowTracker > WINDOW).  windowTracker will be *
+     *             reset to 0 each and every time it satisfies this condition.                                       *
+     *                                                                                                               *
+     *    CALCULATION:                                                                                               *
+     *                 Now, (2+2+8+8)/4 = 5                                                                          *
+     *                 So, the ideal average response time has to be 5, if we want to distribute load evenly.        *
+     *                                                                                                               *
+     *                 Now, 2/5 = 0.4                                                                                *
+     *                      0.4*100 = 40% i.e., 100-40 = 60% which is ideal percentage of load to be handled         *
+     *                                                   by this endpoint. ( For A & B )                             *
+     *                                                                                                               *
+     *                 Again, 8/5 = 1.6                                                                              *
+     *                        1.6*100 = 160% i.e., 100-160 = -60% which is ideal percentage of load to be handled    *
+     *                                                       by this endpoint. ( For C & D )                         *
+     *                                                                                                               *
+     *                                                                                                               *
+     *                 NOTE: Incaseof negative % we mark Max Req Per Window as 1.                                    *
+     *                       Also, endpoints chosen based on persistence policy will not care about this window max. *
+     *                       Endpoints will be chosen based on persistence.                                          *
+     *                                                                                                               *
+     *                       Otherwise,   maxRequestsPerWindow = (percentage * WINDOW)/100                           *
+     *                       Kindly note that this is maxReq.                                                        *
+     *                                                                                                               *
+     *                       So when any new requests without any persistence policy arrives,                        *
+     *                       this algorithm will choose endpoint that have not exceeded this                         *
+     *                       maxReqPerWindow in ROUND-ROBIN manner.  This load distribution                          *
+     *                       is done.                                                                                *
+     *                                                                                                               *
+     *                                                                                                               *
+     *===============================================================================================================*
+ */
 
     private static final Logger log = LoggerFactory.getLogger(LeastResponseTime.class);
     private final Object lock = new Object();
