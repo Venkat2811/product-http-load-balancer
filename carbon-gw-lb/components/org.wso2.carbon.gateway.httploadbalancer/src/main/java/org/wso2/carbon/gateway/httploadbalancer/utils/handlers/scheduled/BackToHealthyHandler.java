@@ -146,7 +146,7 @@ public class BackToHealthyHandler implements Runnable {
                                 lbOutboundEndpoint.resetHealthPropertiesToDefault(); //Endpoint is back to healthy.
 
                                 if (context.getAlgorithm().equals(LoadBalancerConstants.LEAST_RESPONSE_TIME)) {
-                                    lbOutboundEndpoint.resetAvgResponseTimeToDefault();
+                                    lbOutboundEndpoint.resetResponseTimeRelatedToDefault();
                                 }
                             }
                             log.info(lbOutboundEndpoint.getName() + " is back to healthy..");

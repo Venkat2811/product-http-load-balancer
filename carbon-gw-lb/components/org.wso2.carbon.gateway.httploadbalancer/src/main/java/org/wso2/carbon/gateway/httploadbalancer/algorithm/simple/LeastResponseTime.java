@@ -9,7 +9,6 @@ import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -24,13 +23,11 @@ public class LeastResponseTime implements LoadBalancingAlgorithm {
     private static final Logger log = LoggerFactory.getLogger(LeastResponseTime.class);
     private final Object lock = new Object();
 
-    private int index = 0;
-    public static final int SORT_WINDOW = 10;
-
     private List<LBOutboundEndpoint> lbOutboundEndpoints;
 
-    private volatile LBOutboundEndpoint prevPointer;
-    private volatile LBOutboundEndpoint firstPointer;
+    private static final int WINDOW = 10;
+    private int windowTracker = 0;
+    private int index = 0;
 
 
     /**
@@ -39,11 +36,9 @@ public class LeastResponseTime implements LoadBalancingAlgorithm {
      * @param lbOutboundEndpoints
      */
     public LeastResponseTime(List<LBOutboundEndpoint> lbOutboundEndpoints) {
+
         this.lbOutboundEndpoints = lbOutboundEndpoints;
 
-        //Before Sorting.
-        prevPointer = this.lbOutboundEndpoints.get(0);
-        firstPointer = this.lbOutboundEndpoints.get(0);
 
     }
 
@@ -101,32 +96,81 @@ public class LeastResponseTime implements LoadBalancingAlgorithm {
 
     }
 
-    private void computeNextEndpoint() {
+    private void computeRatio() {
 
-        firstPointer = lbOutboundEndpoints.get(0);
-        //Sorting based on AverageResponseTime.
-        this.lbOutboundEndpoints.sort(Comparator.comparing(LBOutboundEndpoint::getAvgResponseTime));
+        int meanResponseTime = 0;
 
-        // Purpose of sorting is to change, if it doesn't we have to change it for the
-        // sake of even load distribution.
-        if (firstPointer == lbOutboundEndpoints.get(0)) {
+        for (LBOutboundEndpoint endPoint : this.lbOutboundEndpoints) {
 
-            lbOutboundEndpoints.remove(firstPointer);
-            lbOutboundEndpoints.add(firstPointer);
+            synchronized (endPoint.getLock()) {
+                meanResponseTime += endPoint.getAvgResponseTime();
+            }
+        }
+        if (meanResponseTime % 2 == 0) {
+            meanResponseTime = (meanResponseTime / this.lbOutboundEndpoints.size());
 
-            if (prevPointer != lbOutboundEndpoints.get(0)) {
-                prevPointer = firstPointer;
-                firstPointer = lbOutboundEndpoints.get(0);
-            } else {
+        } else {
+            meanResponseTime = ((meanResponseTime / this.lbOutboundEndpoints.size()) + 1);
 
-                lbOutboundEndpoints.remove(prevPointer);
-                lbOutboundEndpoints.add(prevPointer);
-                firstPointer = lbOutboundEndpoints.get(0);
-                prevPointer = firstPointer;
+        }
+
+        for (LBOutboundEndpoint endPoint : this.lbOutboundEndpoints) {
+
+            synchronized (endPoint.getLock()) {
+                endPoint.setPercentage((100 - ((endPoint.getAvgResponseTime() / meanResponseTime) * 100)));
+
+                if (endPoint.getPercentage() > 0) {
+                    endPoint.setMaxRequestsPerWindow(((endPoint.getPercentage() * WINDOW) / 100));
+                } else {
+                    endPoint.setMaxRequestsPerWindow(1);
+                }
+
+                endPoint.setCurrentRequests(0); //Resetting is MUST.
+            }
+
+            if (log.isDebugEnabled()) {
+                log.debug(endPoint.getName() + " RT : " + endPoint.getAvgResponseTime() +
+                        " Curr : " + endPoint.getCurrentRequests() + " Max : "
+                        + endPoint.getMaxRequestsPerWindow());
             }
         }
 
     }
+
+    /**
+     * For getting next LBOutboundEndpoinnt.
+     * This method is called after locking, so don't worry.
+     */
+    private void incrementIndex() {
+
+        this.index++;
+        this.index %= this.lbOutboundEndpoints.size();
+    }
+
+    public void incrementWindowTracker() {
+
+        synchronized (this.lock) {
+            this.windowTracker++;
+        }
+    }
+
+    private LBOutboundEndpoint getNextEndpoint() {
+
+        LBOutboundEndpoint endPoint = null;
+        if (this.lbOutboundEndpoints.get(this.index).getCurrentRequests() <
+                this.lbOutboundEndpoints.get(this.index).getMaxRequestsPerWindow()) {
+
+            endPoint = this.lbOutboundEndpoints.get(this.index);
+        } else {
+            incrementIndex();
+            endPoint = this.lbOutboundEndpoints.get(this.index);
+        }
+
+        incrementIndex();
+
+        return endPoint;
+    }
+
 
     /**
      * @param cMsg    Carbon Message has all headers required to make decision.
@@ -141,19 +185,24 @@ public class LeastResponseTime implements LoadBalancingAlgorithm {
         synchronized (this.lock) {
             if (this.lbOutboundEndpoints != null && this.lbOutboundEndpoints.size() > 0) {
 
-                // Frequent sorting will be an overkill.
-                if (this.lbOutboundEndpoints.size() > 1 && this.index >= SORT_WINDOW) {
-                    computeNextEndpoint();
-                    this.index = 0;
+
+                if (this.lbOutboundEndpoints.size() > 1 && this.windowTracker > WINDOW) {
+
+                    computeRatio();
+                    this.windowTracker = 0;
                 }
 
-                for (LBOutboundEndpoint endpoint : this.lbOutboundEndpoints) {
-                    log.info(endpoint.getName() + " Avg RT : " + endpoint.getAvgResponseTime());
+                // It is okay to do roundRobin for first few requests till it reaches WINDOW size.
+                // After that it'll be proper LeastResponseTime based load distribution.
+
+                endPoint = this.getNextEndpoint();
+                if (log.isDebugEnabled()) {
+                    log.debug(endPoint.getName() + " RT : " + endPoint.getAvgResponseTime() +
+                            " Curr : " + endPoint.getCurrentRequests() + " Max : "
+                            + endPoint.getMaxRequestsPerWindow());
                 }
 
-                endPoint = lbOutboundEndpoints.get(0);
-                this.index++;
-
+                this.windowTracker++;
 
             } else {
 
@@ -172,6 +221,15 @@ public class LeastResponseTime implements LoadBalancingAlgorithm {
      */
     @Override
     public void reset() {
+
+        synchronized (this.lock) {
+
+            if (this.lbOutboundEndpoints.size() > 0 && this.index >= this.lbOutboundEndpoints.size()) {
+                this.index %= this.lbOutboundEndpoints.size();
+            } else {
+                this.index = 0;
+            }
+        }
 
     }
 

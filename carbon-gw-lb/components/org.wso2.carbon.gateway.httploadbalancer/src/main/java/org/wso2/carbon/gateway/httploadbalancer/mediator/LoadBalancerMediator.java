@@ -223,7 +223,7 @@ public class LoadBalancerMediator extends AbstractMediator {
 
                     boolean isError1 = false, isError2 = false;
 
-                    //There are two possible cookie paterns in this case.
+                    //There are two possible cookie patterns in this case.
                     /**
                      * TYPE 1 FORMAT
                      */
@@ -391,7 +391,7 @@ public class LoadBalancerMediator extends AbstractMediator {
         }
 
         if (nextLBOutboundEndpoint != null) {
-            log.info("Chosen endpoint by LB is.." + nextLBOutboundEndpoint.getName());
+
 
             /**
              *  NOTE: The places where LBOutboundEndpoint's properties will be changed are:
@@ -414,6 +414,15 @@ public class LoadBalancerMediator extends AbstractMediator {
 
                 // Calling chosen LBOutboundEndpoint's LoadBalancerCallMediator receive...
 
+                log.info("Chosen endpoint by LB is.." + nextLBOutboundEndpoint.getName());
+
+                if (context.getAlgorithm().equals(LoadBalancerConstants.LEAST_RESPONSE_TIME)) {
+                    /**
+                     * We are doing this because, because of persistence policy we are choosing the
+                     * same endpoint. So we have to incrementWindowTracker also.
+                     */
+                    ((LeastResponseTime) lbAlgorithm).incrementWindowTracker();
+                }
                 lbCallMediatorMap.get(nextLBOutboundEndpoint.getName()).
                         receive(carbonMessage, new LoadBalancerMediatorCallBack(carbonCallback, this,
                                 this.context, nextLBOutboundEndpoint));
@@ -443,6 +452,14 @@ public class LoadBalancerMediator extends AbstractMediator {
 
                             log.info("Previously chosen endpoint is unHealthy.. Now, Chosen endpoint is : " +
                                     nextLBOutboundEndpoint.getName());
+
+                            if (context.getAlgorithm().equals(LoadBalancerConstants.LEAST_RESPONSE_TIME)) {
+                                /**
+                                 * We are doing this because, because of persistence policy we are chosing the
+                                 * same endpoint. So we have to incrementWindowTracker also.
+                                 */
+                                ((LeastResponseTime) lbAlgorithm).incrementWindowTracker();
+                            }
 
                             // Calling chosen LBOutboundEndpoint's LoadBalancerCallMediator receive...
                             lbCallMediatorMap.get(nextLBOutboundEndpoint.getName()).

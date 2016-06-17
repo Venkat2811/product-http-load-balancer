@@ -3,6 +3,7 @@ package org.wso2.carbon.gateway.httploadbalancer.outbound;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.core.outbound.OutboundEndpoint;
+import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.utils.CommonUtil;
 import org.wso2.carbon.messaging.CarbonCallback;
@@ -20,7 +21,13 @@ public class LBOutboundEndpoint {
     private static final Logger log = LoggerFactory.getLogger(LBOutboundEndpoint.class);
     private final Object lock = new Object();
 
+    /**
+     * There attributes are for LeastResponseTime Algorithm.
+     */
     private volatile int avgResponseTime = 0;
+    private volatile int percentage = 100;
+    private volatile int maxRequestsPerWindow = 0;
+    private int currentRequests = 0;
 
     /**
      * This ref to healthCheckCMsg will only be used for health Checking.
@@ -55,6 +62,34 @@ public class LBOutboundEndpoint {
         this.healthCheckedTime = 0;
     }
 
+    public void setPercentage(int percentage) {
+        this.percentage = percentage;
+    }
+
+    public int getPercentage() {
+        return this.percentage;
+    }
+
+    public int getCurrentRequests() {
+        return currentRequests;
+    }
+
+    public void setCurrentRequests(int currentRequests) {
+        this.currentRequests = currentRequests;
+    }
+
+    public int getMaxRequestsPerWindow() {
+        return maxRequestsPerWindow;
+    }
+
+    public void setMaxRequestsPerWindow(int maxRequestsPerWindow) {
+        this.maxRequestsPerWindow = maxRequestsPerWindow;
+    }
+
+    public void incrementCurrentRequests() {
+        this.currentRequests++;
+    }
+
     public Object getLock() {
         return this.lock;
     }
@@ -66,7 +101,7 @@ public class LBOutboundEndpoint {
 
             if (this.avgResponseTime != 0) { //For first time we should not divide by 2.
 
-                log.info("ART : " + this.avgResponseTime + " LAT: " + newTime);
+                // log.info("ART : " + this.avgResponseTime + " LAT: " + newTime);
                 if ((this.avgResponseTime + newTime) % 2 == 0) {
                     this.avgResponseTime = (this.avgResponseTime + newTime) / 2; // Dividing by 2.
 
@@ -75,7 +110,7 @@ public class LBOutboundEndpoint {
 
                 }
 
-                log.info("ART : " + this.avgResponseTime);
+                //  log.info("ART : " + this.avgResponseTime);
             } else {
 
                 this.avgResponseTime = newTime;
@@ -185,6 +220,12 @@ public class LBOutboundEndpoint {
 
             this.setHealthCheckCMsg(CommonUtil.getHealthCheckMessage(carbonMessage));
 
+            if (context.getAlgorithm().equals(LoadBalancerConstants.LEAST_RESPONSE_TIME)) {
+
+                this.incrementCurrentRequests();
+            }
+
+
         }
         //No need to synchronize as we are operating on concurrent HashMap.
         context.addToCallBackPool(carbonCallback);
@@ -221,13 +262,19 @@ public class LBOutboundEndpoint {
         log.warn(this.getName() + " is unHealthy");
     }
 
-    public void resetAvgResponseTimeToDefault() {
+    public void resetResponseTimeRelatedToDefault() {
 
         this.avgResponseTime = 0;
+        this.percentage = 100;
+        this.maxRequestsPerWindow = 0;
+        this.currentRequests = 0;
     }
 
     /**
-     * Call this method only when unHealthy LBEndpoint becomes Healthy.
+     * Call this method when unHealthy LBEndpoint becomes Healthy
+     * and also when when we receive a successful response from backend
+     * so that we can avoid any false alarms (i.e when unHealthy endpoint is
+     * incremented due to some timeOut but the actual endpoint is actually healthy).
      * <p>
      */
     public void resetHealthPropertiesToDefault() {
