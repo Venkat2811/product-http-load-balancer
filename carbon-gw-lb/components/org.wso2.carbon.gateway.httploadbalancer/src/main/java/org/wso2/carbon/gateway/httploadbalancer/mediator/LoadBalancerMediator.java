@@ -44,7 +44,6 @@ import java.util.regex.Pattern;
 public class LoadBalancerMediator extends AbstractMediator {
 
     private static final Logger log = LoggerFactory.getLogger(LoadBalancerMediator.class);
-    private final String logMessage = "Message received at Load Balancer Mediator";
 
     private Map<String, LoadBalancerCallMediator> lbCallMediatorMap;
 
@@ -80,9 +79,10 @@ public class LoadBalancerMediator extends AbstractMediator {
         this.configName = configName;
         lbCallMediatorMap = new ConcurrentHashMap<>();
 
-        if (context.getAlgorithm().equals(LoadBalancerConstants.ROUND_ROBIN)) {
+        if (context.getAlgorithmName().equals(LoadBalancerConstants.ROUND_ROBIN)) {
 
             lbAlgorithm = new RoundRobin(lbOutboundEndpoints);
+            context.setLoadBalancingAlgorithm(lbAlgorithm);
 
             /**
              * This is MUST.
@@ -92,13 +92,15 @@ public class LoadBalancerMediator extends AbstractMediator {
                 context.initStrictClientIPHashing(lbOutboundEndpoints);
             }
 
-        } else if (context.getAlgorithm().equals(LoadBalancerConstants.STRICT_IP_HASHING)) {
+        } else if (context.getAlgorithmName().equals(LoadBalancerConstants.STRICT_IP_HASHING)) {
 
             lbAlgorithm = new StrictClientIPHashing(lbOutboundEndpoints);
+            context.setLoadBalancingAlgorithm(lbAlgorithm);
 
-        } else if (context.getAlgorithm().equals(LoadBalancerConstants.LEAST_RESPONSE_TIME)) {
+        } else if (context.getAlgorithmName().equals(LoadBalancerConstants.LEAST_RESPONSE_TIME)) {
 
             lbAlgorithm = new LeastResponseTime(lbOutboundEndpoints);
+            context.setLoadBalancingAlgorithm(lbAlgorithm);
 
             /**
              * This is MUST.
@@ -108,9 +110,10 @@ public class LoadBalancerMediator extends AbstractMediator {
                 context.initStrictClientIPHashing(lbOutboundEndpoints);
             }
 
-        } else if (context.getAlgorithm().equals(LoadBalancerConstants.RANDOM)) {
+        } else if (context.getAlgorithmName().equals(LoadBalancerConstants.RANDOM)) {
 
             lbAlgorithm = new Random(lbOutboundEndpoints);
+            context.setLoadBalancingAlgorithm(lbAlgorithm);
 
             /**
              * This is MUST.
@@ -121,6 +124,7 @@ public class LoadBalancerMediator extends AbstractMediator {
             }
         } else {
             lbAlgorithm = null;
+            context.setLoadBalancingAlgorithm(lbAlgorithm);
             return;
         }
 
@@ -173,6 +177,7 @@ public class LoadBalancerMediator extends AbstractMediator {
     public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback) throws Exception {
 
         if (log.isDebugEnabled()) {
+            String logMessage = "Message received at Load Balancer Mediator";
             log.debug(logMessage);
         }
 
@@ -416,7 +421,7 @@ public class LoadBalancerMediator extends AbstractMediator {
 
                 log.info("Chosen endpoint by LB is.." + nextLBOutboundEndpoint.getName());
 
-                if (context.getAlgorithm().equals(LoadBalancerConstants.LEAST_RESPONSE_TIME)) {
+                if (context.getAlgorithmName().equals(LoadBalancerConstants.LEAST_RESPONSE_TIME)) {
                     /**
                      * We are doing this because, because of persistence policy we are choosing the
                      * same endpoint. So we have to incrementWindowTracker also.
@@ -453,7 +458,7 @@ public class LoadBalancerMediator extends AbstractMediator {
                             log.info("Previously chosen endpoint is unHealthy.. Now, Chosen endpoint is : " +
                                     nextLBOutboundEndpoint.getName());
 
-                            if (context.getAlgorithm().equals(LoadBalancerConstants.LEAST_RESPONSE_TIME)) {
+                            if (context.getAlgorithmName().equals(LoadBalancerConstants.LEAST_RESPONSE_TIME)) {
                                 /**
                                  * We are doing this because, because of persistence policy we are chosing the
                                  * same endpoint. So we have to incrementWindowTracker also.

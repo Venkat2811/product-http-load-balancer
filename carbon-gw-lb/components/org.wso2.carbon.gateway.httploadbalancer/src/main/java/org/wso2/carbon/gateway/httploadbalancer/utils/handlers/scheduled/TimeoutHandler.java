@@ -3,6 +3,7 @@ package org.wso2.carbon.gateway.httploadbalancer.utils.handlers.scheduled;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancingAlgorithm;
+import org.wso2.carbon.gateway.httploadbalancer.algorithm.simple.LeastResponseTime;
 import org.wso2.carbon.gateway.httploadbalancer.callback.LoadBalancerMediatorCallBack;
 import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
@@ -159,10 +160,11 @@ public class TimeoutHandler implements Runnable {
                                      * we are doing send response time as 0,
                                      * other wise detection of unHealthyEndpoint will be late.
                                      */
-                                    if (context.getAlgorithm().equals(LoadBalancerConstants.LEAST_RESPONSE_TIME)) {
+                                    if (context.getAlgorithmName().equals(LoadBalancerConstants.LEAST_RESPONSE_TIME)) {
 
-                                        callBack.getLbOutboundEndpoint().
-                                                computeAndSetAvgResponseTime(0);
+                                        ((LeastResponseTime) context.getLoadBalancingAlgorithm()).
+                                                setAvgResponseTime(callBack.getLbOutboundEndpoint(), 0);
+
                                     }
 
                                     if (this.reachedUnHealthyRetriesThreshold(callBack.getLbOutboundEndpoint())) {

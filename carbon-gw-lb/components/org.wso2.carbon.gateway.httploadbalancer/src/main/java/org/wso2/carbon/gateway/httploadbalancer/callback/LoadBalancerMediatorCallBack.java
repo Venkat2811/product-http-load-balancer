@@ -4,6 +4,7 @@ package org.wso2.carbon.gateway.httploadbalancer.callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.core.flow.Mediator;
+import org.wso2.carbon.gateway.httploadbalancer.algorithm.simple.LeastResponseTime;
 import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
@@ -123,11 +124,12 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
 
                     callBack.getLbOutboundEndpoint().resetHealthPropertiesToDefault();
 
-                    if (context.getAlgorithm().equals(LoadBalancerConstants.LEAST_RESPONSE_TIME)) {
+                    if (context.getAlgorithmName().equals(LoadBalancerConstants.LEAST_RESPONSE_TIME)) {
 
-                        callBack.getLbOutboundEndpoint().
-                                computeAndSetAvgResponseTime((int)
+                        ((LeastResponseTime) context.getLoadBalancingAlgorithm()).
+                                setAvgResponseTime(callBack.getLbOutboundEndpoint(), (int)
                                         (this.getCurrentTime() - callBack.getCreatedTime()));
+
                     }
 
                 }

@@ -3,6 +3,7 @@ package org.wso2.carbon.gateway.httploadbalancer.context;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancingAlgorithm;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.simple.StrictClientIPHashing;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 import org.wso2.carbon.messaging.CarbonCallback;
@@ -22,10 +23,11 @@ public class LoadBalancerConfigContext {
 
     private static final Logger log = LoggerFactory.getLogger(LoadBalancerConfigContext.class);
 
-    private String algorithm;
+    private String algorithmName;
+    private LoadBalancingAlgorithm loadBalancingAlgorithm;
 
     private String persistence;
-    // private int sessionPersistenceTimeout; //TODO: Discuss.
+
 
     private String sslType;
 
@@ -85,12 +87,20 @@ public class LoadBalancerConfigContext {
     private StrictClientIPHashing strictClientIPHashing;
 
 
-    public String getAlgorithm() {
-        return algorithm;
+    public String getAlgorithmName() {
+        return algorithmName;
     }
 
-    public void setAlgorithm(String algorithm) {
-        this.algorithm = algorithm;
+    public void setAlgorithmName(String algorithmName) {
+        this.algorithmName = algorithmName;
+    }
+
+    public LoadBalancingAlgorithm getLoadBalancingAlgorithm() {
+        return loadBalancingAlgorithm;
+    }
+
+    public void setLoadBalancingAlgorithm(LoadBalancingAlgorithm loadBalancingAlgorithm) {
+        this.loadBalancingAlgorithm = loadBalancingAlgorithm;
     }
 
     public String getPersistence() {

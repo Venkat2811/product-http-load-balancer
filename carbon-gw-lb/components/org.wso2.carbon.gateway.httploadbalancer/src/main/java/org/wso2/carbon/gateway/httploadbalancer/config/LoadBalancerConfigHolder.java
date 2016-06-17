@@ -179,26 +179,26 @@ public class LoadBalancerConfigHolder {
         if (this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue().
                 equals(LoadBalancerConstants.ROUND_ROBIN)) {
 
-            context.setAlgorithm(this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue());
-            log.info("Algorithm : " + context.getAlgorithm());
+            context.setAlgorithmName(this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue());
+            log.info("Algorithm : " + context.getAlgorithmName());
 
         } else if (this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue().
                 equals(LoadBalancerConstants.STRICT_IP_HASHING)) {
 
-            context.setAlgorithm(this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue());
-            log.info("Algorithm : " + context.getAlgorithm());
+            context.setAlgorithmName(this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue());
+            log.info("Algorithm : " + context.getAlgorithmName());
 
         } else if (this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue().
                 equals(LoadBalancerConstants.LEAST_RESPONSE_TIME)) {
 
-            context.setAlgorithm(this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue());
-            log.info("Algorithm : " + context.getAlgorithm());
+            context.setAlgorithmName(this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue());
+            log.info("Algorithm : " + context.getAlgorithmName());
 
         } else if (this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue().
                 equals(LoadBalancerConstants.RANDOM)) {
 
-            context.setAlgorithm(this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue());
-            log.info("Algorithm : " + context.getAlgorithm());
+            context.setAlgorithmName(this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue());
+            log.info("Algorithm : " + context.getAlgorithmName());
         } else {
             log.error("Currently this algorithm type is not supported...");
 

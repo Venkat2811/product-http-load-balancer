@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancingAlgorithm;
 import org.wso2.carbon.gateway.httploadbalancer.callback.LBHealthCheckCallBack;
-import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.invokers.LoadBalancerCallMediator;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
@@ -94,6 +93,7 @@ public class BackToHealthyHandler implements Runnable {
              */
 
             List<LBOutboundEndpoint> list = new ArrayList<>(context.getUnHealthyLBEPQueue());
+            log.info("List size : " + list.size());
 
             for (LBOutboundEndpoint lbOutboundEndpoint : list) {
 
@@ -110,7 +110,9 @@ public class BackToHealthyHandler implements Runnable {
                                 callBack);
                     } catch (Exception e) {
 
-                        log.error(e.toString());
+
+                        log.error(e.getLocalizedMessage());
+                        break;
                     }
 
                     try {
@@ -144,9 +146,6 @@ public class BackToHealthyHandler implements Runnable {
 
                                 lbOutboundEndpoint.resetHealthPropertiesToDefault(); //Endpoint is back to healthy.
 
-                                if (context.getAlgorithm().equals(LoadBalancerConstants.LEAST_RESPONSE_TIME)) {
-                                    lbOutboundEndpoint.resetResponseTimeRelatedToDefault();
-                                }
                             }
                             log.info(lbOutboundEndpoint.getName() + " is back to healthy..");
 
