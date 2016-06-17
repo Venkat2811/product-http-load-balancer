@@ -22,7 +22,7 @@ public class RoundRobin implements LoadBalancingAlgorithm {
     private final Object lock = new Object();
 
     private int index = 0;
-    private int endPointsCount = 0;
+
 
     private List<LBOutboundEndpoint> lbOutboundEndpoints;
 
@@ -34,9 +34,7 @@ public class RoundRobin implements LoadBalancingAlgorithm {
      */
     public RoundRobin(List<LBOutboundEndpoint> lbOutboundEndpoints) {
 
-            this.lbOutboundEndpoints = lbOutboundEndpoints;
-            endPointsCount = this.lbOutboundEndpoints.size();
-
+        this.lbOutboundEndpoints = lbOutboundEndpoints;
     }
 
 
@@ -59,7 +57,7 @@ public class RoundRobin implements LoadBalancingAlgorithm {
 
         synchronized (this.lock) {
             this.lbOutboundEndpoints = lbOutboundEndpoints;
-            endPointsCount = this.lbOutboundEndpoints.size();
+
         }
 
     }
@@ -76,7 +74,7 @@ public class RoundRobin implements LoadBalancingAlgorithm {
         synchronized (this.lock) {
             if (!this.lbOutboundEndpoints.contains(lbOutboundEndpoint)) {
                 this.lbOutboundEndpoints.add(lbOutboundEndpoint);
-                endPointsCount = this.lbOutboundEndpoints.size();
+
             } else {
                 log.error(lbOutboundEndpoint.getName() + " already exists in list..");
             }
@@ -95,7 +93,7 @@ public class RoundRobin implements LoadBalancingAlgorithm {
         synchronized (this.lock) {
             if (this.lbOutboundEndpoints.contains(lbOutboundEndpoint)) {
                 this.lbOutboundEndpoints.remove(lbOutboundEndpoint);
-                endPointsCount = this.lbOutboundEndpoints.size();
+
             } else {
                 log.error(lbOutboundEndpoint.getName() + " is not in list..");
             }
@@ -109,7 +107,7 @@ public class RoundRobin implements LoadBalancingAlgorithm {
     private void incrementIndex() {
 
         this.index++;
-        this.index %= this.endPointsCount;
+        this.index %= this.lbOutboundEndpoints.size();
     }
 
     /**
@@ -147,8 +145,8 @@ public class RoundRobin implements LoadBalancingAlgorithm {
 
         synchronized (this.lock) {
 
-            if (this.endPointsCount > 0 && this.index >= this.endPointsCount) {
-                this.index %= this.endPointsCount;
+            if (this.lbOutboundEndpoints.size() > 0 && this.index >= this.lbOutboundEndpoints.size()) {
+                this.index %= this.lbOutboundEndpoints.size();
             } else {
                 this.index = 0;
             }
