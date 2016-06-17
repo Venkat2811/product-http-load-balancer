@@ -63,6 +63,8 @@ public class LeastResponseTime implements LoadBalancingAlgorithm {
      *                        1.6*100 = 160% i.e., 100-160 = -60% which is ideal percentage of load to be handled    *
      *                                                       by this endpoint. ( For C & D )                         *
      *                                                                                                               *
+     *                 Because, load is proportional to response time.                                               *
+     *                 (i.e) more load will result in more response time.                                            *
      *                                                                                                               *
      *                 NOTE: Incaseof negative % we mark maxRequestsPerWindow = 1.                                   *
      *                       Also, endpoints chosen based on persistence policy will not care about this window max. *
@@ -73,8 +75,11 @@ public class LeastResponseTime implements LoadBalancingAlgorithm {
      *                                                                                                               *
      *                       So when any new requests without any persistence policy arrives,                        *
      *                       this algorithm will choose endpoint that have not exceeded this                         *
-     *                       maxReqPerWindow in ROUND-ROBIN manner.  This load distribution                          *
+     *                       maxReqPerWindow in ROUND-ROBIN manner.  Thus load distribution                          *
      *                       is done.                                                                                *
+     *                                                                                                               *
+     *   By doing this we will be balancing load and thus bring down its response time gradually.                    *
+     *                                                                                                               *
      *                                                                                                               *
      *                                                                                                               *
      *===============================================================================================================*
