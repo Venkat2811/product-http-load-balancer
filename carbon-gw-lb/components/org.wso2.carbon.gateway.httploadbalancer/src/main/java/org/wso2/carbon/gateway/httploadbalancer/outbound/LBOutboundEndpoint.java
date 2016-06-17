@@ -24,10 +24,10 @@ public class LBOutboundEndpoint {
     /**
      * There attributes are for LeastResponseTime Algorithm.
      */
-    private volatile int avgResponseTime = 0;
+    private volatile int avgResponseTime = 0; // This stores running average.
     private volatile int percentage = 100;
     private volatile int maxRequestsPerWindow = 0;
-    private int currentRequests = 0;
+    private int currentRequests = 0; // This stores current requests per window.
 
     /**
      * This ref to healthCheckCMsg will only be used for health Checking.
