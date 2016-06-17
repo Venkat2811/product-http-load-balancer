@@ -86,7 +86,7 @@ public class LBOutboundEndpoint {
         this.maxRequestsPerWindow = maxRequestsPerWindow;
     }
 
-    public void incrementCurrentRequests() {
+    private void incrementCurrentRequests() {
         this.currentRequests++;
     }
 
@@ -94,6 +94,12 @@ public class LBOutboundEndpoint {
         return this.lock;
     }
 
+    /**
+     *
+     * @param newTime Most resent response time of the endpoint.
+     * @return Running average of response time of that endpoint.
+     *
+     */
     public int computeAndSetAvgResponseTime(int newTime) {
 
 

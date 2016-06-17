@@ -63,7 +63,7 @@ public class LeastResponseTime implements LoadBalancingAlgorithm {
      *                        1.6*100 = 160% i.e., 100-160 = -60% which is ideal percentage of load to be handled    *
      *                                                       by this endpoint. ( For C & D )                         *
      *                                                                                                               *
-     *                 Because, load is proportional to response time.                                               *
+     *                 This is because, load is proportional to response time.                                       *
      *                 (i.e) more load will result in more response time.                                            *
      *                                                                                                               *
      *                 NOTE: Incaseof negative % we mark maxRequestsPerWindow = 1.                                   *
