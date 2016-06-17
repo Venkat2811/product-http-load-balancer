@@ -16,19 +16,14 @@ public class LBHealthCheckCallBack implements CarbonCallback {
 
     private static final Logger log = LoggerFactory.getLogger(LoadBalancerMediatorCallBack.class);
 
-
-
     //LBOutboundEndpoint.
     //This will be used to locate specific lbOutboundEndpoint for healthChecking purposes.
     private final LBOutboundEndpoint lbOutboundEndpoint;
-
-
 
     private final LoadBalancerConfigContext context;
 
     public LBHealthCheckCallBack(LoadBalancerConfigContext context,
                                  LBOutboundEndpoint lbOutboundEndpoint) {
-
 
         this.lbOutboundEndpoint = lbOutboundEndpoint;
         this.context = context;
@@ -39,7 +34,6 @@ public class LBHealthCheckCallBack implements CarbonCallback {
 
         log.info("Message received at LBHCallBack done...");
 
-
         //Locking is not required as we are operating on ConcurrentHashMap.
         if (this.context.isInCallBackPool((CarbonCallback)
                 carbonMessage.getProperty(Constants.CALL_BACK))) {
@@ -49,7 +43,8 @@ public class LBHealthCheckCallBack implements CarbonCallback {
             //From this point, this callback will not be available in pool.
 
             /**
-             * Locking is done within method itself.
+             * Locking is not necessary because, when endpoint is unHealthy, it will be processed by single
+             * thread only.
              */
                 this.lbOutboundEndpoint.incrementHealthyRetries();
 

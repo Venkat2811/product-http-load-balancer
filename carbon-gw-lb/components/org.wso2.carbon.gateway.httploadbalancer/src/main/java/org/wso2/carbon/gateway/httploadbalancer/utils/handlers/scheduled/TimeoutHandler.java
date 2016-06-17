@@ -169,8 +169,6 @@ public class TimeoutHandler implements Runnable {
 
                                         callBack.getLbOutboundEndpoint().markAsUnHealthy();
 
-                                        callBack.getLbOutboundEndpoint().setHealthCheckedTime(this.getCurrentTime());
-
                                         /**
                                          * When request is received at LoadBalancerMediator,
                                          *  1) It checks for persistence

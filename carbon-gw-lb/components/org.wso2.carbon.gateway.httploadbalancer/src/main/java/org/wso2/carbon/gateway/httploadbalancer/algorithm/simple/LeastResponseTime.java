@@ -191,13 +191,15 @@ public class LeastResponseTime implements LoadBalancingAlgorithm {
                 }
 
                 endPoint.setCurrentRequests(0); //Resetting is MUST.
+
+                if (log.isDebugEnabled()) {
+                    log.debug(endPoint.getName() + " RT : " + endPoint.getAvgResponseTime() +
+                            " Curr : " + endPoint.getCurrentRequests() + " Max : "
+                            + endPoint.getMaxRequestsPerWindow());
+                }
             }
 
-            if (log.isDebugEnabled()) {
-                log.debug(endPoint.getName() + " RT : " + endPoint.getAvgResponseTime() +
-                        " Curr : " + endPoint.getCurrentRequests() + " Max : "
-                        + endPoint.getMaxRequestsPerWindow());
-            }
+
         }
 
     }

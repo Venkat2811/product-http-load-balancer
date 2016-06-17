@@ -24,10 +24,10 @@ public class LBOutboundEndpoint {
     /**
      * There attributes are for LeastResponseTime Algorithm.
      */
-    private volatile int avgResponseTime = 0; // This stores running average.
-    private volatile int percentage = 100;
-    private volatile int maxRequestsPerWindow = 0;
-    private int currentRequests = 0; // This stores current requests per window.
+    private int avgResponseTime = 0; // This stores running average.
+    private int percentage = 100;
+    private int maxRequestsPerWindow = 0;
+    private int currentRequests = 0; //This stores current no of requests in window.
 
     /**
      * This ref to healthCheckCMsg will only be used for health Checking.
@@ -49,17 +49,12 @@ public class LBOutboundEndpoint {
     // No of retries to be done to mark an endpoint as unHealthy.
     private int unHealthyRetriesCount = 0;
 
-    // This will be used to hold System.nanoTime() value.
-    // This will be set, once OutboundEndpoint becomes unhealthy.
-    // It will be set back to zero once endpoint becomes healthy again.
-    private long healthCheckedTime = 0;
 
     public LBOutboundEndpoint(OutboundEndpoint outboundEndpoint) {
         this.outboundEndpoint = outboundEndpoint;
         this.isHealthy = true;
         this.healthyRetriesCount = 0;
         this.unHealthyRetriesCount = 0;
-        this.healthCheckedTime = 0;
     }
 
     public void setPercentage(int percentage) {
@@ -71,7 +66,7 @@ public class LBOutboundEndpoint {
     }
 
     public int getCurrentRequests() {
-        return currentRequests;
+        return this.currentRequests;
     }
 
     public void setCurrentRequests(int currentRequests) {
@@ -95,41 +90,33 @@ public class LBOutboundEndpoint {
     }
 
     /**
-     *
      * @param newTime Most resent response time of the endpoint.
      * @return Running average of response time of that endpoint.
-     *
      */
     public int computeAndSetAvgResponseTime(int newTime) {
 
+        if (this.avgResponseTime != 0) { //For first time we should not divide by 2.
 
-        synchronized (this.lock) {
+            if ((this.avgResponseTime + newTime) % 2 == 0) {
+                this.avgResponseTime = (this.avgResponseTime + newTime) / 2; // Dividing by 2.
 
-            if (this.avgResponseTime != 0) { //For first time we should not divide by 2.
-
-                // log.info("ART : " + this.avgResponseTime + " LAT: " + newTime);
-                if ((this.avgResponseTime + newTime) % 2 == 0) {
-                    this.avgResponseTime = (this.avgResponseTime + newTime) / 2; // Dividing by 2.
-
-                } else {
-                    this.avgResponseTime = (((this.avgResponseTime + newTime) / 2) + 1);
-
-                }
-
-                //  log.info("ART : " + this.avgResponseTime);
             } else {
+                this.avgResponseTime = (((this.avgResponseTime + newTime) / 2) + 1);
 
-                this.avgResponseTime = newTime;
             }
+
+        } else {
+
+            this.avgResponseTime = newTime;
         }
+
         return this.avgResponseTime;
     }
 
     public int getAvgResponseTime() {
 
-        synchronized (lock) {
-            return this.avgResponseTime;
-        }
+        return this.avgResponseTime;
+
     }
 
     private void setHealthCheckCMsg(CarbonMessage healthCheckCMsg) {
@@ -146,21 +133,12 @@ public class LBOutboundEndpoint {
         return outboundEndpoint;
     }
 
-    public void setOutboundEndpoint(OutboundEndpoint outboundEndpoint) {
-        this.outboundEndpoint = outboundEndpoint;
-    }
-
     public boolean isHealthy() {
         synchronized (lock) {
             return isHealthy;
         }
     }
 
-    public void setHealthy(boolean healthy) {
-
-        isHealthy = healthy;
-
-    }
 
     public int getHealthyRetriesCount() {
         synchronized (lock) {
@@ -183,25 +161,6 @@ public class LBOutboundEndpoint {
 
         return unHealthyRetriesCount;
 
-    }
-
-    public void setUnHealthyRetriesCount(int unHealthyRetriesCount) {
-        this.unHealthyRetriesCount = unHealthyRetriesCount;
-
-    }
-
-    public long getHealthCheckedTime() {
-        synchronized (lock) {
-            return healthCheckedTime;
-        }
-    }
-
-    /**
-     * NOTE: This method MUST be accessed after acquiring lock on lock Object.
-     */
-    public void setHealthCheckedTime(long healthCheckedTime) {
-
-        this.healthCheckedTime = healthCheckedTime;
     }
 
     public String getName() {
@@ -244,18 +203,21 @@ public class LBOutboundEndpoint {
      */
     public void incrementUnHealthyRetries() {
 
-
         this.unHealthyRetriesCount++;
 
         log.warn("Incremented UnHealthyRetries count for endPoint : " + this.getName());
     }
 
+    /**
+     * NOTE: This method MUST be accessed after acquiring lock on lock Object.
+     */
     public void incrementHealthyRetries() {
 
-        synchronized (lock) {
-            this.healthyRetriesCount++;
+        this.healthyRetriesCount++;
+
+        if (log.isDebugEnabled()) {
+            log.info("Incremented HealthyRetries count for endPoint : " + this.getName());
         }
-        log.info("Incremented HealthyRetries count for endPoint : " + this.getName());
     }
 
     /**
@@ -268,6 +230,9 @@ public class LBOutboundEndpoint {
         log.warn(this.getName() + " is unHealthy");
     }
 
+    /**
+     * NOTE: This method MUST be accessed after acquiring lock on lock Object.
+     */
     public void resetResponseTimeRelatedToDefault() {
 
         this.avgResponseTime = 0;
@@ -282,18 +247,14 @@ public class LBOutboundEndpoint {
      * so that we can avoid any false alarms (i.e when unHealthy endpoint is
      * incremented due to some timeOut but the actual endpoint is actually healthy).
      * <p>
+     * NOTE: This method MUST be accessed after acquiring lock on lock Object.
      */
     public void resetHealthPropertiesToDefault() {
-        synchronized (lock) {
-            this.isHealthy = true;
-            this.unHealthyRetriesCount = 0;
-            this.healthyRetriesCount = 0;
-            this.healthCheckedTime = 0;
 
-        }
-
+        this.isHealthy = true;
+        this.unHealthyRetriesCount = 0;
+        this.healthyRetriesCount = 0;
 
     }
-
 
 }

@@ -14,7 +14,7 @@ import org.wso2.carbon.messaging.Constants;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
+
 
 /**
  * This handler is responsible for periodic checking of
@@ -130,7 +130,6 @@ public class BackToHealthyHandler implements Runnable {
                         context.removeFromCallBackPool(callBack);
 
                         synchronized (lbOutboundEndpoint.getLock()) {
-                            lbOutboundEndpoint.setHealthCheckedTime(this.getCurrentTime());
                             lbOutboundEndpoint.setHealthyRetriesCount(0);
                         }
 
@@ -223,8 +222,4 @@ public class BackToHealthyHandler implements Runnable {
 
     }
 
-    private long getCurrentTime() {
-
-        return TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
-    }
 }
