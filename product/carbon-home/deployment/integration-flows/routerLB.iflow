@@ -12,6 +12,8 @@ participant Endpoint3 : OutboundEndpoint(protocol("http"),host("http://localhost
 
 participant Endpoint4 : OutboundEndpoint(protocol("http"),host("http://localhost:8086/stockquote/all"))
 
+participant Endpoint5 : OutboundEndpoint(protocol("http"),host("http://localhost:8088/stockquote/all"))
+
 StocksInbound -> StocksPipeline : "client request"
 
 LoadBalancer(algorithm(name(LEAST_RESPONSE_TIME)),persistence(type(NO_PERSISTENCE)),SSL(type(NO_SSL)),healthCheck(type(PASSIVE),requestTimeout(5s),unHealthyRetries(2times),healthyRetries(3times),healthyCheckInterval(1m)))

@@ -64,7 +64,7 @@ public class LeastResponseTime implements LoadBalancingAlgorithm {
      *                                                       by this endpoint. ( For C & D )                         *
      *                                                                                                               *
      *                                                                                                               *
-     *                 NOTE: Incaseof negative % we mark Max Req Per Window as 1.                                    *
+     *                 NOTE: Incaseof negative % we mark maxRequestsPerWindow = 1.                                   *
      *                       Also, endpoints chosen based on persistence policy will not care about this window max. *
      *                       Endpoints will be chosen based on persistence.                                          *
      *                                                                                                               *
