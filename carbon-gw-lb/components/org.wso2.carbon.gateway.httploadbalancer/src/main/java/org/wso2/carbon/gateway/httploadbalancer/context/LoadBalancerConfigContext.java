@@ -197,7 +197,7 @@ public class LoadBalancerConfigContext {
      */
     public void addToCookieToOutboundEPKeyMap(String cookieName, String outboundEPKey) {
 
-        cookieToEPKeyMap.put(cookieName, outboundEPKey);
+        cookieToEPKeyMap.putIfAbsent(cookieName, outboundEPKey);
 
     }
 
@@ -218,7 +218,7 @@ public class LoadBalancerConfigContext {
      */
     public void addToOutboundEPTOCookieMap(String endpoint, String cookieName) {
 
-        endpointToCookieMap.put(endpoint, cookieName);
+        endpointToCookieMap.putIfAbsent(endpoint, cookieName);
 
     }
 
@@ -231,6 +231,11 @@ public class LoadBalancerConfigContext {
 
         return endpointToCookieMap.get(endpoint);
     }
+
+    public Map<String, String> getCookieToOutboundEPKeyMap() {
+        return cookieToEPKeyMap;
+    }
+
 
     public Map<String, LBOutboundEndpoint> getLbOutboundEndpoints() {
         return lbOutboundEndpoints;

@@ -232,8 +232,8 @@ public class LoadBalancerMediator extends AbstractMediator {
                     /**
                      * TYPE 1 FORMAT
                      */
-                    //1) eg cookie: JSESSIONID=ghsgsdgsg---LB_COOKIE:EP1---
-                    // We need to retrieve EP1 in this case.
+                    //1) eg cookie: JSESSIONID=ghsgsdgsg---LB_COOKIE:SOME_HASHCODE---
+                    // We need to retrieve SOME_HASHCODE in this case.
                     String regEx =
                             "(" +
                                     LoadBalancerConstants.LB_COOKIE_DELIMITER +
@@ -259,8 +259,8 @@ public class LoadBalancerMediator extends AbstractMediator {
                         /**
                          * TYPE 2 FORMAT
                          */
-                        // 2) cookie: LB_COOKIE=EP1
-                        // We need to retrieve EP1 in this case.
+                        // 2) cookie: LB_COOKIE=SOME_HASHCODE
+                        // We need to retrieve SOME_HASHCODEin this case.
                         regEx = "(" +
                                 LoadBalancerConstants.LB_COOKIE_NAME +
                                 "=)(.*)";
@@ -296,8 +296,8 @@ public class LoadBalancerMediator extends AbstractMediator {
 
                 } else { // persistenceType is LoadBalancerConstants.LB_COOKIE.
 
-                    //eg cookie: LB_COOKIE=EP1
-                    //We need to retrieve EP1 in this case.
+                    //eg cookie: LB_COOKIE=SOME_HASHCODE
+                    //We need to retrieve SOME_HASHCODE in this case.
                     String regEx = "(" +
                             LoadBalancerConstants.LB_COOKIE_NAME +
                             "=)(.*)";
@@ -381,7 +381,7 @@ public class LoadBalancerMediator extends AbstractMediator {
                 log.error("The IP Address retrieved is : " + ipAddress +
                         " which is invalid according to our validation. " +
                         "Endpoint will be chosen based on algorithm");
-                //TODO: throw appropriate exceptions also.
+
                 //Fetching endpoint according to algorithm.
                 nextLBOutboundEndpoint = lbAlgorithm.getNextLBOutboundEndpoint(carbonMessage, context);
 

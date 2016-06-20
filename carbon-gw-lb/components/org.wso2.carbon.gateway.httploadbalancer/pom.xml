@@ -123,7 +123,6 @@
         </export.package>
         <import.package>
             org.osgi.framework.*;version="${osgi.framework.import.version.range}",
-            <!--org.wso2.carbon.gateway.core.config.dsl.internal.*,-->
             org.wso2.carbon.gateway.inbounds.http.builder,
             org.wso2.carbon.gateway.inbounds.http,
             org.wso2.carbon.gateway.outbounds.http,
@@ -132,10 +131,10 @@
             org.wso2.carbon.transport.*;version="${carbon.transport.package.import.version.range}",
             org.wso2.carbon.messaging.*;version="${carbon.messaging.package.import.version.range}",
             org.slf4j.*,
-           <!-- javax.servlet.*;version="${javax.servlet.version}" -->
-            org.apache.httpcomponents.httpclient.*;version="${org.apache.httpcomponents.httpclient.version}",
+           <!-- org.apache.http.*;version="${org.apache.httpcomponents.httpclient.version}", -->
             org.apache.commons.validator.*;version="${commons.validator.version}";
            <!-- org.apache.servicemix.bundles.commons.*;version="${org.apache.servicemix.bundles.commons-validator.version}" -->
+            <!-- javax.servlet.*;version="${javax.servlet.version}" -->
 
         </import.package>
         <!--  <Require-Bundle>

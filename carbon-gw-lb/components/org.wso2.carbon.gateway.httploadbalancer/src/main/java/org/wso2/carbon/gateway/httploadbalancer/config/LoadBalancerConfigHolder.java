@@ -6,6 +6,8 @@ import org.wso2.carbon.gateway.core.config.Parameter;
 import org.wso2.carbon.gateway.core.config.ParameterHolder;
 import org.wso2.carbon.gateway.core.config.dsl.external.WUMLConfigurationBuilder;
 import org.wso2.carbon.gateway.core.outbound.OutboundEndpoint;
+import org.wso2.carbon.gateway.httploadbalancer.algorithm.hashing.hashcodegenerators.HashFunction;
+import org.wso2.carbon.gateway.httploadbalancer.algorithm.hashing.hashcodegenerators.MD5;
 import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.mediator.LoadBalancerMediatorBuilder;
@@ -21,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>
  * All validations and conversions are done here.
  * <p>
- * This holds static configuration from .iflow config files.
+ * This holds configurations from .iflow config files.
  */
 public class LoadBalancerConfigHolder {
 
@@ -148,24 +150,30 @@ public class LoadBalancerConfigHolder {
      */
     private void populateCookieMaps(Map<String, LBOutboundEndpoint> lbOutboundEndpoints) {
 
-        //Initializing cookie maps.
+        //MUST: Initializing cookie maps.
         context.initCookieMaps();
-        int index = 1;
+
+        // For the purpose of changing hashCode generating algorithm easily in future, we are doing this.
+        HashFunction hashFunction = new MD5();
 
         Set<Map.Entry<String, LBOutboundEndpoint>> entrySet = lbOutboundEndpoints.entrySet();
         for (Map.Entry entry : entrySet) {
 
-            context.addToCookieToOutboundEPKeyMap(
-                    LoadBalancerConstants.COOKIE_PREFIX + String.valueOf(index),
-                    entry.getKey().toString());
-
-            context.addToOutboundEPTOCookieMap(
-                    CommonUtil.getHostAndPort(
-                            ((LBOutboundEndpoint) entry.getValue()).getOutboundEndpoint().getUri()),
-                    LoadBalancerConstants.COOKIE_PREFIX + String.valueOf(index));
+            String hostAndPort = CommonUtil.getHostAndPort(
+                    ((LBOutboundEndpoint) entry.getValue()).getOutboundEndpoint().getUri());
 
 
-            index++;
+            String hashCode = hashFunction.hash(hostAndPort);
+            if (!context.getCookieToOutboundEPKeyMap().containsKey(hashCode)) {
+
+                context.addToCookieToOutboundEPKeyMap(hashCode, entry.getKey().toString());
+                context.addToOutboundEPTOCookieMap(hostAndPort, hashCode);
+
+            } else {
+                log.error("Same hash code exists in map. Kindly contact administrator to resolve this issue.." +
+                        " Persistence will not be maintained for the endpoint : " + entry.getKey().toString());
+            }
+
         }
 
     }

@@ -93,9 +93,6 @@ public class LoadBalancerConstants {
     public static final String CLIENT_IP_HASHING = "CLIENT_IP_HASHING";
 
 
-    //This will be used in cookie to OutboundEndpoint maps.
-    // TODO:If there is any security concern.?
-    public static final String COOKIE_PREFIX = "EP";
 
     //This will be used as cookie name.
     public static final String LB_COOKIE_NAME = "LB_COOKIE";

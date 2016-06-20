@@ -93,7 +93,6 @@ public class BackToHealthyHandler implements Runnable {
              */
 
             List<LBOutboundEndpoint> list = new ArrayList<>(context.getUnHealthyLBEPQueue());
-            log.info("List size : " + list.size());
 
             for (LBOutboundEndpoint lbOutboundEndpoint : list) {
 
