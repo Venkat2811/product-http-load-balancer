@@ -147,8 +147,6 @@ public class RoundRobin implements LoadBalancingAlgorithm {
 
             if (this.lbOutboundEndpoints.size() > 0 && this.index >= this.lbOutboundEndpoints.size()) {
                 this.index %= this.lbOutboundEndpoints.size();
-            } else {
-                this.index = 0;
             }
         }
     }

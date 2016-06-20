@@ -3,7 +3,6 @@ package org.wso2.carbon.gateway.httploadbalancer.algorithm.weighted;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancingAlgorithm;
-import org.wso2.carbon.gateway.httploadbalancer.algorithm.simple.LeastResponseTime;
 import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
@@ -29,8 +28,8 @@ public class WeightedRoundRobin implements LoadBalancingAlgorithm {
     private Map<String, WeightedLBOutboundEndpoint> map = new ConcurrentHashMap<>();
 
     private int index = 0;
-    private int WINDOW = 0;
-    private int windowTracker
+    private int WINDOW = 0; // Sum of weights of all endpoints.
+    private int windowTracker = 0;
 
     /**
      * @return the name of implemented LB algorithm.
@@ -64,6 +63,52 @@ public class WeightedRoundRobin implements LoadBalancingAlgorithm {
 
     }
 
+    private void resetAllCurrentWeights() {
+
+        for (WeightedLBOutboundEndpoint endpoint : this.weightedLBOutboundEndpoints) {
+            endpoint.resetWeight();
+        }
+
+    }
+
+    private void incrementWindowTracker() {
+        this.windowTracker++;
+    }
+
+    private void incrementIndex() {
+        this.index++;
+        this.index %= this.weightedLBOutboundEndpoints.size();
+    }
+
+    private WeightedLBOutboundEndpoint getNextEndpoint() {
+
+        WeightedLBOutboundEndpoint endPoint = null;
+        int counter = 0;
+
+        while (true) {
+
+            if (this.weightedLBOutboundEndpoints.get(this.index).getCurrentWeight() <
+                    this.weightedLBOutboundEndpoints.get(this.index).getMaxWeight()) {
+
+                endPoint = this.weightedLBOutboundEndpoints.get(this.index);
+                break;
+            } else {
+                incrementIndex();
+            }
+
+            if (counter > weightedLBOutboundEndpoints.size()) { // This case will never occur. Just for safety.
+                endPoint = this.weightedLBOutboundEndpoints.get(this.index);
+                break;
+            }
+            counter++;
+        }
+
+        incrementIndex();
+
+        return endPoint;
+
+    }
+
     /**
      * @param cMsg    Carbon Message has all headers required to make decision.
      * @param context LoadBalancerConfigContext.
@@ -72,7 +117,7 @@ public class WeightedRoundRobin implements LoadBalancingAlgorithm {
     @Override
     public LBOutboundEndpoint getNextLBOutboundEndpoint(CarbonMessage cMsg, LoadBalancerConfigContext context) {
 
-        LBOutboundEndpoint endpoint = null;
+        LBOutboundEndpoint endPoint = null;
 
         synchronized (this.lock) {
             if (this.weightedLBOutboundEndpoints != null && this.weightedLBOutboundEndpoints.size() > 0) {
@@ -80,24 +125,16 @@ public class WeightedRoundRobin implements LoadBalancingAlgorithm {
 
                 if (this.weightedLBOutboundEndpoints.size() > 1 && this.windowTracker > WINDOW) {
 
-                    computeRatio();
+                    resetAllCurrentWeights();
                     this.windowTracker = 0;
                 }
 
                 // It is okay to do roundRobin for first few requests till it reaches WINDOW size.
                 // After that it'll be proper LeastResponseTime based load distribution.
 
-                LeastResponseTime.LBOutboundEPLeastRT outboundEPLeastRT = this.getNextEndpoint();
+                WeightedLBOutboundEndpoint weightedLBOutboundEP = this.getNextEndpoint();
 
-                endPoint = outboundEPLeastRT.getLbOutboundEndpoint();
-
-                if (log.isDebugEnabled()) {
-                    log.debug(outboundEPLeastRT.getName() + " RT : " + outboundEPLeastRT.getAvgResponseTime() +
-                            " Curr : " + outboundEPLeastRT.getCurrentRequests() + " Max : "
-                            + outboundEPLeastRT.getMaxRequestsPerWindow());
-                }
-
-                this.windowTracker++;
+                endPoint = weightedLBOutboundEP.getLbOutboundEndpoint();
 
             } else {
 
@@ -106,7 +143,7 @@ public class WeightedRoundRobin implements LoadBalancingAlgorithm {
             }
         }
 
-        return endpoint;
+        return endPoint;
     }
 
     /**
@@ -147,6 +184,10 @@ public class WeightedRoundRobin implements LoadBalancingAlgorithm {
             return this.lbOutboundEndpoint.getName();
         }
 
+        public LBOutboundEndpoint getLbOutboundEndpoint() {
+            return this.lbOutboundEndpoint;
+        }
+
         private void incrementCurrentWeight() {
             this.currentWeight++;
         }
@@ -159,30 +200,32 @@ public class WeightedRoundRobin implements LoadBalancingAlgorithm {
             return currentWeight;
         }
 
+        public void setCurrentWeight(int currentWeight) {
+            this.currentWeight = currentWeight;
+        }
+
         /**
-         *
          * @param carbonMessage
          * @param carbonCallback
          * @param context
          * @return
-         * @throws Exception
-         *
-         * NOTE: When this algorithm mode is chosen, all requests are sent through this method only.
-         *       So currentWeight will be incremented in both the cases.
-         *       (i.e.) In Endpoint chosen by persistence and in endpoint chosen by algorithm.
+         * @throws Exception NOTE: When this algorithm mode is chosen, all requests are sent through this method only.
+         *                   So currentWeight will be incremented in both the cases.
+         *                   (i.e.) In Endpoint chosen by persistence and in endpoint chosen by algorithm.
          */
         boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback,
                         LoadBalancerConfigContext context) throws Exception {
 
 
             synchronized (lock) {
-                this.incrementCurrentWeight();
+                this.incrementCurrentWeight(); //  Increments currentRequests for this WeightedLBOutboundEndpoint
+                incrementWindowTracker(); // To keep track of no requests elapsed for this current window
             }
             this.lbOutboundEndpoint.receive(carbonMessage, carbonCallback, context);
             return false;
         }
 
-        void resetWeights() {
+        void resetWeight() {
             this.currentWeight = 0;
         }
 

@@ -329,8 +329,6 @@ public class LeastResponseTime implements LoadBalancingAlgorithm {
 
             if (this.lbOutboundEPLeastRTs.size() > 0 && this.index >= this.lbOutboundEPLeastRTs.size()) {
                 this.index %= this.lbOutboundEPLeastRTs.size();
-            } else {
-                this.index = 0;
             }
         }
 
