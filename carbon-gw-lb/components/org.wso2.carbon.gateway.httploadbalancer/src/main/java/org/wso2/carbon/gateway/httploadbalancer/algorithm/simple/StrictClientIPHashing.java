@@ -102,6 +102,9 @@ public class StrictClientIPHashing implements LoadBalancingAlgorithm {
 
     /**
      * @param lbOutboundEndpoint outboundEndpoint to be added to the existing list.
+     *                           <p>
+     *                           This method will be used to add an endpoint once it
+     *                           is back to healthy state.
      */
     @Override
     public void addLBOutboundEndpoint(LBOutboundEndpoint lbOutboundEndpoint) {
@@ -119,6 +122,8 @@ public class StrictClientIPHashing implements LoadBalancingAlgorithm {
 
     /**
      * @param lbOutboundEndpoint outboundEndpoint to be removed from existing list.
+     *                           <p>
+     *                           This method will be used to remove an unHealthyEndpoint.
      */
     @Override
     public void removeLBOutboundEndpoint(LBOutboundEndpoint lbOutboundEndpoint) {

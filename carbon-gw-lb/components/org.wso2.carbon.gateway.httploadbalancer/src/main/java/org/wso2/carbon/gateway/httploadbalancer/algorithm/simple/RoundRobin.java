@@ -66,7 +66,8 @@ public class RoundRobin implements LoadBalancingAlgorithm {
     /**
      * @param lbOutboundEndpoint LBOutboundEndpoint to be added to the existing list.
      *                           <p>
-     *                           EndpointsCount is also updated here.
+     *                           This method will be used to add an endpoint once it
+     *                           is back to healthy state.
      */
     @Override
     public void addLBOutboundEndpoint(LBOutboundEndpoint lbOutboundEndpoint) {
@@ -85,7 +86,7 @@ public class RoundRobin implements LoadBalancingAlgorithm {
     /**
      * @param lbOutboundEndpoint LBOutboundEndpoint to be removed from existing list.
      *                           <p>
-     *                           EndpointsCount is also updated here.
+     *                           This method will be used to remove an unHealthyEndpoint.
      */
     @Override
     public void removeLBOutboundEndpoint(LBOutboundEndpoint lbOutboundEndpoint) {

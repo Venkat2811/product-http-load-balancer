@@ -140,8 +140,11 @@ public class LeastResponseTime implements LoadBalancingAlgorithm {
     /**
      * @param lbOutboundEndpoint outboundEndpoint to be added to the existing list.
      *                           <p>
-     *                           Adding is different here.  We have to remove it from map
-     *                           and create new object for that endpoint and add it again.
+     *                           This method will be used to add an endpoint once it
+     *                           is back to healthy state.
+     *                           <p>
+     *                           Adding is different here.  We have to get it from map,
+     *                           reset its properties and add it back to the list.
      */
     @Override
     public void addLBOutboundEndpoint(LBOutboundEndpoint lbOutboundEndpoint) {
@@ -157,14 +160,17 @@ public class LeastResponseTime implements LoadBalancingAlgorithm {
                 }
 
             } else {
-                this.lbOutboundEPLeastRTs.add(new LBOutboundEPLeastRT(lbOutboundEndpoint));
-                //NOTE: adding in map is done in inner class's constructor.
+                log.error("Cannot add a new endpoint like this. Use setLBOutboundEndpoints method" +
+                        " or Constructor..");
+
             }
         }
     }
 
     /**
      * @param lbOutboundEndpoint outboundEndpoint to be removed from existing list.
+     *                           <p>
+     *                           This method will be used to remove an unHealthyEndpoint.
      *                           <p>
      *                           NOTE: for this algorithm, we are not removing from map.
      *                           But, we are removing from list.

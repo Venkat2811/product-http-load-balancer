@@ -1,10 +1,10 @@
 package org.wso2.carbon.gateway.httploadbalancer.algorithm;
 
 
-
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 import org.wso2.carbon.messaging.CarbonMessage;
+
 import java.util.List;
 
 /**
@@ -25,11 +25,16 @@ public interface LoadBalancingAlgorithm {
 
     /**
      * @param lbOutboundEndpoint outboundEndpoint to be added to the existing list.
+     *                           <p>
+     *                           This method will be used to add an endpoint once it
+     *                           is back to healthy state.
      */
     void addLBOutboundEndpoint(LBOutboundEndpoint lbOutboundEndpoint);
 
     /**
      * @param lbOutboundEndpoint outboundEndpoint to be removed from existing list.
+     *                           <p>
+     *                           This method will be used to remove an unHealthyEndpoint.
      */
     void removeLBOutboundEndpoint(LBOutboundEndpoint lbOutboundEndpoint);
 
@@ -49,7 +54,6 @@ public interface LoadBalancingAlgorithm {
     void reset();
 
     /**
-     *
      * @return Object used for locking.
      */
     Object getLock();
