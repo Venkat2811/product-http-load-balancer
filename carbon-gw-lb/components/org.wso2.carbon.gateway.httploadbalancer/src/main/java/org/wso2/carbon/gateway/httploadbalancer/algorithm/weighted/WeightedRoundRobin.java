@@ -29,8 +29,8 @@ public class WeightedRoundRobin implements LoadBalancingAlgorithm {
     private Map<String, WeightedLBOutboundEndpoint> map = new ConcurrentHashMap<>();
 
     private int index = 0;
-    private int WINDOW = 0; // Sum of weights of all endpoints.
-    private int windowTracker = 0;
+    private int weightsWindow = 0; // Sum of weights of all endpoints.
+    private int weightsWindowTracker = 0;
 
     /**
      * @return the name of implemented LB algorithm.
@@ -73,8 +73,8 @@ public class WeightedRoundRobin implements LoadBalancingAlgorithm {
 
     }
 
-    private void incrementWindowTracker() {
-        this.windowTracker++;
+    private void incrementWeightsWindowTracker() {
+        this.weightsWindowTracker++;
     }
 
     private void incrementIndex() {
@@ -125,10 +125,10 @@ public class WeightedRoundRobin implements LoadBalancingAlgorithm {
             if (this.weightedLBOutboundEndpoints != null && this.weightedLBOutboundEndpoints.size() > 0) {
 
 
-                if (this.weightedLBOutboundEndpoints.size() > 1 && this.windowTracker > WINDOW) {
+                if (this.weightedLBOutboundEndpoints.size() > 1 && this.weightsWindowTracker > this.weightsWindow) {
 
                     resetAllCurrentWeights();
-                    this.windowTracker = 0;
+                    this.weightsWindowTracker = 0;
                 }
 
                 // It is okay to do roundRobin for first few requests till it reaches WINDOW size.
@@ -233,7 +233,7 @@ public class WeightedRoundRobin implements LoadBalancingAlgorithm {
 
             synchronized (lock) {
                 this.incrementCurrentWeight(); //  Increments currentRequests for this WeightedLBOutboundEndpoint
-                incrementWindowTracker(); // To keep track of no requests elapsed for this current window
+                incrementWeightsWindowTracker(); // To keep track of no requests elapsed for this current window
             }
             this.lbOutboundEndpoint.receive(carbonMessage, carbonCallback, context);
             return false;
