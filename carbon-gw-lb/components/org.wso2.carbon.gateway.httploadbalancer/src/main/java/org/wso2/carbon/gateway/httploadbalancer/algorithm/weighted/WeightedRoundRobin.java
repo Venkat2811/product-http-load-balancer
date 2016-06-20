@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * User has to define weights for each endpoint. By default weight is 1.
  * TODO: Implementation.
  */
-public class WeightedRoundRobin implements LoadBalancingAlgorithm {
+public class WeightedRoundRobin implements LoadBalancingAlgorithm, Weighted {
 
     private static final Logger log = LoggerFactory.getLogger(WeightedRoundRobin.class);
     private final Object lock = new Object();
@@ -43,6 +43,8 @@ public class WeightedRoundRobin implements LoadBalancingAlgorithm {
 
     /**
      * @param lbOutboundEPs list of all Outbound Endpoints to be load balanced.
+     *                      <p>
+     *                      NOTE: We are using method defined in Weighted interface.
      */
     @Override
     public void setLBOutboundEndpoints(List<LBOutboundEndpoint> lbOutboundEPs) {
@@ -50,7 +52,40 @@ public class WeightedRoundRobin implements LoadBalancingAlgorithm {
     }
 
     /**
+     * @param lbOutboundEPs List of LBOutboundEndpoints
+     * @param weights       Their corresponding weights.
+     *                      <p>
+     *                      NOTE: All validations must be done before.
+     *                      This method expects ordered list of
+     *                      endpoints and their corresponding weights.
+     */
+    @Override
+    public void setLBOutboundEndpoints(List<LBOutboundEndpoint> lbOutboundEPs, List<Integer> weights) {
+
+        synchronized (this.lock) {
+            for (int i = 0; i < lbOutboundEPs.size(); i++) {
+                weightedLBOutboundEndpoints.
+                        add(new WeightedLBOutboundEndpoint(lbOutboundEPs.get(i), weights.get(i)));
+            }
+
+            calculateWeightsWindow();
+        }
+
+    }
+
+    private void calculateWeightsWindow() {
+
+        for (WeightedLBOutboundEndpoint endpoint : this.weightedLBOutboundEndpoints) {
+            this.weightsWindow += endpoint.getMaxWeight();
+        }
+    }
+
+
+    /**
      * @param lbOutboundEndpoint outboundEndpoint to be added to the existing list.
+     *                           <p>
+     *                           This method will be used to add an endpoint once it
+     *                           is back to healthy state.
      */
     @Override
     public void addLBOutboundEndpoint(LBOutboundEndpoint lbOutboundEndpoint) {
@@ -59,6 +94,8 @@ public class WeightedRoundRobin implements LoadBalancingAlgorithm {
 
     /**
      * @param lbOutboundEndpoint outboundEndpoint to be removed from existing list.
+     *                           <p>
+     *                           This method will be used to remove an unHealthyEndpoint.
      */
     @Override
     public void removeLBOutboundEndpoint(LBOutboundEndpoint lbOutboundEndpoint) {
@@ -152,6 +189,9 @@ public class WeightedRoundRobin implements LoadBalancingAlgorithm {
      * Each implementation of LB algorithm will have certain values pertained to it.
      * (Eg: Round robin keeps track of index of OutboundEndpoint).
      * Implementation of this method will resetHealthPropertiesToDefault them.
+     * <p>
+     * NOTE: In this case weightsWindow is dependant on no of endpoints.
+     * So, we have to take care of that too.
      */
     @Override
     public void reset() {
@@ -160,10 +200,18 @@ public class WeightedRoundRobin implements LoadBalancingAlgorithm {
 
             if (this.weightedLBOutboundEndpoints.size() > 0 &&
                     this.index >= this.weightedLBOutboundEndpoints.size()) {
+
                 this.index %= this.weightedLBOutboundEndpoints.size();
+                this.calculateWeightsWindow(); //Here in this case weights must be atleast one.
+                this.weightsWindowTracker %= this.weightsWindow;
+
             } else if (this.weightedLBOutboundEndpoints.size() == 0) {
+
                 this.index = 0;
+                this.weightsWindow = 0;
+                this.weightsWindowTracker = 0;
             }
+
         }
     }
 
