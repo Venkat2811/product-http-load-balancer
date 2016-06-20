@@ -44,7 +44,7 @@ public interface LoadBalancingAlgorithm {
     /**
      * Each implementation of LB algorithm will have certain values pertained to it.
      * (Eg: Round robin keeps track of index of OutboundEndpoint).
-     * Implementation of this method will resetHealthPropertiesToDefault them.
+     * Implementation of this method will resetHealthPropertiesToDefault.
      */
     void reset();
 

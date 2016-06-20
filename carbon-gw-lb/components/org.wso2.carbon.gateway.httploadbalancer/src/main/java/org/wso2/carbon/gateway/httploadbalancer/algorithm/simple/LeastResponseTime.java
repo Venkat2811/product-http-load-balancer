@@ -229,7 +229,7 @@ public class LeastResponseTime implements LoadBalancingAlgorithm {
     }
 
     /**
-     * For getting next LBOutboundEndpoinnt.
+     * For getting next LBOutboundEndpoint.
      * This method is called after locking, so don't worry.
      */
     private void incrementIndex() {
