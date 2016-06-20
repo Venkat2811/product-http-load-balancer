@@ -240,21 +240,32 @@ public class LeastResponseTime implements LoadBalancingAlgorithm {
 
     public void incrementWindowTracker() {
 
-        synchronized (this.lock) {
-            this.windowTracker++;
-        }
+        this.windowTracker++;
+
     }
 
     private LBOutboundEPLeastRT getNextEndpoint() {
 
         LBOutboundEPLeastRT endPoint = null;
-        if (this.lbOutboundEPLeastRTs.get(this.index).getCurrentRequests() <
-                this.lbOutboundEPLeastRTs.get(this.index).getMaxRequestsPerWindow()) {
 
-            endPoint = this.lbOutboundEPLeastRTs.get(this.index);
-        } else {
-            incrementIndex();
-            endPoint = this.lbOutboundEPLeastRTs.get(this.index);
+        int counter = 0;
+
+        while (true) {
+
+            if (this.lbOutboundEPLeastRTs.get(this.index).getCurrentRequests() <
+                    this.lbOutboundEPLeastRTs.get(this.index).getMaxRequestsPerWindow()) {
+
+                endPoint = this.lbOutboundEPLeastRTs.get(this.index);
+                break;
+            } else {
+                incrementIndex();
+            }
+
+            if (counter > lbOutboundEPLeastRTs.size()) { // This case will never occur. Just for safety.
+                endPoint = this.lbOutboundEPLeastRTs.get(this.index);
+                break;
+            }
+            counter++;
         }
 
         incrementIndex();
@@ -295,8 +306,6 @@ public class LeastResponseTime implements LoadBalancingAlgorithm {
                             " Curr : " + outboundEPLeastRT.getCurrentRequests() + " Max : "
                             + outboundEPLeastRT.getMaxRequestsPerWindow());
                 }
-
-                this.windowTracker++;
 
             } else {
 
@@ -442,24 +451,21 @@ public class LeastResponseTime implements LoadBalancingAlgorithm {
 
 
         /**
-         *
          * @param carbonMessage
          * @param carbonCallback
          * @param context
          * @return
-         * @throws Exception
-         *
-         * NOTE: When this algorithm mode is chosen, all requests are sent through this method only.
-         *       So currentRequests will be incremented in both the cases.
-         *       (i.e.) In Endpoint chosen by persistence and in endpoint chosen by algorithm.
+         * @throws Exception NOTE: When this algorithm mode is chosen, all requests are sent through this method only.
+         *                   So currentRequests will be incremented in both the cases.
+         *                   (i.e.) In Endpoint chosen by persistence and in endpoint chosen by algorithm.
          */
         boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback,
                         LoadBalancerConfigContext context) throws Exception {
 
 
             synchronized (lock) {
-                this.incrementCurrentRequests();
-                incrementWindowTracker();
+                this.incrementCurrentRequests(); // Increments currentRequests for this LBOutboundEPLeastRT
+                incrementWindowTracker(); // To keep track of no requests elapsed for this current window
             }
             this.lbOutboundEndpoint.receive(carbonMessage, carbonCallback, context);
             return false;
