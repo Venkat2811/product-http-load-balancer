@@ -36,6 +36,7 @@ public class WeightedRoundRobin implements LoadBalancingAlgorithm {
      */
     @Override
     public String getName() {
+
         return LoadBalancerConstants.WEIGHTED_ROUND_ROBIN;
     }
 
@@ -154,6 +155,15 @@ public class WeightedRoundRobin implements LoadBalancingAlgorithm {
     @Override
     public void reset() {
 
+        synchronized (this.lock) {
+
+            if (this.weightedLBOutboundEndpoints.size() > 0 &&
+                    this.index >= this.weightedLBOutboundEndpoints.size()) {
+                this.index %= this.weightedLBOutboundEndpoints.size();
+            } else if (this.weightedLBOutboundEndpoints.size() == 0) {
+                this.index = 0;
+            }
+        }
     }
 
     /**
@@ -165,6 +175,9 @@ public class WeightedRoundRobin implements LoadBalancingAlgorithm {
     }
 
 
+    /**
+     * We need few weight related attributes for WeightedRoundRobin algorithm.
+     */
     private class WeightedLBOutboundEndpoint {
 
         private LBOutboundEndpoint lbOutboundEndpoint;
