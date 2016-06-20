@@ -37,7 +37,6 @@ public class LoadBalancerConfigContext {
     private int unHealthyRetries;
     private int healthyRetries;
     private int healthycheckInterval;
-    private String testRequest;
 
 
     private Map<String, LBOutboundEndpoint> lbOutboundEndpoints;
@@ -80,6 +79,11 @@ public class LoadBalancerConfigContext {
      * Accessing Pool objects MUST be synchronized.
      */
     private final Map<String, CarbonCallback> callBackPool = new ConcurrentHashMap<>();
+
+    /**
+     * This map will be used in case of Weighted Algorithms.
+     */
+    private Map<String, Integer> weightsMap;
 
     /**
      * This will be used if persistence is chosen as CLIENT_IP_HASHING.
@@ -170,13 +174,6 @@ public class LoadBalancerConfigContext {
         this.healthycheckInterval = healthycheckInterval;
     }
 
-    public String getTestRequest() {
-        return testRequest;
-    }
-
-    public void setTestRequest(String testRequest) {
-        this.testRequest = testRequest;
-    }
 
     /**
      * This method MUST be called before accessing cookie related maps.
@@ -185,6 +182,13 @@ public class LoadBalancerConfigContext {
 
         cookieToEPKeyMap = new ConcurrentHashMap<>();
         endpointToCookieMap = new ConcurrentHashMap<>();
+    }
+
+    /**
+     * This method MUST be called before accessing weight related maps.
+     */
+    public void initWeightsMap() {
+        this.weightsMap = new ConcurrentHashMap<>();
     }
 
     public void initStrictClientIPHashing(List<LBOutboundEndpoint> lbOutboundEndpoints) {
@@ -320,13 +324,12 @@ public class LoadBalancerConfigContext {
     public void addToCallBackPool(CarbonCallback callback) {
 
 
-
         String name = callback.toString().substring(callback.toString().lastIndexOf(".") + 1,
                 callback.toString().length());
 
         this.callBackPool.putIfAbsent(name, callback);
 
-      //  log.info("Added to pool Key : " + name);
+        //  log.info("Added to pool Key : " + name);
 
     }
 
@@ -343,10 +346,10 @@ public class LoadBalancerConfigContext {
                 callback.toString().length());
 
         if (this.callBackPool.containsKey(name)) {
-             // log.info("Is in Pool : " + name);
+            // log.info("Is in Pool : " + name);
             return true;
         } else {
-              // log.info("Is not in Pool : " + name);
+            // log.info("Is not in Pool : " + name);
             return false;
         }
     }
@@ -360,11 +363,10 @@ public class LoadBalancerConfigContext {
     public void removeFromCallBackPool(CarbonCallback callback) {
 
 
-
         String name = callback.toString().substring(callback.toString().lastIndexOf(".") + 1,
                 callback.toString().length());
 
-     //   log.info("Removing from Pool  Key : " + name);
+        //   log.info("Removing from Pool  Key : " + name);
 
         this.callBackPool.remove(name);
 
