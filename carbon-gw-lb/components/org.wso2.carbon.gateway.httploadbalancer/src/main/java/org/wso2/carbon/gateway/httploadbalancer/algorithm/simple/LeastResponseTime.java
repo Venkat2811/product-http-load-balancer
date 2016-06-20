@@ -277,7 +277,7 @@ public class LeastResponseTime implements LoadBalancingAlgorithm {
             if (this.lbOutboundEPLeastRTs != null && this.lbOutboundEPLeastRTs.size() > 0) {
 
 
-                if (this.lbOutboundEPLeastRTs.size() > 1 && this.windowTracker > WINDOW) {
+                if (this.lbOutboundEPLeastRTs.size() > 1 && this.windowTracker >= WINDOW) {
 
                     computeRatio();
                     this.windowTracker = 0;
@@ -377,7 +377,7 @@ public class LeastResponseTime implements LoadBalancingAlgorithm {
 
         public String getName() {
 
-            return lbOutboundEndpoint.getName();
+            return this.lbOutboundEndpoint.getName();
         }
 
         public LBOutboundEndpoint getLbOutboundEndpoint() {
@@ -441,6 +441,18 @@ public class LeastResponseTime implements LoadBalancingAlgorithm {
         }
 
 
+        /**
+         *
+         * @param carbonMessage
+         * @param carbonCallback
+         * @param context
+         * @return
+         * @throws Exception
+         *
+         * NOTE: When this algorithm mode is chosen, all requests are sent through this method only.
+         *       So currentRequests will be incremented in both the cases.
+         *       (i.e.) Endpoint chosen by persistence, endpoint chosen by algorithm.
+         */
         boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback,
                         LoadBalancerConfigContext context) throws Exception {
 
