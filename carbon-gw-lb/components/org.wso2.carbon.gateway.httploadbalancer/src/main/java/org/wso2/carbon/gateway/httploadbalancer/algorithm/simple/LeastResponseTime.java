@@ -451,7 +451,7 @@ public class LeastResponseTime implements LoadBalancingAlgorithm {
          *
          * NOTE: When this algorithm mode is chosen, all requests are sent through this method only.
          *       So currentRequests will be incremented in both the cases.
-         *       (i.e.) Endpoint chosen by persistence, endpoint chosen by algorithm.
+         *       (i.e.) In Endpoint chosen by persistence and in endpoint chosen by algorithm.
          */
         boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback,
                         LoadBalancerConfigContext context) throws Exception {
@@ -459,6 +459,7 @@ public class LeastResponseTime implements LoadBalancingAlgorithm {
 
             synchronized (lock) {
                 this.incrementCurrentRequests();
+                incrementWindowTracker();
             }
             this.lbOutboundEndpoint.receive(carbonMessage, carbonCallback, context);
             return false;

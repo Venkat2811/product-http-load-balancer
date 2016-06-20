@@ -421,13 +421,6 @@ public class LoadBalancerMediator extends AbstractMediator {
 
                 log.info("Chosen endpoint by LB is.." + nextLBOutboundEndpoint.getName());
 
-                if (context.getAlgorithmName().equals(LoadBalancerConstants.LEAST_RESPONSE_TIME)) {
-                    /**
-                     * We are doing this because, because of persistence policy we are choosing the
-                     * same endpoint. So we have to incrementWindowTracker also.
-                     */
-                    ((LeastResponseTime) lbAlgorithm).incrementWindowTracker();
-                }
                 lbCallMediatorMap.get(nextLBOutboundEndpoint.getName()).
                         receive(carbonMessage, new LoadBalancerMediatorCallBack(carbonCallback, this,
                                 this.context, nextLBOutboundEndpoint));
@@ -457,14 +450,6 @@ public class LoadBalancerMediator extends AbstractMediator {
 
                             log.info("Previously chosen endpoint is unHealthy.. Now, Chosen endpoint is : " +
                                     nextLBOutboundEndpoint.getName());
-
-                            if (context.getAlgorithmName().equals(LoadBalancerConstants.LEAST_RESPONSE_TIME)) {
-                                /**
-                                 * We are doing this because, because of persistence policy we are chosing the
-                                 * same endpoint. So we have to incrementWindowTracker also.
-                                 */
-                                ((LeastResponseTime) lbAlgorithm).incrementWindowTracker();
-                            }
 
                             // Calling chosen LBOutboundEndpoint's LoadBalancerCallMediator receive...
                             lbCallMediatorMap.get(nextLBOutboundEndpoint.getName()).
