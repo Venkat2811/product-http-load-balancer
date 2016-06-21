@@ -84,13 +84,7 @@ public class LoadBalancerMediator extends AbstractMediator {
             lbAlgorithm = new RoundRobin(lbOutboundEndpoints);
             context.setLoadBalancingAlgorithm(lbAlgorithm);
 
-            /**
-             * This is MUST.
-             */
-            if (context.getPersistence().equals(LoadBalancerConstants.CLIENT_IP_HASHING)) {
 
-                context.initStrictClientIPHashing(lbOutboundEndpoints);
-            }
 
         } else if (context.getAlgorithmName().equals(LoadBalancerConstants.STRICT_IP_HASHING)) {
 
@@ -102,30 +96,27 @@ public class LoadBalancerMediator extends AbstractMediator {
             lbAlgorithm = new LeastResponseTime(lbOutboundEndpoints);
             context.setLoadBalancingAlgorithm(lbAlgorithm);
 
-            /**
-             * This is MUST.
-             */
-            if (context.getPersistence().equals(LoadBalancerConstants.CLIENT_IP_HASHING)) {
 
-                context.initStrictClientIPHashing(lbOutboundEndpoints);
-            }
 
         } else if (context.getAlgorithmName().equals(LoadBalancerConstants.RANDOM)) {
 
             lbAlgorithm = new Random(lbOutboundEndpoints);
             context.setLoadBalancingAlgorithm(lbAlgorithm);
 
-            /**
-             * This is MUST.
-             */
-            if (context.getPersistence().equals(LoadBalancerConstants.CLIENT_IP_HASHING)) {
 
-                context.initStrictClientIPHashing(lbOutboundEndpoints);
-            }
         } else {
             lbAlgorithm = null;
             context.setLoadBalancingAlgorithm(lbAlgorithm);
             return;
+        }
+
+        /**
+         * This is MUST.
+         */
+        if (context.getPersistence().equals(LoadBalancerConstants.CLIENT_IP_HASHING)
+                && (!context.getAlgorithmName().equals(LoadBalancerConstants.STRICT_IP_HASHING))) {
+
+            context.initStrictClientIPHashing(lbOutboundEndpoints);
         }
 
         // Creating LoadBalancerCallMediators for OutboundEndpoints...
