@@ -32,7 +32,7 @@ import java.util.List;
  * This algorithm by-itself maintains persistence. So, while choosing this algorithm,
  * persistence should be specified as NO_PERSISTENCE.
  */
-public class StrictClientIPHashing implements LoadBalancingAlgorithm {
+public class StrictClientIPHashing implements LoadBalancingAlgorithm, Simple {
 
     private static final Logger log = LoggerFactory.getLogger(StrictClientIPHashing.class);
     private final Object lock = new Object();
@@ -48,18 +48,7 @@ public class StrictClientIPHashing implements LoadBalancingAlgorithm {
      */
     public StrictClientIPHashing(List<LBOutboundEndpoint> lbOutboundEndpoints) {
 
-        this.lbOutboundEndpoints = lbOutboundEndpoints;
-        /**
-         * Two points are to be noted here.
-         *
-         * 1) You can also implement your own hashing mechanism. Eg: ModuloHash.
-         *
-         * 2) ConsistentHash needs a HashFunction.  We are using MD5 here. Another example is BasicHash.
-         *    You can also implement your own HashFunction.
-         */
-        this.hash = new ConsistentHash(new MD5(),
-                CommonUtil.getLBOutboundEndpointNamesList(this.lbOutboundEndpoints));
-
+        this.setLBOutboundEndpoints(lbOutboundEndpoints);
     }
 
     /**

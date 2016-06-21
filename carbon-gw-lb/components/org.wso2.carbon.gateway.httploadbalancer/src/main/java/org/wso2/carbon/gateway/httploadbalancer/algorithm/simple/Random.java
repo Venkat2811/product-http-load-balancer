@@ -15,7 +15,7 @@ import java.util.List;
  * <p>
  * All Endpoints are assumed to have equal weights.
  */
-public class Random implements LoadBalancingAlgorithm {
+public class Random implements LoadBalancingAlgorithm, Simple {
 
     private static final Logger log = LoggerFactory.getLogger(RoundRobin.class);
     private final Object lock = new Object();
@@ -23,7 +23,8 @@ public class Random implements LoadBalancingAlgorithm {
     private List<LBOutboundEndpoint> lbOutboundEndpoints;
 
     public Random(List<LBOutboundEndpoint> lbOutboundEndpoints) {
-        this.lbOutboundEndpoints = lbOutboundEndpoints;
+
+        this.setLBOutboundEndpoints(lbOutboundEndpoints);
     }
 
     /**

@@ -5,7 +5,7 @@ import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContex
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 import org.wso2.carbon.messaging.CarbonMessage;
 
-import java.util.List;
+
 
 /**
  * All LB algorithms must implement this interface.
@@ -18,10 +18,6 @@ public interface LoadBalancingAlgorithm {
      */
     String getName();
 
-    /**
-     * @param lbOutboundEPs list of all Outbound Endpoints to be load balanced.
-     */
-    void setLBOutboundEndpoints(List<LBOutboundEndpoint> lbOutboundEPs);
 
     /**
      * @param lbOutboundEndpoint outboundEndpoint to be added to the existing list.

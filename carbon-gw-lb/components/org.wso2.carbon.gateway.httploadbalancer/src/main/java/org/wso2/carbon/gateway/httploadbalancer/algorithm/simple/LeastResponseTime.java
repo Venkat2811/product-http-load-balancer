@@ -86,14 +86,14 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>
  * All Endpoints are assumed to have equal weights.
  */
-public class LeastResponseTime implements LoadBalancingAlgorithm {
+public class LeastResponseTime implements LoadBalancingAlgorithm, Simple {
 
     private static final Logger log = LoggerFactory.getLogger(LeastResponseTime.class);
     private final Object lock = new Object();
 
     private List<LBOutboundEPLeastRT> lbOutboundEPLeastRTs = new ArrayList<>();
 
-    private Map<String, LBOutboundEPLeastRT> map = new ConcurrentHashMap<>();
+    private Map<String, LBOutboundEPLeastRT> map;
 
     private static final int WINDOW = 10;
     private int windowTracker = 0;
@@ -107,9 +107,7 @@ public class LeastResponseTime implements LoadBalancingAlgorithm {
      */
     public LeastResponseTime(List<LBOutboundEndpoint> lbOutboundEndpoints) {
 
-        for (LBOutboundEndpoint endpoint : lbOutboundEndpoints) {
-            this.lbOutboundEPLeastRTs.add(new LBOutboundEPLeastRT(endpoint));
-        }
+        this.setLBOutboundEndpoints(lbOutboundEndpoints);
     }
 
 

@@ -16,7 +16,7 @@ import java.util.List;
  * <p>
  * All Endpoints are assumed to have equal weights.
  */
-public class RoundRobin implements LoadBalancingAlgorithm {
+public class RoundRobin implements LoadBalancingAlgorithm, Simple {
 
     private static final Logger log = LoggerFactory.getLogger(RoundRobin.class);
     private final Object lock = new Object();
@@ -34,7 +34,7 @@ public class RoundRobin implements LoadBalancingAlgorithm {
      */
     public RoundRobin(List<LBOutboundEndpoint> lbOutboundEndpoints) {
 
-        this.lbOutboundEndpoints = lbOutboundEndpoints;
+        this.setLBOutboundEndpoints(lbOutboundEndpoints);
     }
 
 
