@@ -188,29 +188,28 @@ public class LoadBalancerConfigHolder {
                 equals(LoadBalancerConstants.ROUND_ROBIN)) {
 
             context.setAlgorithmName(this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue());
-            log.info("Algorithm : " + context.getAlgorithmName());
+
 
         } else if (this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue().
                 equals(LoadBalancerConstants.STRICT_IP_HASHING)) {
 
             context.setAlgorithmName(this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue());
-            log.info("Algorithm : " + context.getAlgorithmName());
 
         } else if (this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue().
                 equals(LoadBalancerConstants.LEAST_RESPONSE_TIME)) {
 
             context.setAlgorithmName(this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue());
-            log.info("Algorithm : " + context.getAlgorithmName());
 
         } else if (this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue().
                 equals(LoadBalancerConstants.RANDOM)) {
 
             context.setAlgorithmName(this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue());
-            log.info("Algorithm : " + context.getAlgorithmName());
         } else {
             log.error("Currently this algorithm type is not supported...");
 
         }
+
+        log.info("Algorithm : " + context.getAlgorithmName());
 
     }
 
@@ -222,59 +221,40 @@ public class LoadBalancerConfigHolder {
 
         String persistenceType = this.getFromConfig(LoadBalancerConstants.PERSISTENCE_TYPE).getValue();
 
-        if (persistenceType.equals(LoadBalancerConstants.NO_PERSISTENCE)) {
+        if (!context.getAlgorithmName().equals(LoadBalancerConstants.STRICT_IP_HASHING)) {
+            if (persistenceType.equals(LoadBalancerConstants.NO_PERSISTENCE)) {
 
-            context.setPersistence(persistenceType);
-            log.info("Persistence : " + context.getPersistence());
-
-        } else if (persistenceType.equals(LoadBalancerConstants.APPLICATION_COOKIE)) {
-
-            context.setPersistence(persistenceType);
-            log.info("Persistence : " + context.getPersistence());
-            populateCookieMaps(context.getLbOutboundEndpoints());
+                context.setPersistence(persistenceType);
 
 
-        } else if (persistenceType.equals(LoadBalancerConstants.LB_COOKIE)) {
+            } else if (persistenceType.equals(LoadBalancerConstants.APPLICATION_COOKIE)) {
 
-            //TODO: Populate cookie map.
-            context.setPersistence(persistenceType);
-            log.info("Persistence : " + context.getPersistence());
-
-            /** TODO: Discuss this.
-             if (loadbalancerConfigs.getParameter(LoadBalancerConstants.PERSISTENCE_SESSION_TIME_OUT) != null) {
-
-             String sessionTimeout = this.getFromConfig
-             (LoadBalancerConstants.PERSISTENCE_SESSION_TIME_OUT).getValue();
-
-             int sessTimeout = CommonUtil.getTimeInMilliSeconds(sessionTimeout);
-
-             if (isWithInLimit(sessTimeout)) {
-
-             context.setSessionPersistenceTimeout(sessTimeout);
-             log.info("Persistence Timeout : " + context.getSessionPersistenceTimeout());
-             } else {
-             //TODO: Is this okay..?
-             context.setSessionPersistenceTimeout(LoadBalancerConstants.DEFAULT_REQ_TIMEOUT);
-             log.error("Value greater than Max limit. Loading default value...Persistence Timeout :  " +
-             context.getSessionPersistenceTimeout());
-             }
+                context.setPersistence(persistenceType);
+                populateCookieMaps(context.getLbOutboundEndpoints());
 
 
-             } else {
+            } else if (persistenceType.equals(LoadBalancerConstants.LB_COOKIE)) {
 
-             log.info("For LB_COOKIE session cookie time out has to be specified...");
-             //TODO: Is this okay..?
-             context.setSessionPersistenceTimeout(LoadBalancerConstants.DEFAULT_REQ_TIMEOUT);
-             log.error("For LB_COOKIE session cookie time out has to be specified.. Loading default value..." +
-             "Persistence Timeout :  " + context.getSessionPersistenceTimeout());
+                context.setPersistence(persistenceType);
+                populateCookieMaps(context.getLbOutboundEndpoints());
 
-             }**/
-            populateCookieMaps(context.getLbOutboundEndpoints());
-        } else if (persistenceType.equals(LoadBalancerConstants.CLIENT_IP_HASHING)) {
+            } else if (persistenceType.equals(LoadBalancerConstants.CLIENT_IP_HASHING)) {
 
-            context.setPersistence(persistenceType);
-            log.info("Persistence : " + context.getPersistence());
+                context.setPersistence(persistenceType);
+
+            }
+
+        } else {
+            if (persistenceType.equals(LoadBalancerConstants.NO_PERSISTENCE)) {
+                context.setPersistence(persistenceType);
+            } else {
+                context.setPersistence(LoadBalancerConstants.NO_PERSISTENCE);
+                log.error(LoadBalancerConstants.STRICT_IP_HASHING + " can only have " +
+                        LoadBalancerConstants.NO_PERSISTENCE + " as its persistence policy.." +
+                        " It has been changed..");
+            }
         }
+        log.info("Persistence : " + context.getPersistence());
 
     }
 
@@ -311,7 +291,7 @@ public class LoadBalancerConfigHolder {
                 equals(LoadBalancerConstants.PASSIVE_HEALTH_CHECK)) {
 
             context.setHealthCheck(this.getFromConfig(LoadBalancerConstants.HEALTH_CHECK_TYPE).getValue());
-            log.info("HEALTH CHECK TYPE : " + context.getHealthCheck());
+
 
             if (this.getFromConfig(LoadBalancerConstants.HEALTH_CHECK_REQUEST_TIMEOUT) != null) {
 
@@ -415,8 +395,6 @@ public class LoadBalancerConfigHolder {
 
             context.setHealthCheck(this.getFromConfig(LoadBalancerConstants.HEALTH_CHECK_TYPE).getValue());
 
-            log.info("HEALTH CHECK TYPE : " + context.getHealthCheck());
-
             context.setUnHealthyRetries(LoadBalancerConstants.DEFAULT_RETRIES);
             context.setHealthyRetries(LoadBalancerConstants.DEFAULT_RETRIES);
             context.setReqTimeout(LoadBalancerConstants.DEFAULT_REQ_TIMEOUT);
@@ -429,9 +407,9 @@ public class LoadBalancerConfigHolder {
 
             context.setHealthCheck(this.getFromConfig(LoadBalancerConstants.HEALTH_CHECK_TYPE).getValue());
 
-            log.info("HEALTH CHECK TYPE : " + context.getHealthCheck());
-
         }
+
+        log.info("HEALTH CHECK TYPE : " + context.getHealthCheck());
 
     }
 

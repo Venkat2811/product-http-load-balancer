@@ -30,13 +30,13 @@ public class WeightedRoundRobin implements LoadBalancingAlgorithm, Weighted {
 
     private int index = 0;
     private int weightsWindow = 0; // Sum of weights of all endpoints.
-    private int weightsWindowTracker = 0;
-
+    private int weightsWindowTracker = 0; // To keep track whether weightsWindow number has elapsed or not.
 
 
     public WeightedRoundRobin(List<LBOutboundEndpoint> lbOutboundEPs, List<Integer> weights) {
-        this.setLBOutboundEndpoints(lbOutboundEPs,weights);
+        this.setLBOutboundEndpoints(lbOutboundEPs, weights);
     }
+
     /**
      * @return the name of implemented LB algorithm.
      */
@@ -86,23 +86,58 @@ public class WeightedRoundRobin implements LoadBalancingAlgorithm, Weighted {
     @Override
     public void addLBOutboundEndpoint(LBOutboundEndpoint lbOutboundEndpoint) {
 
+        synchronized (this.lock) {
+            if (map.containsKey(lbOutboundEndpoint.getName())) {
+
+                if (this.weightedLBOutboundEndpoints.contains(map.get(lbOutboundEndpoint.getName()))) {
+                    log.error(lbOutboundEndpoint.getName() + " already exists in list..");
+                } else {
+                    map.get(lbOutboundEndpoint.getName()).resetWeight(); //This is MUST.
+                    this.weightedLBOutboundEndpoints.add(map.get(lbOutboundEndpoint.getName()));
+                }
+
+            } else {
+                log.error("Cannot add a new endpoint like this. Use setLBOutboundEndpoints method" +
+                        " or Constructor..");
+
+            }
+        }
+
     }
 
     /**
      * @param lbOutboundEndpoint outboundEndpoint to be removed from existing list.
      *                           <p>
      *                           This method will be used to remove an unHealthyEndpoint.
+     *                           <p>
+     *                           NOTE: for this algorithm, we are not removing from map.
+     *                           But, we are removing from list.
+     *                           <p>
+     *                           We are doing this because, for health check we need it.
      */
     @Override
     public void removeLBOutboundEndpoint(LBOutboundEndpoint lbOutboundEndpoint) {
 
+        synchronized (this.lock) {
+            if (map.containsKey(lbOutboundEndpoint.getName())) {
+
+                if (this.weightedLBOutboundEndpoints.contains(map.get(lbOutboundEndpoint.getName()))) {
+
+                    this.weightedLBOutboundEndpoints.remove(map.get(lbOutboundEndpoint.getName()));
+                } else {
+                    log.error(lbOutboundEndpoint.getName() + " has already been removed from list..");
+                }
+
+            } else {
+                log.error(lbOutboundEndpoint.getName() + " is not in map..");
+            }
+
+        }
     }
 
     private void resetAllCurrentWeights() {
 
-        for (WeightedLBOutboundEndpoint endpoint : this.weightedLBOutboundEndpoints) {
-            endpoint.resetWeight();
-        }
+        this.weightedLBOutboundEndpoints.forEach(WeightedLBOutboundEndpoint::resetWeight);
 
     }
 
@@ -131,7 +166,8 @@ public class WeightedRoundRobin implements LoadBalancingAlgorithm, Weighted {
                 incrementIndex();
             }
 
-            if (counter > weightedLBOutboundEndpoints.size()) { // This case will never occur. Just for safety.
+            if (counter > weightedLBOutboundEndpoints.size()) {
+                // This case is just for safety.
                 endPoint = this.weightedLBOutboundEndpoints.get(this.index);
                 break;
             }
@@ -227,8 +263,8 @@ public class WeightedRoundRobin implements LoadBalancingAlgorithm, Weighted {
 
         private LBOutboundEndpoint lbOutboundEndpoint;
 
-        private int maxWeight = 1;
-        private int currentWeight = 0;
+        private int maxWeight = 1; // Set by user in configuration. By default it is 1.
+        private int currentWeight = 0; // To keep track of requests forwarded in currentWeightsWindow.
 
 
         WeightedLBOutboundEndpoint(LBOutboundEndpoint lbOutboundEndpoint, int weight) {
