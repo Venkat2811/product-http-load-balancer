@@ -32,6 +32,11 @@ public class WeightedRoundRobin implements LoadBalancingAlgorithm, Weighted {
     private int weightsWindow = 0; // Sum of weights of all endpoints.
     private int weightsWindowTracker = 0;
 
+
+
+    public WeightedRoundRobin(List<LBOutboundEndpoint> lbOutboundEPs, List<Integer> weights) {
+        this.setLBOutboundEndpoints(lbOutboundEPs,weights);
+    }
     /**
      * @return the name of implemented LB algorithm.
      */
@@ -41,15 +46,6 @@ public class WeightedRoundRobin implements LoadBalancingAlgorithm, Weighted {
         return LoadBalancerConstants.WEIGHTED_ROUND_ROBIN;
     }
 
-    /**
-     * @param lbOutboundEPs list of all Outbound Endpoints to be load balanced.
-     *                      <p>
-     *                      NOTE: We are using method defined in Weighted interface.
-     */
-    @Override
-    public void setLBOutboundEndpoints(List<LBOutboundEndpoint> lbOutboundEPs) {
-
-    }
 
     /**
      * @param lbOutboundEPs List of LBOutboundEndpoints
