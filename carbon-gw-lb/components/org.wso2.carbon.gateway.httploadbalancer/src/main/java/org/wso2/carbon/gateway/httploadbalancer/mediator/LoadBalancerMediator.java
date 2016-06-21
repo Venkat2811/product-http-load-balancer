@@ -82,39 +82,36 @@ public class LoadBalancerMediator extends AbstractMediator {
         if (context.getAlgorithmName().equals(LoadBalancerConstants.ROUND_ROBIN)) {
 
             lbAlgorithm = new RoundRobin(lbOutboundEndpoints);
-            context.setLoadBalancingAlgorithm(lbAlgorithm);
-
-
 
         } else if (context.getAlgorithmName().equals(LoadBalancerConstants.STRICT_IP_HASHING)) {
 
             lbAlgorithm = new StrictClientIPHashing(lbOutboundEndpoints);
-            context.setLoadBalancingAlgorithm(lbAlgorithm);
 
         } else if (context.getAlgorithmName().equals(LoadBalancerConstants.LEAST_RESPONSE_TIME)) {
 
             lbAlgorithm = new LeastResponseTime(lbOutboundEndpoints);
-            context.setLoadBalancingAlgorithm(lbAlgorithm);
-
-
 
         } else if (context.getAlgorithmName().equals(LoadBalancerConstants.RANDOM)) {
 
             lbAlgorithm = new Random(lbOutboundEndpoints);
-            context.setLoadBalancingAlgorithm(lbAlgorithm);
 
+        } else if (context.getAlgorithmName().equals(LoadBalancerConstants.WEIGHTED_ROUND_ROBIN)) {
+
+            lbAlgorithm =  null; //TODO: WeightedRoundRobin();
 
         } else {
             lbAlgorithm = null;
-            context.setLoadBalancingAlgorithm(lbAlgorithm);
             return;
         }
 
+        context.setLoadBalancingAlgorithm(lbAlgorithm);
+
         /**
-         * This is MUST.
+         * NOTE: This is MUST.
+         * This will be true only if algorithm is not equal to STRICT_IP_HASHING and persistence is
+         * CLIENT_IP_HASHING.
          */
-        if (context.getPersistence().equals(LoadBalancerConstants.CLIENT_IP_HASHING)
-                && (!context.getAlgorithmName().equals(LoadBalancerConstants.STRICT_IP_HASHING))) {
+        if (context.getPersistence().equals(LoadBalancerConstants.CLIENT_IP_HASHING)) {
 
             context.initStrictClientIPHashing(lbOutboundEndpoints);
         }

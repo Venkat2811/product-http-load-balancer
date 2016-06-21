@@ -184,26 +184,25 @@ public class LoadBalancerConfigHolder {
 
     private void validateAlgorithm() {
 
-        if (this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue().
-                equals(LoadBalancerConstants.ROUND_ROBIN)) {
+        if (
+                this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue().
+                        equals(LoadBalancerConstants.ROUND_ROBIN) ||
+
+                        this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue().
+                                equals(LoadBalancerConstants.STRICT_IP_HASHING) ||
+
+                        this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue().
+                                equals(LoadBalancerConstants.LEAST_RESPONSE_TIME) ||
+
+                        this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue().
+                                equals(LoadBalancerConstants.RANDOM) ||
+
+                        this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue().
+                                equals(LoadBalancerConstants.WEIGHTED_ROUND_ROBIN)
+                ) {
 
             context.setAlgorithmName(this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue());
 
-
-        } else if (this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue().
-                equals(LoadBalancerConstants.STRICT_IP_HASHING)) {
-
-            context.setAlgorithmName(this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue());
-
-        } else if (this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue().
-                equals(LoadBalancerConstants.LEAST_RESPONSE_TIME)) {
-
-            context.setAlgorithmName(this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue());
-
-        } else if (this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue().
-                equals(LoadBalancerConstants.RANDOM)) {
-
-            context.setAlgorithmName(this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue());
         } else {
             log.error("Currently this algorithm type is not supported...");
 
