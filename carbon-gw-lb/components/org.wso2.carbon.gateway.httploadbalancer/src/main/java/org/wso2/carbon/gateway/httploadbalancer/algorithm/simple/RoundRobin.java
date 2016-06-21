@@ -77,7 +77,7 @@ public class RoundRobin implements LoadBalancingAlgorithm, Simple {
                 this.lbOutboundEndpoints.add(lbOutboundEndpoint);
 
             } else {
-                log.error(lbOutboundEndpoint.getName() + " already exists in list..");
+                log.info(lbOutboundEndpoint.getName() + " already exists in list..");
             }
         }
 
@@ -96,7 +96,7 @@ public class RoundRobin implements LoadBalancingAlgorithm, Simple {
                 this.lbOutboundEndpoints.remove(lbOutboundEndpoint);
 
             } else {
-                log.error(lbOutboundEndpoint.getName() + " is not in list..");
+                log.info(lbOutboundEndpoint.getName() + " has already been removed from list..");
             }
         }
     }

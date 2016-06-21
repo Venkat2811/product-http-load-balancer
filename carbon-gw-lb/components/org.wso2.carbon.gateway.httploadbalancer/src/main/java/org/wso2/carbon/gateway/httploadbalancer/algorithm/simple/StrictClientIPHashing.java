@@ -103,7 +103,7 @@ public class StrictClientIPHashing implements LoadBalancingAlgorithm, Simple {
                 this.lbOutboundEndpoints.add(lbOutboundEndpoint);
                 this.hash.addEndpoint(lbOutboundEndpoint.getName());
             } else {
-                log.error(lbOutboundEndpoint.getName() + " already exists in list..");
+                log.info(lbOutboundEndpoint.getName() + " already exists in list..");
             }
         }
 
@@ -122,7 +122,7 @@ public class StrictClientIPHashing implements LoadBalancingAlgorithm, Simple {
                 this.lbOutboundEndpoints.remove(lbOutboundEndpoint);
                 this.hash.removeEndpoint(lbOutboundEndpoint.getName());
             } else {
-                log.error(lbOutboundEndpoint.getName() + " is not in list..");
+                log.info(lbOutboundEndpoint.getName() + " has already been removed from list..");
             }
         }
 

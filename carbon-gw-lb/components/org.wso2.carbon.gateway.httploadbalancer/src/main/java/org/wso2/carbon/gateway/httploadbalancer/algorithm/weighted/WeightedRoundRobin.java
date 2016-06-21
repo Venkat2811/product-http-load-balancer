@@ -84,7 +84,9 @@ public class WeightedRoundRobin implements LoadBalancingAlgorithm, Weighted {
         for (WeightedLBOutboundEndpoint endpoint : this.weightedLBOutboundEndpoints) {
             this.weightsWindow += endpoint.getMaxWeight();
         }
-        log.info("Weights Window = " + this.weightsWindow);
+        if (log.isDebugEnabled()) {
+            log.debug("Weights Window = " + this.weightsWindow);
+        }
     }
 
 
@@ -101,7 +103,7 @@ public class WeightedRoundRobin implements LoadBalancingAlgorithm, Weighted {
             if (map.containsKey(lbOutboundEndpoint.getName())) {
 
                 if (this.weightedLBOutboundEndpoints.contains(map.get(lbOutboundEndpoint.getName()))) {
-                    log.error(lbOutboundEndpoint.getName() + " already exists in list..");
+                    log.info(lbOutboundEndpoint.getName() + " already exists in list..");
                 } else {
                     map.get(lbOutboundEndpoint.getName()).resetWeight(); //This is MUST.
                     this.weightedLBOutboundEndpoints.add(map.get(lbOutboundEndpoint.getName()));
@@ -136,13 +138,12 @@ public class WeightedRoundRobin implements LoadBalancingAlgorithm, Weighted {
 
                     this.weightedLBOutboundEndpoints.remove(map.get(lbOutboundEndpoint.getName()));
                 } else {
-                    log.error(lbOutboundEndpoint.getName() + " has already been removed from list..");
+                    log.info(lbOutboundEndpoint.getName() + " has already been removed from list..");
                 }
 
             } else {
                 log.error(lbOutboundEndpoint.getName() + " is not in map..");
             }
-
         }
     }
 

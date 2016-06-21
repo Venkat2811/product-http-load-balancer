@@ -151,7 +151,7 @@ public class LeastResponseTime implements LoadBalancingAlgorithm, Simple {
             if (map.containsKey(lbOutboundEndpoint.getName())) {
 
                 if (this.lbOutboundEPLeastRTs.contains(map.get(lbOutboundEndpoint.getName()))) {
-                    log.error(lbOutboundEndpoint.getName() + " already exists in list..");
+                    log.info(lbOutboundEndpoint.getName() + " already exists in list..");
                 } else {
                     map.get(lbOutboundEndpoint.getName()).resetResponseTimeProperties(); //This is MUST.
                     this.lbOutboundEPLeastRTs.add(map.get(lbOutboundEndpoint.getName()));
@@ -185,7 +185,7 @@ public class LeastResponseTime implements LoadBalancingAlgorithm, Simple {
 
                     this.lbOutboundEPLeastRTs.remove(map.get(lbOutboundEndpoint.getName()));
                 } else {
-                    log.error(lbOutboundEndpoint.getName() + " has already been removed from list..");
+                    log.info(lbOutboundEndpoint.getName() + " has already been removed from list..");
                 }
 
             } else {
