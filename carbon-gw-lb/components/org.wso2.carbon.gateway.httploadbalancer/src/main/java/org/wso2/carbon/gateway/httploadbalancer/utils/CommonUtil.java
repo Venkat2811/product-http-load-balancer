@@ -75,6 +75,25 @@ public class CommonUtil {
     }
 
     /**
+     * @param outboundEndpoints LBOutboundEndpoints list.
+     * @param map               Weights map
+     * @return list of weights in the same order as outboundEndpoints.
+     */
+    public static List<Integer> getWeightsList(List<LBOutboundEndpoint> outboundEndpoints, Map<String, Integer> map) {
+        List<Integer> weightsList = new ArrayList<>();
+
+        for (LBOutboundEndpoint endpoint : outboundEndpoints) {
+            if (map.containsKey(endpoint.getName())) {
+                weightsList.add(map.get(endpoint.getName()));
+            } else {
+                weightsList.add(1); // Default weight.
+            }
+        }
+
+        return weightsList;
+    }
+
+    /**
      * @param lbOutboundEndpoints List of LBOutboundEndpoints map.
      * @return List of LBOutboundEndpoint names.
      */

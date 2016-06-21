@@ -9,6 +9,7 @@ import org.wso2.carbon.gateway.httploadbalancer.algorithm.simple.LeastResponseTi
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.simple.Random;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.simple.RoundRobin;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.simple.StrictClientIPHashing;
+import org.wso2.carbon.gateway.httploadbalancer.algorithm.weighted.WeightedRoundRobin;
 import org.wso2.carbon.gateway.httploadbalancer.callback.LoadBalancerMediatorCallBack;
 import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
@@ -97,7 +98,8 @@ public class LoadBalancerMediator extends AbstractMediator {
 
         } else if (context.getAlgorithmName().equals(LoadBalancerConstants.WEIGHTED_ROUND_ROBIN)) {
 
-            lbAlgorithm =  null; //TODO: WeightedRoundRobin();
+            lbAlgorithm = new WeightedRoundRobin(lbOutboundEndpoints,
+                    CommonUtil.getWeightsList(lbOutboundEndpoints, context.getWeightsMap()));
 
         } else {
             lbAlgorithm = null;

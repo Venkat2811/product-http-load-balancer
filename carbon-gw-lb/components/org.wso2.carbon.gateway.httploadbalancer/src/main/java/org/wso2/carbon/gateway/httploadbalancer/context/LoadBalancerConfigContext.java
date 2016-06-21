@@ -185,10 +185,23 @@ public class LoadBalancerConfigContext {
     }
 
     /**
-     * This method MUST be called before accessing weight related maps.
+     * This method MUST be called before accessing weightsMap.
      */
     public void initWeightsMap() {
         this.weightsMap = new ConcurrentHashMap<>();
+    }
+
+    public Map<String, Integer> getWeightsMap() {
+        return weightsMap;
+    }
+
+    /**
+     *
+     * @param endpointName OutboundEndpoint's name
+     * @param weight OutboundEndpoint's weight.
+     */
+    public void addToWeightsMap(String endpointName, Integer weight) {
+        this.weightsMap.putIfAbsent(endpointName, weight);
     }
 
     public void initStrictClientIPHashing(List<LBOutboundEndpoint> lbOutboundEndpoints) {
