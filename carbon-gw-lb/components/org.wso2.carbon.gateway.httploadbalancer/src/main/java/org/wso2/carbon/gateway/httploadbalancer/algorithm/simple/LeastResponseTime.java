@@ -271,7 +271,8 @@ public class LeastResponseTime implements LoadBalancingAlgorithm, Simple {
                 incrementIndex();
             }
 
-            if (counter > lbOutboundEPLeastRTs.size()) { // This case will never occur. Just for safety.
+            if (counter > lbOutboundEPLeastRTs.size()) {
+                // This case will be useful if all endpoints have equal response time in a WINDOW.
                 endPoint = this.lbOutboundEPLeastRTs.get(this.index);
                 break;
             }
