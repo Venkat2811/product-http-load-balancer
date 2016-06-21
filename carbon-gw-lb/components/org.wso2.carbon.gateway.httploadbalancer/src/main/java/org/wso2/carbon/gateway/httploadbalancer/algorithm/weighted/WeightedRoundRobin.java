@@ -60,7 +60,7 @@ public class WeightedRoundRobin implements LoadBalancingAlgorithm, Weighted {
 
         synchronized (this.lock) {
             for (int i = 0; i < lbOutboundEPs.size(); i++) {
-                weightedLBOutboundEndpoints.
+                this.weightedLBOutboundEndpoints.
                         add(new WeightedLBOutboundEndpoint(lbOutboundEPs.get(i), weights.get(i)));
             }
 
@@ -69,11 +69,22 @@ public class WeightedRoundRobin implements LoadBalancingAlgorithm, Weighted {
 
     }
 
+    public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback,
+                           LoadBalancerConfigContext context,
+                           LBOutboundEndpoint lbOutboundEndpoint) throws Exception {
+
+
+        map.get(lbOutboundEndpoint.getName()).receive(carbonMessage, carbonCallback, context);
+        return false;
+    }
+
     private void calculateWeightsWindow() {
 
+        this.weightsWindow = 0;
         for (WeightedLBOutboundEndpoint endpoint : this.weightedLBOutboundEndpoints) {
             this.weightsWindow += endpoint.getMaxWeight();
         }
+        log.info("Weights Window = " + this.weightsWindow);
     }
 
 
@@ -194,7 +205,7 @@ public class WeightedRoundRobin implements LoadBalancingAlgorithm, Weighted {
             if (this.weightedLBOutboundEndpoints != null && this.weightedLBOutboundEndpoints.size() > 0) {
 
 
-                if (this.weightedLBOutboundEndpoints.size() > 1 && this.weightsWindowTracker > this.weightsWindow) {
+                if (this.weightedLBOutboundEndpoints.size() > 1 && this.weightsWindowTracker >= this.weightsWindow) {
 
                     resetAllCurrentWeights();
                     this.weightsWindowTracker = 0;
@@ -271,6 +282,11 @@ public class WeightedRoundRobin implements LoadBalancingAlgorithm, Weighted {
             this.lbOutboundEndpoint = lbOutboundEndpoint;
             this.maxWeight = weight;
             map.put(this.lbOutboundEndpoint.getName(), this);
+
+            if (log.isDebugEnabled()) {
+                log.debug("OutboundEndpoint : " + this.lbOutboundEndpoint.getName()
+                        + " Weight : " + this.maxWeight);
+            }
         }
 
         public String getName() {

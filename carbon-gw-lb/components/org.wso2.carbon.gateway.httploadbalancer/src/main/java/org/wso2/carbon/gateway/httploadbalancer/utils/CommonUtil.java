@@ -78,19 +78,14 @@ public class CommonUtil {
      * @param outboundEndpoints LBOutboundEndpoints list.
      * @param map               Weights map
      * @return list of weights in the same order as outboundEndpoints.
+     *
+     * NOTE: This method expects that map should contain all keys available in list.
+     *       Validations MUST be done before.
      */
     public static List<Integer> getWeightsList(List<LBOutboundEndpoint> outboundEndpoints, Map<String, Integer> map) {
-        List<Integer> weightsList = new ArrayList<>();
 
-        for (LBOutboundEndpoint endpoint : outboundEndpoints) {
-            if (map.containsKey(endpoint.getName())) {
-                weightsList.add(map.get(endpoint.getName()));
-            } else {
-                weightsList.add(1); // Default weight.
-            }
-        }
-
-        return weightsList;
+        return outboundEndpoints.stream().
+                map(endpoint -> map.get(endpoint.getName())).collect(Collectors.toList());
     }
 
     /**

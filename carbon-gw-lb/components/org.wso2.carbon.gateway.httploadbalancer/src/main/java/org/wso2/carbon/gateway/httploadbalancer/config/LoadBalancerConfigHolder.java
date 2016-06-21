@@ -45,6 +45,15 @@ public class LoadBalancerConfigHolder {
 
     }
 
+    /**
+     * This method will be used to free loadbalancerConfigs.
+     * <p>
+     * Once all configs are loaded in LBConfigContext, this is redundant and unnecessary.
+     */
+    private void releaseParamHolder() {
+        this.loadbalancerConfigs = null;
+    }
+
     public ParameterHolder getLoadbalancerConfigs() {
         return loadbalancerConfigs;
     }
@@ -90,9 +99,18 @@ public class LoadBalancerConfigHolder {
      * @param paramName parameterName
      * @return Parameter object corresponding to that name.
      */
-    public Parameter getFromConfig(String paramName) {
+    private Parameter getFromConfig(String paramName) {
 
         return loadbalancerConfigs.getParameter(paramName);
+    }
+
+    /**
+     * @param paramName parameterName.
+     * @return Whether specified parameter is present or not.
+     */
+    private boolean contains(String paramName) {
+
+        return (loadbalancerConfigs.getParameter(paramName) != null);
     }
 
 
@@ -127,6 +145,8 @@ public class LoadBalancerConfigHolder {
         validateConfig();
 
         LoadBalancerMediatorBuilder.configure(this.integrationFlow.getGWConfigHolder(), context);
+
+        releaseParamHolder();
     }
 
     /**
@@ -179,12 +199,47 @@ public class LoadBalancerConfigHolder {
     }
 
     /**
+     * @param lbOutboundEndpoints Populates weight handling maps.
+     *                            <p>
+     *                            This method also does validation.
+     *                            <p>
+     *                            If weight is not defined for and endpoint, default value of 1 will be used.
+     */
+    private void populateWeightsMap(Map<String, LBOutboundEndpoint> lbOutboundEndpoints) {
+
+        // MUST: Initializing WeightMaps.
+        context.initWeightsMap();
+
+        Set<Map.Entry<String, LBOutboundEndpoint>> entrySet = lbOutboundEndpoints.entrySet();
+
+        for (Map.Entry entry : entrySet) {
+            String key = entry.getKey().toString();
+
+            if (this.contains(key)) {
+                try {
+                    context.addToWeightsMap(key, Integer.parseInt(this.getFromConfig(key).getValue()));
+                } catch (Exception e) {
+                    log.error(e.getLocalizedMessage());
+                    log.error("Exception occurred while adding weight to OutboundEndpoint : "
+                            + key + " Default weight of 1 will be used..");
+                }
+
+            } else {
+                log.error("No weight specified for OutboundEndpoint : " + key
+                        + " Default weight of 1 will be used..");
+                context.addToWeightsMap(key, 1);
+            }
+        }
+
+
+    }
+
+    /**
      * Algorithm related validations.
      */
-
     private void validateAlgorithm() {
 
-        if (
+        if (// For Simple algorithms.
                 this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue().
                         equals(LoadBalancerConstants.ROUND_ROBIN) ||
 
@@ -195,13 +250,17 @@ public class LoadBalancerConfigHolder {
                                 equals(LoadBalancerConstants.LEAST_RESPONSE_TIME) ||
 
                         this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue().
-                                equals(LoadBalancerConstants.RANDOM) ||
-
-                        this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue().
-                                equals(LoadBalancerConstants.WEIGHTED_ROUND_ROBIN)
+                                equals(LoadBalancerConstants.RANDOM)
                 ) {
 
             context.setAlgorithmName(this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue());
+
+            // For weighted algorithms.
+        } else if (this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue().
+                equals(LoadBalancerConstants.WEIGHTED_ROUND_ROBIN)) {
+
+            context.setAlgorithmName(this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue());
+            populateWeightsMap(context.getLbOutboundEndpoints());
 
         } else {
             log.error("Currently this algorithm type is not supported...");
