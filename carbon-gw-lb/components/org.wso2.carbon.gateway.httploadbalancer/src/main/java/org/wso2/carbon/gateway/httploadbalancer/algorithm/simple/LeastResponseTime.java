@@ -380,7 +380,7 @@ public class LeastResponseTime implements LoadBalancingAlgorithm, Simple {
          */
         private int avgResponseTime = 0; // This stores running average.
         private int percentage = 100;
-        private int maxRequestsPerWindow = 0;
+        private int maxRequestsPerWindow = WINDOW;
         private int currentRequests = 0; //This stores current no of requests in window.
 
         LBOutboundEPLeastRT(LBOutboundEndpoint lbOutboundEndpoint) {
@@ -479,7 +479,7 @@ public class LeastResponseTime implements LoadBalancingAlgorithm, Simple {
 
             avgResponseTime = 0;
             percentage = 100;
-            maxRequestsPerWindow = 0;
+            maxRequestsPerWindow = WINDOW;
             currentRequests = 0;
 
         }
