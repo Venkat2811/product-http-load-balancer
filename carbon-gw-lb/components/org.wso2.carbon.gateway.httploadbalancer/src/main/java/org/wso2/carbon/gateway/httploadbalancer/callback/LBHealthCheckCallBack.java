@@ -32,7 +32,7 @@ public class LBHealthCheckCallBack implements CarbonCallback {
     @Override
     public void done(CarbonMessage carbonMessage) {
 
-        if(log.isDebugEnabled()) {
+        if (log.isDebugEnabled()) {
             log.debug("Message received at LBHCallBack done...");
         }
 
@@ -48,7 +48,7 @@ public class LBHealthCheckCallBack implements CarbonCallback {
              * Locking is not necessary because, when endpoint is unHealthy, it will be processed by single
              * thread only.
              */
-                this.lbOutboundEndpoint.incrementHealthyRetries();
+            this.lbOutboundEndpoint.incrementHealthyRetries();
 
         } else {
             log.error(" HealthCheck Response received after removing callback from pool.." +
