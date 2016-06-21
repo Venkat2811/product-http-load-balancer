@@ -32,7 +32,9 @@ public class LBHealthCheckCallBack implements CarbonCallback {
     @Override
     public void done(CarbonMessage carbonMessage) {
 
-        log.info("Message received at LBHCallBack done...");
+        if(log.isDebugEnabled()) {
+            log.debug("Message received at LBHCallBack done...");
+        }
 
         //Locking is not required as we are operating on ConcurrentHashMap.
         if (this.context.isInCallBackPool((CarbonCallback)

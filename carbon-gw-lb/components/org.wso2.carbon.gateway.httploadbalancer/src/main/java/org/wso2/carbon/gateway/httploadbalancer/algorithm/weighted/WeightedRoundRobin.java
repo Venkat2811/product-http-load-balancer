@@ -18,7 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * Implementation of weighted Round Robin Algorithm.
  * <p>
  * User has to define weights for each endpoint. By default weight is 1.
- * TODO: Implementation.
  */
 public class WeightedRoundRobin implements LoadBalancingAlgorithm, Weighted {
 
