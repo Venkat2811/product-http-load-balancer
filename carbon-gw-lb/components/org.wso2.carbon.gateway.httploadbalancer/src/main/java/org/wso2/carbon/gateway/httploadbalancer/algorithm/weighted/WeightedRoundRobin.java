@@ -6,6 +6,7 @@ import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancingAlgorithm
 import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
+import org.wso2.carbon.gateway.httploadbalancer.outbound.WeightedLBOutboundEndpoint;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -61,6 +62,7 @@ public class WeightedRoundRobin implements LoadBalancingAlgorithm, Weighted {
             for (int i = 0; i < lbOutboundEPs.size(); i++) {
                 this.weightedLBOutboundEndpoints.
                         add(new WeightedLBOutboundEndpoint(lbOutboundEPs.get(i), weights.get(i)));
+                map.put(lbOutboundEPs.get(i).getName(), this.weightedLBOutboundEndpoints.get(i));
             }
 
             calculateWeightsWindow();
@@ -73,6 +75,7 @@ public class WeightedRoundRobin implements LoadBalancingAlgorithm, Weighted {
                            LBOutboundEndpoint lbOutboundEndpoint) throws Exception {
 
 
+        incrementWeightsWindowTracker(); // To keep track of no requests elapsed for this current window
         map.get(lbOutboundEndpoint.getName()).receive(carbonMessage, carbonCallback, context);
         return false;
     }
@@ -266,81 +269,4 @@ public class WeightedRoundRobin implements LoadBalancingAlgorithm, Weighted {
         return this.lock;
     }
 
-
-    /**
-     * We need few weight related attributes for WeightedRoundRobin algorithm.
-     */
-    private class WeightedLBOutboundEndpoint {
-
-        private LBOutboundEndpoint lbOutboundEndpoint;
-
-        private int maxWeight = 1; // Set by user in configuration. By default it is 1.
-        private int currentWeight = 0; // To keep track of requests forwarded in currentWeightsWindow.
-
-
-        WeightedLBOutboundEndpoint(LBOutboundEndpoint lbOutboundEndpoint, int weight) {
-            this.lbOutboundEndpoint = lbOutboundEndpoint;
-            this.maxWeight = weight;
-            map.put(this.lbOutboundEndpoint.getName(), this);
-
-            if (log.isDebugEnabled()) {
-                log.debug("OutboundEndpoint : " + this.lbOutboundEndpoint.getName()
-                        + " Weight : " + this.maxWeight);
-            }
-        }
-
-        public String getName() {
-
-            return this.lbOutboundEndpoint.getName();
-        }
-
-        public LBOutboundEndpoint getLbOutboundEndpoint() {
-            return this.lbOutboundEndpoint;
-        }
-
-        private void incrementCurrentWeight() {
-            this.currentWeight++;
-        }
-
-        public int getMaxWeight() {
-            return maxWeight;
-        }
-
-        public int getCurrentWeight() {
-            return currentWeight;
-        }
-
-        public void setCurrentWeight(int currentWeight) {
-            this.currentWeight = currentWeight;
-        }
-
-        /**
-         * @param carbonMessage
-         * @param carbonCallback
-         * @param context
-         * @return
-         * @throws Exception NOTE: When this algorithm mode is chosen, all requests are sent through this method only.
-         *                   So currentWeight will be incremented in both the cases.
-         *                   (i.e.) In Endpoint chosen by persistence and in endpoint chosen by algorithm.
-         */
-        boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback,
-                        LoadBalancerConfigContext context) throws Exception {
-
-
-            synchronized (lock) {
-                this.incrementCurrentWeight(); //  Increments currentRequests for this WeightedLBOutboundEndpoint
-                incrementWeightsWindowTracker(); // To keep track of no requests elapsed for this current window
-            }
-            this.lbOutboundEndpoint.receive(carbonMessage, carbonCallback, context);
-            return false;
-        }
-
-        void resetWeight() {
-            this.currentWeight = 0;
-        }
-
-        public Object getLock() {
-            return this.lbOutboundEndpoint.getLock();
-        }
-    }
 }
