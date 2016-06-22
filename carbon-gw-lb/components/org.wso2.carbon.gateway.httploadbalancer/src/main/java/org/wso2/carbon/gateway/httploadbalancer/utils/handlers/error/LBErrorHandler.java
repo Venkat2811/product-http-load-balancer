@@ -45,15 +45,18 @@ public class LBErrorHandler implements FaultHandler {
         byte[] errorMessageBytes = payload.getBytes(Charset.defaultCharset());
 
         Map<String, String> transportHeaders = new HashMap<>();
-        transportHeaders.put(Constants.HTTP_CONNECTION, Constants.KEEP_ALIVE);
-        transportHeaders.put(Constants.HTTP_CONTENT_ENCODING, Constants.GZIP);
-        transportHeaders.put(Constants.HTTP_CONTENT_TYPE, Constants.TEXT_PLAIN);
-        transportHeaders.put(Constants.HTTP_CONTENT_LENGTH,
+        transportHeaders.put(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_CONNECTION,
+                org.wso2.carbon.transport.http.netty.common.Constants.KEEP_ALIVE);
+        transportHeaders.put(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_CONTENT_ENCODING,
+                org.wso2.carbon.transport.http.netty.common.Constants.GZIP);
+        transportHeaders.put(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_CONTENT_TYPE,
+                org.wso2.carbon.transport.http.netty.common.Constants.TEXT_PLAIN);
+        transportHeaders.put(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_CONTENT_LENGTH,
                 (String.valueOf(errorMessageBytes.length)));
         transportHeaders.put(Constants.ERROR_MESSAGE, payload);
         transportHeaders.put(Constants.ERROR_DETAIL, payload);
         transportHeaders.put(Constants.ERROR_CODE, errorCode);
-        transportHeaders.put(Constants.HTTP_STATUS_CODE, errorCode);
+        transportHeaders.put(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE, errorCode);
 
         response.setHeaders(transportHeaders);
 

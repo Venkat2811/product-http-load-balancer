@@ -36,18 +36,18 @@ public class CommonUtil {
      * So we are trimming of other properties that are not required to know the health status of an endpoint.
      */
     private static final Set<String> healthCheckProperties = Stream.of
-            (Constants.SRC_HNDLR,
+            (org.wso2.carbon.transport.http.netty.common.Constants.SRC_HNDLR,
                     Constants.PROTOCOL,
-                    Constants.DISRUPTOR,
-                    Constants.CHNL_HNDLR_CTX,
-                    Constants.HTTP_HOST,
-                    Constants.HTTP_METHOD,
-                    Constants.HTTP_VERSION,
-                    Constants.HTTP_CONNECTION,
-                    Constants.HTTP_CONTENT_ENCODING,
-                    Constants.HTTP_CONTENT_LENGTH,
-                    Constants.HTTP_TRANSFER_ENCODING,
-                    Constants.HTTP_CONTENT_TYPE,
+                    org.wso2.carbon.transport.http.netty.common.Constants.DISRUPTOR,
+                    org.wso2.carbon.transport.http.netty.common.Constants.CHNL_HNDLR_CTX,
+                    org.wso2.carbon.transport.http.netty.common.Constants.HTTP_HOST,
+                    org.wso2.carbon.transport.http.netty.common.Constants.HTTP_METHOD,
+                    org.wso2.carbon.transport.http.netty.common.Constants.HTTP_VERSION,
+                    org.wso2.carbon.transport.http.netty.common.Constants.HTTP_CONNECTION,
+                    org.wso2.carbon.transport.http.netty.common.Constants.HTTP_CONTENT_ENCODING,
+                    org.wso2.carbon.transport.http.netty.common.Constants.HTTP_CONTENT_LENGTH,
+                    org.wso2.carbon.transport.http.netty.common.Constants.HTTP_TRANSFER_ENCODING,
+                    org.wso2.carbon.transport.http.netty.common.Constants.HTTP_CONTENT_TYPE,
                     org.wso2.carbon.transport.http.netty.common.Constants.IS_DISRUPTOR_ENABLE
             )
             .collect(Collectors.toCollection(HashSet::new));
