@@ -70,6 +70,8 @@ public class LoadBalancerConstants {
 
     public static final String WEIGHTED_ROUND_ROBIN = "WEIGHTED_ROUND_ROBIN";
 
+    public static final String WEIGHTED_RANDOM = "WEIGHTED_RANDOM";
+
 
 
     /**
