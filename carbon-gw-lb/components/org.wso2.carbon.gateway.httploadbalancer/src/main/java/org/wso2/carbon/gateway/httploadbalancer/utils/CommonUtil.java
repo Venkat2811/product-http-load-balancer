@@ -164,6 +164,7 @@ public class CommonUtil {
 
         return url.getHost() + ":" + String.valueOf(port);
     }
+
 /**
  public static String getHostAndPortWithProtocol(String uri) {
 

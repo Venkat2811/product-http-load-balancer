@@ -35,7 +35,7 @@ public class ConsistentHash implements Hash {
 
 
     /**
-     * @param endpoints List of OutboundEndpoint names.
+     * @param endpoints List of OutboundEndpoint of form <hostname:port>.
      *                  <p>
      *                  MD5 hash function will be used.
      *                  <p>
@@ -52,7 +52,7 @@ public class ConsistentHash implements Hash {
      * @param hashFunction Any custom implementation of hashFunction.
      *                     <p>
      *                     You can also implement your own by implementing HashFunction interface.
-     * @param endpoints    List of OutboundEndpoints.
+     * @param endpoints    List of OutboundEndpoints of form <hostname:port>
      */
     public ConsistentHash(HashFunction hashFunction, List<String> endpoints) {
 
@@ -62,7 +62,7 @@ public class ConsistentHash implements Hash {
 
 
     /**
-     * @param endpoint add an endpoint.
+     * @param endpoint add an endpoint of form <hostname:port>.
      */
     @Override
     public void addEndpoint(String endpoint) {
@@ -81,7 +81,7 @@ public class ConsistentHash implements Hash {
     }
 
     /**
-     * @param endpoints List of Endpoint names to be added.
+     * @param endpoints List of Endpoints of form <hostname:port> to be added.
      */
     @Override
     public void addEndpoints(List<String> endpoints) {
@@ -90,7 +90,7 @@ public class ConsistentHash implements Hash {
 
 
     /**
-     * @param endpoint remove an endpoint.
+     * @param endpoint remove an endpoint of form <hostname:port>.
      */
     @Override
     public void removeEndpoint(String endpoint) {
@@ -109,7 +109,7 @@ public class ConsistentHash implements Hash {
     }
 
     /**
-     * @param endpoints List of Endpoint names to be removed.
+     * @param endpoints List of Endpoints of form <hostname:port> to be removed.
      */
     @Override
     public void removeAllEndpoints(List<String> endpoints) {
@@ -120,7 +120,7 @@ public class ConsistentHash implements Hash {
 
     /**
      * @param ipAddress Client IP Address.
-     * @return Chosen Endpoint based on HashFunction implementation.
+     * @return Chosen Endpoint of form <hostname:port> based on HashFunction implementation.
      */
     @Override
     public String get(String ipAddress) {

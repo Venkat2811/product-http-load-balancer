@@ -12,7 +12,10 @@ import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 import org.wso2.carbon.gateway.httploadbalancer.utils.CommonUtil;
 import org.wso2.carbon.messaging.CarbonMessage;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
@@ -38,6 +41,7 @@ public class StrictClientIPHashing implements LoadBalancingAlgorithm, Simple {
     private final Object lock = new Object();
 
     private List<LBOutboundEndpoint> lbOutboundEndpoints;
+    private Map<String, String> map = new ConcurrentHashMap<>(); //TODO: map of <hostname:port>,OutboundEndpoint's name.
     private Hash hash;
 
 
@@ -84,8 +88,14 @@ public class StrictClientIPHashing implements LoadBalancingAlgorithm, Simple {
              * 2) ConsistentHash needs a HashFunction.  We are using MD5 here. Another example is BasicHash.
              *    You can also implement your own HashFunction.
              */
+            List<String> hostAndPortList = new ArrayList<>();
+            for (LBOutboundEndpoint endpoint : this.lbOutboundEndpoints) {
+                String hostAndPort = CommonUtil.getHostAndPort(endpoint.getOutboundEndpoint().getUri());
+                map.putIfAbsent(hostAndPort, endpoint.getName());
+                hostAndPortList.add(hostAndPort);
+            }
             this.hash = new ConsistentHash(new MD5(),
-                    CommonUtil.getLBOutboundEndpointNamesList(this.lbOutboundEndpoints));
+                    hostAndPortList);
         }
     }
 
@@ -101,7 +111,9 @@ public class StrictClientIPHashing implements LoadBalancingAlgorithm, Simple {
         synchronized (this.lock) {
             if (!this.lbOutboundEndpoints.contains(lbOutboundEndpoint)) {
                 this.lbOutboundEndpoints.add(lbOutboundEndpoint);
-                this.hash.addEndpoint(lbOutboundEndpoint.getName());
+                String hostAndPort = CommonUtil.getHostAndPort(lbOutboundEndpoint.getOutboundEndpoint().getUri());
+                map.putIfAbsent(hostAndPort, lbOutboundEndpoint.getName());
+                this.hash.addEndpoint(hostAndPort);
             } else {
                 log.info(lbOutboundEndpoint.getName() + " already exists in list..");
             }
@@ -120,6 +132,8 @@ public class StrictClientIPHashing implements LoadBalancingAlgorithm, Simple {
         synchronized (this.lock) {
             if (this.lbOutboundEndpoints.contains(lbOutboundEndpoint)) {
                 this.lbOutboundEndpoints.remove(lbOutboundEndpoint);
+                String hostAndPort = CommonUtil.getHostAndPort(lbOutboundEndpoint.getOutboundEndpoint().getUri());
+                map.remove(hostAndPort);
                 this.hash.removeEndpoint(lbOutboundEndpoint.getName());
             } else {
                 log.info(lbOutboundEndpoint.getName() + " has already been removed from list..");
@@ -146,9 +160,9 @@ public class StrictClientIPHashing implements LoadBalancingAlgorithm, Simple {
                 if (CommonUtil.isValidIP(ipAddress)) {
 
                     //getting endpoint name for this ipAddress.
-                    String endpointName = context.getStrictClientIPHashing().getHash().get(ipAddress);
-                    if (endpointName != null) {
-                        endPoint = context.getLBOutboundEndpoint(endpointName);
+                    String hostAndPort = context.getStrictClientIPHashing().getHash().get(ipAddress);
+                    if (hostAndPort != null) {
+                        endPoint = context.getLBOutboundEndpoint(map.get(hostAndPort));
                     }
 
                 } else {
