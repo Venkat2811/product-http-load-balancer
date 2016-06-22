@@ -1,7 +1,6 @@
 package org.wso2.carbon.gateway.httploadbalancer.algorithm.hashing;
 
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.hashing.hashcodegenerators.HashFunction;
-import org.wso2.carbon.gateway.httploadbalancer.algorithm.hashing.hashcodegenerators.MD5;
 import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 
 import java.util.List;
@@ -26,27 +25,13 @@ import java.util.TreeMap;
  * can also be done.
  * <p>
  * Regarding the replicas mentioned in article (1),
- * "LoadBalancerConstants.NUM_OF_REPLICAS" has to be used.
+ * "LoadBalancerConstants.REPLICATION_FACTOR" has to be used.
  */
 public class ConsistentHash implements Hash {
 
     private final HashFunction hashFunction;
     private final SortedMap<String, String> circle = new TreeMap<>();
 
-
-    /**
-     * @param endpoints List of OutboundEndpoint of form <hostname:port>.
-     *                  <p>
-     *                  MD5 hash function will be used.
-     *                  <p>
-     *                  If you want different hash function implementation use the
-     *                  other constructor.
-     */
-    public ConsistentHash(List<String> endpoints) {
-
-        this.hashFunction = new MD5();
-        endpoints.forEach(this::addEndpoint);
-    }
 
     /**
      * @param hashFunction Any custom implementation of hashFunction.
@@ -67,17 +52,9 @@ public class ConsistentHash implements Hash {
     @Override
     public void addEndpoint(String endpoint) {
 
-        if (LoadBalancerConstants.NUM_OF_REPLICAS == 1) {
-
-            circle.put(hashFunction.hash(endpoint), endpoint);
-
-        } else {
-
-            for (int i = 0; i < LoadBalancerConstants.NUM_OF_REPLICAS; i++) {
-                circle.put(hashFunction.hash(endpoint + i), endpoint);
-            }
+        for (int i = 0; i < LoadBalancerConstants.REPLICATION_FACTOR; i++) {
+            circle.put(hashFunction.hash(endpoint + i), endpoint);
         }
-
     }
 
     /**
@@ -95,16 +72,11 @@ public class ConsistentHash implements Hash {
     @Override
     public void removeEndpoint(String endpoint) {
 
-        if (LoadBalancerConstants.NUM_OF_REPLICAS == 1) {
 
-            circle.remove(hashFunction.hash(endpoint));
-
-        } else {
-
-            for (int i = 0; i < LoadBalancerConstants.NUM_OF_REPLICAS; i++) {
-                circle.remove(hashFunction.hash(endpoint + i));
-            }
+        for (int i = 0; i < LoadBalancerConstants.REPLICATION_FACTOR; i++) {
+            circle.remove(hashFunction.hash(endpoint + i));
         }
+
 
     }
 

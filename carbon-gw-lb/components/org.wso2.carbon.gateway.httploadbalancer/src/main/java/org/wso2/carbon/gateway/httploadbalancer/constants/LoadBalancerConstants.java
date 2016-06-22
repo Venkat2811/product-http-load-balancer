@@ -61,7 +61,7 @@ public class LoadBalancerConstants {
     public static final String REMOTE_ADDR_HEADER = "Remote-Addr";
 
     //This value will be used in ConsistentHash algorithm.
-    public static final int NUM_OF_REPLICAS = 1;
+    public static final int REPLICATION_FACTOR = 1;
 
 
     public static final String LEAST_RESPONSE_TIME = "LEAST_RESPONSE_TIME";
