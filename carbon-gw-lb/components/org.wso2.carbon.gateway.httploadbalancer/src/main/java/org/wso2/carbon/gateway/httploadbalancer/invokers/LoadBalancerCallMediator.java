@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.core.flow.AbstractMediator;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.simple.LeastResponseTime;
+import org.wso2.carbon.gateway.httploadbalancer.algorithm.weighted.WeightedRandom;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.weighted.WeightedRoundRobin;
 import org.wso2.carbon.gateway.httploadbalancer.callback.LBHealthCheckCallBack;
 import org.wso2.carbon.gateway.httploadbalancer.callback.LoadBalancerMediatorCallBack;
@@ -83,6 +84,11 @@ public class LoadBalancerCallMediator extends AbstractMediator {
         } else if (context.getAlgorithmName().equals(LoadBalancerConstants.WEIGHTED_ROUND_ROBIN)) {
 
             ((WeightedRoundRobin) context.getLoadBalancingAlgorithm()).
+                    receive(carbonMessage, callback, this.context, this.lbOutboundEndpoint);
+
+        } else if (context.getAlgorithmName().equals(LoadBalancerConstants.WEIGHTED_RANDOM)) {
+
+            ((WeightedRandom) context.getLoadBalancingAlgorithm()).
                     receive(carbonMessage, callback, this.context, this.lbOutboundEndpoint);
         } else {
             lbOutboundEndpoint.receive(carbonMessage, callback, this.context);

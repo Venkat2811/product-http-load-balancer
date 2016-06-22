@@ -253,9 +253,13 @@ public class LoadBalancerConfigHolder {
             context.setAlgorithmName(algorithmName);
 
             // For weighted algorithms.
-        } else if (algorithmName.equals(LoadBalancerConstants.WEIGHTED_ROUND_ROBIN)) {
+        } else if (
+                algorithmName.equals(LoadBalancerConstants.WEIGHTED_ROUND_ROBIN) ||
+                        algorithmName.equals(LoadBalancerConstants.WEIGHTED_RANDOM)
 
-            context.setAlgorithmName(this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue());
+                ) {
+
+            context.setAlgorithmName(algorithmName);
             populateWeightsMap(context.getLbOutboundEndpoints());
 
         } else {
