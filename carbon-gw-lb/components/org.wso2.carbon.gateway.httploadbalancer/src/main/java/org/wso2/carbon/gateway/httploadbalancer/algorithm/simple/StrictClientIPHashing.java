@@ -64,12 +64,11 @@ public class StrictClientIPHashing implements LoadBalancingAlgorithm, Simple {
         return LoadBalancerConstants.STRICT_IP_HASHING;
     }
 
-    /**
-     * @return Hash used.
-     */
-    public Hash getHash() {
 
-        return this.hash;
+    public String getOutboundEndpointName(String ipAddress) {
+        synchronized (this.lock) {
+            return this.map.get(this.hash.get(ipAddress));
+        }
     }
 
     /**
@@ -92,7 +91,9 @@ public class StrictClientIPHashing implements LoadBalancingAlgorithm, Simple {
             for (LBOutboundEndpoint endpoint : this.lbOutboundEndpoints) {
                 String hostAndPort = CommonUtil.getHostAndPort(endpoint.getOutboundEndpoint().getUri());
                 map.putIfAbsent(hostAndPort, endpoint.getName());
-                log.info("host : " + hostAndPort + " name :" + endpoint.getName());
+                if (log.isDebugEnabled()) {
+                    log.info("host : " + hostAndPort + " name :" + endpoint.getName());
+                }
                 hostAndPortList.add(hostAndPort);
             }
             this.hash = new ConsistentHash(new MD5(),
@@ -161,8 +162,8 @@ public class StrictClientIPHashing implements LoadBalancingAlgorithm, Simple {
                 if (CommonUtil.isValidIP(ipAddress)) {
 
                     //getting endpoint name for this ipAddress.
-                    String hostAndPort = getHash().get(ipAddress);
-                    if(log.isDebugEnabled()) {
+                    String hostAndPort = this.hash.get(ipAddress);
+                    if (log.isDebugEnabled()) {
                         log.debug("Host and port : " + hostAndPort);
                     }
                     if (hostAndPort != null) {
