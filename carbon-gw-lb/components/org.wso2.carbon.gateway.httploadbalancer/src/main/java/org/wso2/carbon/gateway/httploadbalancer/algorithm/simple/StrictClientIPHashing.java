@@ -41,7 +41,7 @@ public class StrictClientIPHashing implements LoadBalancingAlgorithm, Simple {
     private final Object lock = new Object();
 
     private List<LBOutboundEndpoint> lbOutboundEndpoints;
-    private Map<String, String> map = new ConcurrentHashMap<>(); //TODO: map of <hostname:port>,OutboundEndpoint's name.
+    private Map<String, String> map = new ConcurrentHashMap<>(); //map of <hostname:port>,OutboundEndpoint's name.
     private Hash hash;
 
 
@@ -92,6 +92,7 @@ public class StrictClientIPHashing implements LoadBalancingAlgorithm, Simple {
             for (LBOutboundEndpoint endpoint : this.lbOutboundEndpoints) {
                 String hostAndPort = CommonUtil.getHostAndPort(endpoint.getOutboundEndpoint().getUri());
                 map.putIfAbsent(hostAndPort, endpoint.getName());
+                log.info("host : " + hostAndPort + " name :" + endpoint.getName());
                 hostAndPortList.add(hostAndPort);
             }
             this.hash = new ConsistentHash(new MD5(),
@@ -134,7 +135,7 @@ public class StrictClientIPHashing implements LoadBalancingAlgorithm, Simple {
                 this.lbOutboundEndpoints.remove(lbOutboundEndpoint);
                 String hostAndPort = CommonUtil.getHostAndPort(lbOutboundEndpoint.getOutboundEndpoint().getUri());
                 map.remove(hostAndPort);
-                this.hash.removeEndpoint(lbOutboundEndpoint.getName());
+                this.hash.removeEndpoint(hostAndPort);
             } else {
                 log.info(lbOutboundEndpoint.getName() + " has already been removed from list..");
             }
@@ -160,7 +161,10 @@ public class StrictClientIPHashing implements LoadBalancingAlgorithm, Simple {
                 if (CommonUtil.isValidIP(ipAddress)) {
 
                     //getting endpoint name for this ipAddress.
-                    String hostAndPort = context.getStrictClientIPHashing().getHash().get(ipAddress);
+                    String hostAndPort = getHash().get(ipAddress);
+                    if(log.isDebugEnabled()) {
+                        log.debug("Host and port : " + hostAndPort);
+                    }
                     if (hostAndPort != null) {
                         endPoint = context.getLBOutboundEndpoint(map.get(hostAndPort));
                     }

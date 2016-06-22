@@ -359,11 +359,13 @@ public class LoadBalancerMediator extends AbstractMediator {
 
                 //getting endpoint name for this ipAddress.
                 String endpointName = context.getStrictClientIPHashing().getHash().get(ipAddress);
+                log.info(endpointName);
 
                 //Chosing endpoint based on IP Hashing.
                 // If no endpoints are available, hash will return null.
                 if (endpointName != null) {
                     nextLBOutboundEndpoint = context.getLBOutboundEndpoint(endpointName);
+                    log.info("Next : " + nextLBOutboundEndpoint.getName());
                 }
 
             } else {
