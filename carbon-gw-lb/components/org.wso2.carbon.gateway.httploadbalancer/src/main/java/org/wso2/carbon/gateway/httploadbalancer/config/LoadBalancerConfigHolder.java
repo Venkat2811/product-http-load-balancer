@@ -225,7 +225,7 @@ public class LoadBalancerConfigHolder {
                 }
 
             } else {
-                log.error("No weight specified for OutboundEndpoint : " + key
+                log.warn("No weight specified for OutboundEndpoint : " + key
                         + " Default weight of 1 will be used..");
                 context.addToWeightsMap(key, 1);
             }
@@ -239,25 +239,21 @@ public class LoadBalancerConfigHolder {
      */
     private void validateAlgorithm() {
 
+        String algorithmName = this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue();
         if (// For Simple algorithms.
-                this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue().
-                        equals(LoadBalancerConstants.ROUND_ROBIN) ||
+                algorithmName.equals(LoadBalancerConstants.ROUND_ROBIN) ||
 
-                        this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue().
-                                equals(LoadBalancerConstants.STRICT_IP_HASHING) ||
+                        algorithmName.equals(LoadBalancerConstants.STRICT_IP_HASHING) ||
 
-                        this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue().
-                                equals(LoadBalancerConstants.LEAST_RESPONSE_TIME) ||
+                        algorithmName.equals(LoadBalancerConstants.LEAST_RESPONSE_TIME) ||
 
-                        this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue().
-                                equals(LoadBalancerConstants.RANDOM)
+                        algorithmName.equals(LoadBalancerConstants.RANDOM)
                 ) {
 
-            context.setAlgorithmName(this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue());
+            context.setAlgorithmName(algorithmName);
 
             // For weighted algorithms.
-        } else if (this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue().
-                equals(LoadBalancerConstants.WEIGHTED_ROUND_ROBIN)) {
+        } else if (algorithmName.equals(LoadBalancerConstants.WEIGHTED_ROUND_ROBIN)) {
 
             context.setAlgorithmName(this.getFromConfig(LoadBalancerConstants.ALGORITHM_NAME).getValue());
             populateWeightsMap(context.getLbOutboundEndpoints());
@@ -279,42 +275,53 @@ public class LoadBalancerConfigHolder {
 
         String persistenceType = this.getFromConfig(LoadBalancerConstants.PERSISTENCE_TYPE).getValue();
 
-        if (!context.getAlgorithmName().equals(LoadBalancerConstants.STRICT_IP_HASHING)) {
-            if (persistenceType.equals(LoadBalancerConstants.NO_PERSISTENCE)) {
+        // Weighted algorithms cannot have CLIENT_IP_HASHING as persistence policy.
+        if (context.getAlgorithmName().equals(LoadBalancerConstants.WEIGHTED_ROUND_ROBIN)) {
 
+            if (!persistenceType.equals(LoadBalancerConstants.CLIENT_IP_HASHING)) {
                 context.setPersistence(persistenceType);
-
-
-            } else if (persistenceType.equals(LoadBalancerConstants.APPLICATION_COOKIE)) {
-
-                context.setPersistence(persistenceType);
-                populateCookieMaps(context.getLbOutboundEndpoints());
-
-
-            } else if (persistenceType.equals(LoadBalancerConstants.LB_COOKIE)) {
-
-                context.setPersistence(persistenceType);
-                populateCookieMaps(context.getLbOutboundEndpoints());
-
-            } else if (persistenceType.equals(LoadBalancerConstants.CLIENT_IP_HASHING)) {
-
-                context.setPersistence(persistenceType);
-
+            } else {
+                context.setPersistence(LoadBalancerConstants.NO_PERSISTENCE);
+                log.error(context.getAlgorithmName() + " cannot only have " +
+                        LoadBalancerConstants.CLIENT_IP_HASHING +
+                        " as persistence policy. It has been changed to " + LoadBalancerConstants.NO_PERSISTENCE);
             }
+            // For Algorithm STRICT_IP_HASHING, persistence policy MUST be NO_PERSISTENCE.
+        } else if (context.getAlgorithmName().equals(LoadBalancerConstants.STRICT_IP_HASHING)) {
 
-        } else {
             if (persistenceType.equals(LoadBalancerConstants.NO_PERSISTENCE)) {
                 context.setPersistence(persistenceType);
             } else {
                 context.setPersistence(LoadBalancerConstants.NO_PERSISTENCE);
                 log.error(LoadBalancerConstants.STRICT_IP_HASHING + " can only have " +
-                        LoadBalancerConstants.NO_PERSISTENCE + " as its persistence policy.." +
+                        LoadBalancerConstants.NO_PERSISTENCE + " as persistence policy.." +
                         " It has been changed..");
             }
+
+        } else {
+
+
+            if (persistenceType.equals(LoadBalancerConstants.NO_PERSISTENCE)) {
+
+                context.setPersistence(persistenceType);
+
+            } else if (persistenceType.equals(LoadBalancerConstants.CLIENT_IP_HASHING)) {
+
+                context.setPersistence(persistenceType);
+                context.initStrictClientIPHashing
+                        (CommonUtil.getLBOutboundEndpointsList(context.getLbOutboundEndpoints()));
+
+            } else if (persistenceType.equals(LoadBalancerConstants.APPLICATION_COOKIE) ||
+                    persistenceType.equals(LoadBalancerConstants.LB_COOKIE)) {
+
+                context.setPersistence(persistenceType);
+                populateCookieMaps(context.getLbOutboundEndpoints());
+            }
+
         }
         log.info("Persistence : " + context.getPersistence());
-
     }
+
 
     /**
      * SSL related validations.
@@ -342,14 +349,12 @@ public class LoadBalancerConfigHolder {
 
     private void validateHealthCheck() {
 
-        /**
-         *For PASSIVE_HEALTH_CHECK.
-         */
-        if (this.getFromConfig(LoadBalancerConstants.HEALTH_CHECK_TYPE).getValue().
-                equals(LoadBalancerConstants.PASSIVE_HEALTH_CHECK)) {
+        String healthCheckType = this.getFromConfig(LoadBalancerConstants.HEALTH_CHECK_TYPE).getValue();
 
-            context.setHealthCheck(this.getFromConfig(LoadBalancerConstants.HEALTH_CHECK_TYPE).getValue());
+        //For PASSIVE_HEALTH_CHECK.
+        if (healthCheckType.equals(LoadBalancerConstants.PASSIVE_HEALTH_CHECK)) {
 
+            context.setHealthCheck(healthCheckType);
 
             if (this.getFromConfig(LoadBalancerConstants.HEALTH_CHECK_REQUEST_TIMEOUT) != null) {
 
@@ -448,8 +453,7 @@ public class LoadBalancerConfigHolder {
 
 
             //For DEFAULT_HEALTH_CHECK
-        } else if (this.getFromConfig(LoadBalancerConstants.HEALTH_CHECK_TYPE).getValue().
-                equals(LoadBalancerConstants.DEFAULT_HEALTH_CHECK)) {
+        } else if (healthCheckType.equals(LoadBalancerConstants.DEFAULT_HEALTH_CHECK)) {
 
             context.setHealthCheck(this.getFromConfig(LoadBalancerConstants.HEALTH_CHECK_TYPE).getValue());
 
@@ -460,8 +464,7 @@ public class LoadBalancerConfigHolder {
 
 
             //FOR NO_HEALTH_CHECK
-        } else if (this.getFromConfig(LoadBalancerConstants.HEALTH_CHECK_TYPE).getValue().
-                equals(LoadBalancerConstants.NO_HEALTH_CHECK)) {
+        } else if (healthCheckType.equals(LoadBalancerConstants.NO_HEALTH_CHECK)) {
 
             context.setHealthCheck(this.getFromConfig(LoadBalancerConstants.HEALTH_CHECK_TYPE).getValue());
 

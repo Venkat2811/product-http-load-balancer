@@ -108,16 +108,6 @@ public class LoadBalancerMediator extends AbstractMediator {
 
         context.setLoadBalancingAlgorithm(lbAlgorithm);
 
-        /**
-         * NOTE: This is MUST.
-         * This will be true only if algorithm is not equal to STRICT_IP_HASHING and persistence is
-         * CLIENT_IP_HASHING.
-         */
-        if (context.getPersistence().equals(LoadBalancerConstants.CLIENT_IP_HASHING)) {
-
-            context.initStrictClientIPHashing(lbOutboundEndpoints);
-        }
-
         // Creating LoadBalancerCallMediators for OutboundEndpoints...
         for (LBOutboundEndpoint lbOutboundEP : lbOutboundEndpoints) {
             lbCallMediatorMap.put(lbOutboundEP.getName(), new LoadBalancerCallMediator(lbOutboundEP, context));
