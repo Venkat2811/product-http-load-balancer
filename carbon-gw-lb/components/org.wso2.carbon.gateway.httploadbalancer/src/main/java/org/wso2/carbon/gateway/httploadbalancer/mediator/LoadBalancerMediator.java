@@ -359,7 +359,10 @@ public class LoadBalancerMediator extends AbstractMediator {
                 // If no endpoints are available, hash will return null.
                 if (endpointName != null) {
                     nextLBOutboundEndpoint = context.getLBOutboundEndpoint(endpointName);
-                    log.info("Next : " + nextLBOutboundEndpoint.getName());
+
+                    if(log.isDebugEnabled()) {
+                        log.debug("Endpoint name : " + nextLBOutboundEndpoint.getName());
+                    }
                 }
 
             } else {
