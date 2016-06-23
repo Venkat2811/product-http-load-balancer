@@ -2,14 +2,16 @@ package org.wso2.carbon.gateway.httploadbalancer.utils;
 
 
 import org.apache.commons.validator.routines.InetAddressValidator;
+
 import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.Constants;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -78,9 +80,9 @@ public class CommonUtil {
      * @param outboundEndpoints LBOutboundEndpoints list.
      * @param map               Weights map
      * @return list of weights in the same order as outboundEndpoints.
-     *
+     * <p>
      * NOTE: This method expects that map should contain all keys available in list.
-     *       Validations MUST be done before.
+     * Validations MUST be done before.
      */
     public static List<Integer> getWeightsList(List<LBOutboundEndpoint> outboundEndpoints, Map<String, Integer> map) {
 
@@ -89,18 +91,20 @@ public class CommonUtil {
     }
 
     /**
+     /
      * @param lbOutboundEndpoints List of LBOutboundEndpoints map.
      * @return List of LBOutboundEndpoint names.
-     */
+    //
     public static List<String> getLBOutboundEndpointNamesList(List<LBOutboundEndpoint> lbOutboundEndpoints) {
 
-        ArrayList<String> names = new ArrayList<String>();
+    ArrayList<String> names = new ArrayList<String>();
 
-        for (LBOutboundEndpoint lbOutboundEndpoint : lbOutboundEndpoints) {
-            names.add(lbOutboundEndpoint.getName());
-        }
-        return names;
+    for (LBOutboundEndpoint lbOutboundEndpoint : lbOutboundEndpoints) {
+    names.add(lbOutboundEndpoint.getName());
     }
+    return names;
+    }
+     **/
 
     /**
      * @param retries a string of form '<integer>times'.
@@ -147,22 +151,33 @@ public class CommonUtil {
     }
 
     /**
-     * @param uri LBOutboundEndpoint's Uri.
-     * @return <String> of form 'hostname:port'
+     * @param input LBOutboundEndpoint's Uri.
+     * @return <String> of form 'hostname:port' if uri is valid. Otherwise, null.
      */
-    public static String getHostAndPort(String uri) {
+    public static String getHostAndPort(String input) {
 
-        URL url = null;
+
+        URI uri;
         try {
-            url = new URL(uri);
-        } catch (MalformedURLException ex) {
+            uri = new URI(input);
+            String host = uri.getHost();
+
+            if (host != null && !host.trim().equals("")) {
+
+                int port = (uri.getPort() == -1) ? 80 : uri.getPort();
+
+                return host + ":" + port;
+
+            } else {
+                return null;
+            }
+
+        } catch (URISyntaxException ex) {
             ex.printStackTrace();
             return null;
         }
 
-        int port = (url.getPort() == -1) ? 80 : url.getPort();
 
-        return url.getHost() + ":" + String.valueOf(port);
     }
 
 /**
