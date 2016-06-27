@@ -107,10 +107,10 @@ public class BackToHealthyHandler implements Runnable {
                         this.lbCallMediatorMap.get(lbOutboundEndpoint.getName()).receive(
                                 healthCheckCMsg,
                                 callBack);
-                    } catch (Exception e) {
+                    } catch (Exception ex) {
 
 
-                        log.error(e.getLocalizedMessage());
+                        log.error(ex.toString());
                         break;
                     }
 

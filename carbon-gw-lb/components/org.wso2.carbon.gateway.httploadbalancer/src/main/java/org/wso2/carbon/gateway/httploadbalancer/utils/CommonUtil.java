@@ -3,6 +3,8 @@ package org.wso2.carbon.gateway.httploadbalancer.utils;
 
 import org.apache.commons.validator.routines.InetAddressValidator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
@@ -26,6 +28,8 @@ import java.util.stream.Stream;
  * A util class for LB specific operations.
  */
 public class CommonUtil {
+
+    private static final Logger log = LoggerFactory.getLogger(CommonUtil.class);
 
     /**
      * This set contains only those carbonMessage properties that will be required for making
@@ -151,15 +155,15 @@ public class CommonUtil {
     }
 
     /**
-     * @param input LBOutboundEndpoint's Uri.
+     * @param inputUri LBOutboundEndpoint's Uri.
      * @return <String> of form 'hostname:port' if uri is valid. Otherwise, null.
      */
-    public static String getHostAndPort(String input) {
+    public static String getHostAndPort(String inputUri) {
 
 
         URI uri;
         try {
-            uri = new URI(input);
+            uri = new URI(inputUri);
             String host = uri.getHost();
 
             if (host != null && !host.trim().equals("")) {
@@ -173,7 +177,7 @@ public class CommonUtil {
             }
 
         } catch (URISyntaxException ex) {
-            ex.printStackTrace();
+            log.error(ex.toString());
             return null;
         }
 

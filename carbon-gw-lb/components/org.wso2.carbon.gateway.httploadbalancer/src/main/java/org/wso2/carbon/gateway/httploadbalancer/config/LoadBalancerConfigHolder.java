@@ -218,8 +218,8 @@ public class LoadBalancerConfigHolder {
             if (this.contains(key)) {
                 try {
                     context.addToWeightsMap(key, Integer.parseInt(this.getFromConfig(key).getValue()));
-                } catch (Exception e) {
-                    log.error(e.getLocalizedMessage());
+                } catch (Exception ex) {
+                    log.error(ex.toString());
                     log.error("Exception occurred while adding weight to OutboundEndpoint : "
                             + key + " Default weight of 1 will be used..");
                 }

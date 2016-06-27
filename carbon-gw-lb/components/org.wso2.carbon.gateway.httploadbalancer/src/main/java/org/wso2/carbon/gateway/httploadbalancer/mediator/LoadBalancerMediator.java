@@ -360,7 +360,7 @@ public class LoadBalancerMediator extends AbstractMediator {
                 if (endpointName != null) {
                     nextLBOutboundEndpoint = context.getLBOutboundEndpoint(endpointName);
 
-                    if(log.isDebugEnabled()) {
+                    if (log.isDebugEnabled()) {
                         log.debug("Endpoint name : " + nextLBOutboundEndpoint.getName());
                     }
                 }
