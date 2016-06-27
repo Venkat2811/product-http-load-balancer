@@ -108,8 +108,6 @@ public class BackToHealthyHandler implements Runnable {
                                 healthCheckCMsg,
                                 callBack);
                     } catch (Exception ex) {
-
-
                         log.error(ex.toString());
                         break;
                     }
