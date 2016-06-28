@@ -5,6 +5,8 @@ This is a Google Summer of Code (GSoC 2016) Project.  It is under development.
 
  `Proposal:` http://docs.google.com/document/d/1Agl-Y_UKM5eMon8IDZa02aDGj0Yh_vZ7kFC2b1IzFI4/edit?usp=sharing
  
+ `Mid Term :` https://docs.google.com/document/d/1kEk706KkwjK3gFpjx56vNwAKzVQpa-G52MHIC_I7-0Y/edit?usp=sharing
+ 
 High Level Architecture
 -----------------------
 
