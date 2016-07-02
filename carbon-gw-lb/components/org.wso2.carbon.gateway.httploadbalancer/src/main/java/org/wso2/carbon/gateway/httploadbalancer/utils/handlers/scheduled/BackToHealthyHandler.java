@@ -127,11 +127,7 @@ public class BackToHealthyHandler implements Runnable {
                     if (context.isInCallBackPool(callBack)) {
 
                         context.removeFromCallBackPool(callBack);
-
-                        synchronized (lbOutboundEndpoint.getLock()) {
-                            lbOutboundEndpoint.setHealthyRetriesCount(0);
-                        }
-
+                        lbOutboundEndpoint.setHealthyRetriesCount(0);
                         log.warn(lbOutboundEndpoint.getName() + " is still unHealthy..");
                         break;
 
@@ -139,11 +135,7 @@ public class BackToHealthyHandler implements Runnable {
 
                         if (reachedHealthyRetriesThreshold(lbOutboundEndpoint)) {
 
-                            synchronized (lbOutboundEndpoint.getLock()) {
-
-                                lbOutboundEndpoint.resetHealthPropertiesToDefault(); //Endpoint is back to healthy.
-
-                            }
+                            lbOutboundEndpoint.resetHealthPropertiesToDefault(); //Endpoint is back to healthy.
                             log.info(lbOutboundEndpoint.getName() + " is back to healthy..");
 
                             /**
@@ -200,7 +192,7 @@ public class BackToHealthyHandler implements Runnable {
 
             } else {
 
-                log.warn("There are " + context.getUnHealthyLBEPQueue().size() + " unHealthy endpoints.");
+                log.warn("There are " + context.getUnHealthyLBEPQueue().size() + " unHealthy endpoint(s).");
             }
 
 
