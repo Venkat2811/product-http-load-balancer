@@ -333,15 +333,13 @@ public class LoadBalancerConfigHolder {
 
     private void validateSSL() {
 
-        if (this.getFromConfig(LoadBalancerConstants.SSL_TYPE).getValue().
-                equals(LoadBalancerConstants.NO_SSL)) {
+        String sslConfig = this.getFromConfig(LoadBalancerConstants.SSL_TYPE).getValue();
+        if (sslConfig.equals(LoadBalancerConstants.NO_SSL) ||
+                sslConfig.equals(LoadBalancerConstants.SSL_OFFLOAD) ||
+                sslConfig.equals(LoadBalancerConstants.END_TO_END)) {
 
-            context.setSslType(this.getFromConfig(LoadBalancerConstants.SSL_TYPE).getValue());
+            context.setSslType(sslConfig);
             log.info("SSL Support : " + context.getSslType());
-
-        } else {
-
-            log.info("Currently this type of SSL is not supported..");
 
         }
 
