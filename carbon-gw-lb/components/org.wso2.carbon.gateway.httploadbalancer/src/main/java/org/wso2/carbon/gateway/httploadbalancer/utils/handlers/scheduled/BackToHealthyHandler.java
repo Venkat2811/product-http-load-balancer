@@ -135,7 +135,10 @@ public class BackToHealthyHandler implements Runnable {
 
                         if (reachedHealthyRetriesThreshold(lbOutboundEndpoint)) {
 
-                            lbOutboundEndpoint.resetHealthPropertiesToDefault(); //Endpoint is back to healthy.
+                            synchronized (lbOutboundEndpoint.getLock()) {
+                                lbOutboundEndpoint.resetHealthPropertiesToDefault(); //Endpoint is back to healthy.
+                            }
+
                             log.info(lbOutboundEndpoint.getName() + " is back to healthy..");
 
                             /**

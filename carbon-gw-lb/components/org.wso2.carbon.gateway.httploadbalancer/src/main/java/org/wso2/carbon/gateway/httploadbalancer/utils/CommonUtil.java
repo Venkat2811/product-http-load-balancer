@@ -184,6 +184,45 @@ public class CommonUtil {
 
     }
 
+    /**
+     *
+     * @param inputUri LBOutboundEndpoint's Uri.
+     * @return hostName
+     */
+    public static String getHost(String inputUri) {
+
+        URI uri;
+        try {
+            uri = new URI(inputUri);
+
+            return uri.getHost();
+
+        } catch (URISyntaxException ex) {
+            log.error(ex.toString());
+            return null;
+        }
+    }
+
+    /**
+     *
+     * @param inputUri LBOutboundEndpoint's Uri.
+     * @return port
+     */
+    public static int getPort(String inputUri) {
+
+        URI uri;
+        try {
+            uri = new URI(inputUri);
+
+            return (uri.getPort() == -1) ? 80 : uri.getPort();
+
+        } catch (URISyntaxException ex) {
+            log.error(ex.toString());
+            return -1;
+        }
+
+    }
+
 /**
  public static String getHostAndPortWithProtocol(String uri) {
 
