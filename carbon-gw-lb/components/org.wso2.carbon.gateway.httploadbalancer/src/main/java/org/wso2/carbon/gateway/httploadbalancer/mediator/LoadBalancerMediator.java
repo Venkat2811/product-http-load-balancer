@@ -142,13 +142,13 @@ public class LoadBalancerMediator extends AbstractMediator {
 
             TimeoutHandler timeOutHandler = new TimeoutHandler(this.context, this.lbAlgorithm, this.configName);
 
-            BackToHealthyHandler backToHealthyHandler1 = new BackToHealthyHandler(this.context,
+            BackToHealthyHandler backToHealthyHandler = new BackToHealthyHandler(this.context,
                     this.lbAlgorithm, this.configName);
 
             threadPoolExecutor.scheduleAtFixedRate(
                     timeOutHandler, 0, LoadBalancerConstants.DEFAULT_TIMEOUT_TIMER_PERIOD, TimeUnit.MILLISECONDS);
             threadPoolExecutor.scheduleAtFixedRate(
-                    backToHealthyHandler1, 0, context.getHealthycheckInterval(), TimeUnit.MILLISECONDS);
+                    backToHealthyHandler, 0, context.getHealthycheckInterval(), TimeUnit.MILLISECONDS);
             //This is a good practise.
             threadPoolExecutor.shutdown();
 
