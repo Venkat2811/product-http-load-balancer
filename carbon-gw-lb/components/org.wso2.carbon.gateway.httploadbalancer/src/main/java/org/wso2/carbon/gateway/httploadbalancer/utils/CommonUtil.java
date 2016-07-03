@@ -5,6 +5,7 @@ import org.apache.commons.validator.routines.InetAddressValidator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancingAlgorithm;
 import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
@@ -355,6 +356,59 @@ public class CommonUtil {
         } else {
             return false;
         }
+
+    }
+
+    public static void removeUnHealthyEndpoint(LoadBalancerConfigContext context,
+                                               LoadBalancingAlgorithm algorithm,
+                                               LBOutboundEndpoint lbOutboundEndpoint) {
+
+        synchronized (lbOutboundEndpoint.getLock()) {
+            lbOutboundEndpoint.markAsUnHealthy();
+        }
+
+        /**
+         * When request is received at LoadBalancerMediator,
+         *  1) It checks for persistence
+         *  2) It checks for algorithm
+         *  3) It checks with unHealthyList
+         *
+         * So here we are removing unHealthy Endpoint in this order and finally
+         * adding it to unHealthyEndpoint list.
+         */
+
+        //This case will only be true in case of CLIENT_IP_HASHING
+        //as persistence policy.
+        if (context.getStrictClientIPHashing() != null) {
+
+            synchronized (context.getStrictClientIPHashing().getLock()) {
+                context.getStrictClientIPHashing().removeLBOutboundEndpoint(lbOutboundEndpoint);
+            }
+
+        }
+
+        //We are acquiring lock on Object that is available in algorithm.
+        //We are removing the UnHealthyEndpoint from Algorithm List so that it
+        //will not be chosen by algorithm.
+        //Locking here is MUST because we want the below
+        //operations to happen without any interference.
+        synchronized (algorithm.getLock()) {
+
+            algorithm.removeLBOutboundEndpoint(lbOutboundEndpoint);
+            algorithm.reset();
+
+        }
+
+        /**
+         * Adding to unHealthy List if it is not already in least.
+         * Synchronization is not necessary because, it is ConcurrentLinkedQueue.
+         **/
+
+        if (!context.getUnHealthyLBEPQueue().
+                contains(lbOutboundEndpoint)) {
+            context.getUnHealthyLBEPQueue().add(lbOutboundEndpoint);
+        }
+
 
     }
 
