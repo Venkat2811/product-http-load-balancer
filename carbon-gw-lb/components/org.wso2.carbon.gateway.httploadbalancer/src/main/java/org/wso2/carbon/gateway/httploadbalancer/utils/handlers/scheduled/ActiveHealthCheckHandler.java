@@ -70,32 +70,24 @@ public class ActiveHealthCheckHandler implements Runnable {
 
         boolean hasContent = false;
 
-        // Only operations on ConcurrentLinkedQueue are thread safe.
-        // Since we are retrieving it's size locking is better.
-        // Lock is released after getting size.
-        synchronized (context.getUnHealthyLBEPQueue()) {
 
-            if (context.getUnHealthyLBEPQueue().size() > 0) {
-                hasContent = true;
-            }
+        if (context.getLbOutboundEndpoints().size() > 0) {
+            hasContent = true;
         }
 
 
-        //Tf there is no content in list no need to process.
+        //Tf there are no LBOutboundEndpoints, no need to process.
         if (hasContent) {
 
-            /**
-             * Here we will remove and endpoint from the list and do necessary processing.
-             * If it is back to healthy, we will not add it to the list again.
-             * Otherwise we will add it back to queue at the end.
-             *
-             * Since we are iterating through a for loop, once size limit is reached loop breaks.
-             * So it will not lead to infinite circular loop.
-             */
 
-            List<LBOutboundEndpoint> list = new ArrayList<>(context.getUnHealthyLBEPQueue());
+            List<LBOutboundEndpoint> list = new ArrayList<>(context.getLbOutboundEndpoints().values());
 
             for (LBOutboundEndpoint lbOutboundEndpoint : list) {
+
+                //If it is in UnHealthyQueue, we need not establish connection and check.
+                if (context.getUnHealthyLBEPQueue().contains(lbOutboundEndpoint)) {
+                    continue;
+                }
 
                 Socket connectionSock = null;
 
