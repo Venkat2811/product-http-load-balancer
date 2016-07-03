@@ -121,7 +121,6 @@ public class BackToHealthyHandler implements Runnable {
 
                             SocketAddress socketAddr = new InetSocketAddress(inetAddr, port);
 
-
                             connectionSock.connect(socketAddr, context.getReqTimeout());
                             //Waiting till timeOut..
                             Thread.sleep(context.getReqTimeout());
@@ -187,7 +186,7 @@ public class BackToHealthyHandler implements Runnable {
                         log.error(e.toString());
                         lbOutboundEndpoint.setHealthyRetriesCount(0);
                         log.warn(lbOutboundEndpoint.getName() + " is still unHealthy..");
-
+                        break;
                     } finally {
                         if (connectionSock.isConnected()) {
                             try {
