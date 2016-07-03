@@ -210,7 +210,7 @@ public class LoadBalancerConfigContext {
 
     /**
      * @param cookieName
-     * @param outboundEPKey Maps cookie to an outbound EP.
+     * @param outboundEPKey OutboundEndpoint name. Maps cookie to an outbound EP.
      */
     public void addToCookieToOutboundEPKeyMap(String cookieName, String outboundEPKey) {
 
@@ -230,7 +230,7 @@ public class LoadBalancerConfigContext {
 
 
     /**
-     * @param endpoint
+     * @param endpoint of form <host:port>
      * @param cookieName Maps OutboundEP to a cookieName.
      */
     public void addToOutboundEPTOCookieMap(String endpoint, String cookieName) {
