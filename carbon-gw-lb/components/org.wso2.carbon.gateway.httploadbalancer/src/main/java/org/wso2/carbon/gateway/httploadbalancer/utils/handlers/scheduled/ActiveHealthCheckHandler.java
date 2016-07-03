@@ -25,7 +25,7 @@ import java.util.List;
  */
 public class ActiveHealthCheckHandler implements Runnable {
 
-    private static final Logger log = LoggerFactory.getLogger(BackToHealthyHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(ActiveHealthCheckHandler.class);
 
     private final LoadBalancerConfigContext context;
     private final String handlerName;
