@@ -175,7 +175,7 @@ public class CommonUtil {
         try {
             uri = new URI(inputUri);
 
-            return (uri.getPort() == -1) ? 80 : uri.getPort();
+            return uri.getPort();
 
         } catch (URISyntaxException ex) {
             log.error(ex.toString());

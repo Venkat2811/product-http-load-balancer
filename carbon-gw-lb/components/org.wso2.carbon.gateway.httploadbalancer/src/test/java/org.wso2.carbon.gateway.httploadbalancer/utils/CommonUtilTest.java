@@ -32,6 +32,30 @@ public class CommonUtilTest {
     }
 
     @Test
+    public void testGetHost() {
+
+        Assert.assertEquals("localhost", CommonUtil.getHost("http://localhost:8080/stockquote/all"));
+        Assert.assertEquals(null, CommonUtil.getHost("http:/www.google.com"));
+        Assert.assertEquals("www.google.com", CommonUtil.getHost("http://www.google.com"));
+        //This case will cause java.net.URISyntaxException
+        Assert.assertEquals(null, CommonUtil.getHost("http://localhost:8080/stockquote\\all"));
+        Assert.assertEquals(null, CommonUtil.getHost("htp:://localhost:8080/stockquote/all"));
+
+    }
+
+    @Test
+    public void testGetPort() {
+
+        Assert.assertEquals(8080, CommonUtil.getPort("http://localhost:8080/stockquote/all"));
+        Assert.assertEquals(-1, CommonUtil.getPort("http:/www.google.com"));
+        Assert.assertEquals(-1, CommonUtil.getPort("http://www.google.com"));
+        //This case will cause java.net.URISyntaxException
+        Assert.assertEquals(-1, CommonUtil.getPort("http://localhost:8080/stockquote\\all"));
+        Assert.assertEquals(-1, CommonUtil.getPort("htp:://localhost:8080/stockquote/all"));
+
+    }
+
+    @Test
     public void testGetClientIP() {
 
         CarbonMessage carbonMessage = new DefaultCarbonMessage();
