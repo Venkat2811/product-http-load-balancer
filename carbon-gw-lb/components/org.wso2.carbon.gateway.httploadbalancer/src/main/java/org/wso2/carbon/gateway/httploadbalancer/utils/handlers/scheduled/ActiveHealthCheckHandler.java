@@ -103,13 +103,15 @@ public class ActiveHealthCheckHandler implements Runnable {
                     connectionSock = new Socket();
                     try {
 
-                        InetAddress inetAddr = InetAddress.getByName(CommonUtil.
-                                getHost(lbOutboundEndpoint.getOutboundEndpoint().getUri()));
-                        int port = CommonUtil.getPort(lbOutboundEndpoint.getOutboundEndpoint().getUri());
+                        String hostAndPort = CommonUtil.getHostAndPort(
+                                lbOutboundEndpoint.getOutboundEndpoint().getUri());
 
-                        if (port != -1) {
+                        if (hostAndPort != null) {
 
-                            SocketAddress socketAddr = new InetSocketAddress(inetAddr, port);
+                            InetAddress inetAddr = InetAddress.getByName(hostAndPort.split(":")[0].trim());
+
+                            SocketAddress socketAddr = new InetSocketAddress(inetAddr,
+                                    Integer.parseInt(hostAndPort.split(":")[1].trim()));
 
                             connectionSock.connect(socketAddr, context.getReqTimeout());
                             //Waiting till timeOut..
@@ -127,10 +129,11 @@ public class ActiveHealthCheckHandler implements Runnable {
                             }
 
                         } else {
-                            throw new LBException("Port value retrieved is -1");
+                            throw new NullPointerException("<host:port> value retrieved from "
+                                    + lbOutboundEndpoint.getName() + " is null..");
 
                         }
-                    } catch (IOException | InterruptedException | LBException e) {
+                    } catch (IOException | InterruptedException | NullPointerException | LBException e) {
 
                         log.error(e.toString());
 

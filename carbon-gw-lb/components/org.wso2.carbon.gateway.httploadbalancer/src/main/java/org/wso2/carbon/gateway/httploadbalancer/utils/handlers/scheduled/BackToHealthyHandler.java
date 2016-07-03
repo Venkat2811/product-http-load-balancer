@@ -104,14 +104,16 @@ public class BackToHealthyHandler implements Runnable {
                     }
                     connectionSock = new Socket();
                     try {
+                        String hostAndPort = CommonUtil.getHostAndPort(
+                                lbOutboundEndpoint.getOutboundEndpoint().getUri());
 
-                        InetAddress inetAddr = InetAddress.getByName(CommonUtil.
-                                getHost(lbOutboundEndpoint.getOutboundEndpoint().getUri()));
-                        int port = CommonUtil.getPort(lbOutboundEndpoint.getOutboundEndpoint().getUri());
 
-                        if (port != -1) {
+                        if (hostAndPort != null) {
 
-                            SocketAddress socketAddr = new InetSocketAddress(inetAddr, port);
+                            InetAddress inetAddr = InetAddress.getByName(hostAndPort.split(":")[0].trim());
+
+                            SocketAddress socketAddr = new InetSocketAddress(inetAddr,
+                                    Integer.parseInt(hostAndPort.split(":")[1].trim()));
 
                             connectionSock.connect(socketAddr, context.getReqTimeout());
                             //Waiting till timeOut..
@@ -177,9 +179,10 @@ public class BackToHealthyHandler implements Runnable {
                             }
 
                         } else {
-                            throw new LBException("Port value retrieved is -1");
+                            throw new NullPointerException("<host:port> value retrieved from "
+                                    + lbOutboundEndpoint.getName() + " is null..");
                         }
-                    } catch (InterruptedException | IOException | LBException e) {
+                    } catch (InterruptedException | IOException | NullPointerException | LBException e) {
                         log.error(e.toString());
                         lbOutboundEndpoint.setHealthyRetriesCount(0);
                         log.warn(lbOutboundEndpoint.getName() + " is still unHealthy..");
