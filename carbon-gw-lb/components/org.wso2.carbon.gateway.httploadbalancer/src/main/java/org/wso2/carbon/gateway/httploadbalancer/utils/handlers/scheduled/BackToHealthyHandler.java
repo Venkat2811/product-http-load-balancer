@@ -6,6 +6,7 @@ import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancingAlgorithm
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 import org.wso2.carbon.gateway.httploadbalancer.utils.CommonUtil;
+import org.wso2.carbon.gateway.httploadbalancer.utils.exception.LBException;
 
 
 import java.io.IOException;
@@ -14,7 +15,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +37,7 @@ public class BackToHealthyHandler implements Runnable {
     private volatile boolean isRunning = false;
 
     public BackToHealthyHandler(LoadBalancerConfigContext context, LoadBalancingAlgorithm algorithm,
-                                 String configName) {
+                                String configName) {
 
         this.context = context;
         this.algorithm = algorithm;
@@ -100,9 +100,17 @@ public class BackToHealthyHandler implements Runnable {
 
             for (LBOutboundEndpoint lbOutboundEndpoint : list) {
 
+                Socket connectionSock = null;
                 while (true) {
 
-                    Socket connectionSock = new Socket();
+                    if (connectionSock != null && connectionSock.isConnected()) {
+                        try {
+                            connectionSock.close();
+                        } catch (IOException e) {
+                            log.error(e.toString());
+                        }
+                    }
+                    connectionSock = new Socket();
                     try {
 
                         InetAddress inetAddr = InetAddress.getByName(CommonUtil.
@@ -132,7 +140,7 @@ public class BackToHealthyHandler implements Runnable {
                                      *  2) It checks for algorithm
                                      *  3) It checks with unHealthyList
                                      *
-                                     * So here we are removing unHealthy Endpoint in this order and finally
+                                     * So here we are adding Endpoint in this order and finally
                                      * adding it to unHealthyEndpoint list.
                                      */
 
@@ -144,8 +152,8 @@ public class BackToHealthyHandler implements Runnable {
                                     }
 
                                     //We are acquiring lock on Object that is available in algorithm.
-                                    //We are removing the UnHealthyEndpoint from Algorithm List so that it
-                                    //will not be chosen by algorithm.
+                                    //We are adding the HealthyEndpoint back in Algorithm List so that it
+                                    //will be chosen by algorithm in future.
                                     //Locking here is MUST because we want the below
                                     //operations to happen without any interference.
                                     synchronized (algorithm.getLock()) {
@@ -168,26 +176,23 @@ public class BackToHealthyHandler implements Runnable {
                                 break;
 
                             } else {
-                                proceessBeforeBreak("Connection timedOut for UnHealthy Endpoint : "
-                                        + lbOutboundEndpoint.getName(), lbOutboundEndpoint);
+                                throw new LBException("Connection timedOut for Endpoint : "
+                                        + lbOutboundEndpoint.getName());
                             }
 
                         } else {
-                            proceessBeforeBreak("Port value retrieved is -1", lbOutboundEndpoint);
+                            throw new LBException("Port value retrieved is -1");
                         }
-                    } catch (InterruptedException e) {
-                        proceessBeforeBreak(e.toString(), lbOutboundEndpoint);
-                        break;
-                    } catch (UnknownHostException e) {
-                        proceessBeforeBreak(e.toString(), lbOutboundEndpoint);
-                        break;
-                    } catch (IOException e) {
-                        proceessBeforeBreak(e.toString(), lbOutboundEndpoint);
-                        break;
+                    } catch (InterruptedException | IOException | LBException e) {
+                        log.error(e.toString());
+                        lbOutboundEndpoint.setHealthyRetriesCount(0);
+                        log.warn(lbOutboundEndpoint.getName() + " is still unHealthy..");
+
                     } finally {
                         if (connectionSock.isConnected()) {
                             try {
                                 connectionSock.close();
+
                             } catch (IOException e) {
                                 log.error(e.toString());
 
@@ -207,12 +212,6 @@ public class BackToHealthyHandler implements Runnable {
 
         }
 
-    }
-
-    private void proceessBeforeBreak(String error, LBOutboundEndpoint lbOutboundEndpoint) {
-        log.error(error);
-        lbOutboundEndpoint.setHealthyRetriesCount(0);
-        log.warn(lbOutboundEndpoint.getName() + " is still unHealthy..");
     }
 
     private boolean reachedHealthyRetriesThreshold(LBOutboundEndpoint lbOutboundEndpoint) {

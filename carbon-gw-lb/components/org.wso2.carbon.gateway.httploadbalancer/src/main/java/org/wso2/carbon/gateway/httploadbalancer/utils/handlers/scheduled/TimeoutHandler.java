@@ -8,6 +8,7 @@ import org.wso2.carbon.gateway.httploadbalancer.callback.LoadBalancerMediatorCal
 import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
+import org.wso2.carbon.gateway.httploadbalancer.utils.CommonUtil;
 import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.error.LBErrorHandler;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 
@@ -169,50 +170,8 @@ public class TimeoutHandler implements Runnable {
 
                                     if (this.reachedUnHealthyRetriesThreshold(callBack.getLbOutboundEndpoint())) {
 
-                                        callBack.getLbOutboundEndpoint().markAsUnHealthy();
-
-                                        /**
-                                         * When request is received at LoadBalancerMediator,
-                                         *  1) It checks for persistence
-                                         *  2) It checks for algorithm
-                                         *  3) It checks with unHealthyList
-                                         *
-                                         * So here we are removing unHealthy Endpoint in this order and finally
-                                         * adding it to unHealthyEndpoint list.
-                                         */
-
-                                        //This case will only be true in case of CLIENT_IP_HASHING
-                                        //as persistence policy.
-                                        if (context.getStrictClientIPHashing() != null) {
-
-                                            context.getStrictClientIPHashing().
-                                                    removeLBOutboundEndpoint(callBack.getLbOutboundEndpoint());
-
-                                        }
-
-                                        //We are acquiring lock on Object that is available in algorithm.
-                                        //We are removing the UnHealthyEndpoint from Algorithm List so that it
-                                        //will not be chosen by algorithm.
-                                        //Locking here is MUST because we want the below
-                                        //operations to happen without any interference.
-                                        synchronized (algorithm.getLock()) {
-
-                                            algorithm.removeLBOutboundEndpoint(callBack.getLbOutboundEndpoint());
-                                            algorithm.reset();
-
-                                        }
-
-                                        /**
-                                         * Adding to unHealthy List if it is not already in least.
-                                         * Synchronization is not necessary because, it is ConcurrentLinkedQueue.
-                                         **/
-
-                                        if (!context.getUnHealthyLBEPQueue().
-                                                contains(callBack.getLbOutboundEndpoint())) {
-                                            context.getUnHealthyLBEPQueue().add(callBack.getLbOutboundEndpoint());
-                                        }
-
-
+                                        CommonUtil.removeUnHealthyEndpoint(context, algorithm,
+                                                callBack.getLbOutboundEndpoint());
                                     }
                                 }
 
