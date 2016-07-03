@@ -353,8 +353,9 @@ public class LoadBalancerConfigHolder {
 
         String healthCheckType = this.getFromConfig(LoadBalancerConstants.HEALTH_CHECK_TYPE).getValue();
 
-        //For PASSIVE_HEALTH_CHECK.
-        if (healthCheckType.equals(LoadBalancerConstants.PASSIVE_HEALTH_CHECK)) {
+        //For ACTIVE or PASSIVE.
+        if (healthCheckType.equals(LoadBalancerConstants.PASSIVE_HEALTH_CHECK) ||
+                healthCheckType.equals(LoadBalancerConstants.ACTIVE_HEALTH_CHECK)) {
 
             context.setHealthCheck(healthCheckType);
 

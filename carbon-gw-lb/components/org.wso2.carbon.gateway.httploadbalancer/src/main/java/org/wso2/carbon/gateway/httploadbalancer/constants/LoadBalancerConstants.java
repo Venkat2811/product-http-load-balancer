@@ -132,6 +132,7 @@ public class LoadBalancerConstants {
     /**
      * Health Checking related Constants.
      */
+    public static final String ACTIVE_HEALTH_CHECK = "ACTIVE";
     public static final String PASSIVE_HEALTH_CHECK = "PASSIVE";
     public static final String NO_HEALTH_CHECK = "NO_HEALTH_CHECK";
     public static final String DEFAULT_HEALTH_CHECK = "DEFAULT_HEALTH_CHECK";
