@@ -328,7 +328,9 @@ public class LoadBalancerMediator extends AbstractMediator {
 
 
                     //Choosing endpoint based on persistence.
-                    nextLBOutboundEndpoint = context.getLBOutboundEndpoint(outboundEPKey);
+                    if (outboundEPKey != null) {
+                        nextLBOutboundEndpoint = context.getLBOutboundEndpoint(outboundEPKey);
+                    }
 
 
                 } else {
