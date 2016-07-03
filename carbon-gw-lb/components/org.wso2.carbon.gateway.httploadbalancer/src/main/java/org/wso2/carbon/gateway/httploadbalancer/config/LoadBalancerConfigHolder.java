@@ -458,6 +458,7 @@ public class LoadBalancerConfigHolder {
             //For DEFAULT_HEALTH_CHECK
         } else if (healthCheckType.equals(LoadBalancerConstants.DEFAULT_HEALTH_CHECK)) {
 
+            //Default health check is PASSIVE
             context.setHealthCheck(this.getFromConfig(LoadBalancerConstants.HEALTH_CHECK_TYPE).getValue());
 
             context.setUnHealthyRetries(LoadBalancerConstants.DEFAULT_RETRIES);

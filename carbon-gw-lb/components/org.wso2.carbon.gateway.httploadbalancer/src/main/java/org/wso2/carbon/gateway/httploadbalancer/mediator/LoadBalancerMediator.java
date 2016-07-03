@@ -18,6 +18,7 @@ import org.wso2.carbon.gateway.httploadbalancer.invokers.LoadBalancerCallMediato
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 import org.wso2.carbon.gateway.httploadbalancer.utils.CommonUtil;
 import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.error.LBErrorHandler;
+import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.scheduled.ActiveHealthCheckHandler;
 import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.scheduled.BackToHealthyHandler;
 import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.scheduled.TimeoutHandler;
 import org.wso2.carbon.messaging.CarbonCallback;
@@ -119,39 +120,65 @@ public class LoadBalancerMediator extends AbstractMediator {
         }
         //At this point everything is initialized.
 
-        //In case of NO_HEALTH_CHECK only timeOutHandler has to be started.
+        ScheduledThreadPoolExecutor threadPoolExecutor;
+
+        //In case of NO_HEALTH_CHECK only TimeoutHandler has to be started.
         if (this.context.getHealthCheck().equals(LoadBalancerConstants.NO_HEALTH_CHECK)) {
 
-            ScheduledThreadPoolExecutor threadPoolExecutor = new ScheduledThreadPoolExecutor(1);
-            //We will be shutting down executor, but this ensures scheduled tasks will be running even after shutdown.
-            threadPoolExecutor.setContinueExistingPeriodicTasksAfterShutdownPolicy(true);
+            threadPoolExecutor = new ScheduledThreadPoolExecutor(1);
 
             TimeoutHandler timeOutHandler = new TimeoutHandler(this.context, this.lbAlgorithm, this.configName);
 
+            //We will be shutting down executor, but this ensures scheduled tasks will be running even after shutdown.
+            threadPoolExecutor.setContinueExistingPeriodicTasksAfterShutdownPolicy(true);
             threadPoolExecutor.scheduleAtFixedRate(
                     timeOutHandler, 0, LoadBalancerConstants.DEFAULT_TIMEOUT_TIMER_PERIOD, TimeUnit.MILLISECONDS);
             //This is a good practise.
             threadPoolExecutor.shutdown();
 
-        } else {
-            //In this case, both timeOut and healthyHandler are to be started.
+            //In case of ACTIVE_HEALTH_CHECK TimeoutHandler, ActiveHealthCheckHandler and
+            // BackToHealthyHandler are to be started.
+        } else if (this.context.getHealthCheck().equals(LoadBalancerConstants.ACTIVE_HEALTH_CHECK)) {
 
-            ScheduledThreadPoolExecutor threadPoolExecutor = new ScheduledThreadPoolExecutor(2);
+            threadPoolExecutor = new ScheduledThreadPoolExecutor(3);
+
+            TimeoutHandler timeOutHandler = new TimeoutHandler(this.context, this.lbAlgorithm, this.configName);
+
+            ActiveHealthCheckHandler activeHealthCheckHandler = new ActiveHealthCheckHandler(this.context,
+                    this.lbAlgorithm, this.configName);
+
+            BackToHealthyHandler backToHealthyHandler = new BackToHealthyHandler(this.context,
+                    this.lbAlgorithm, this.configName);
+
             //We will be shutting down executor, but this ensures scheduled tasks will be running even after shutdown.
             threadPoolExecutor.setContinueExistingPeriodicTasksAfterShutdownPolicy(true);
+            threadPoolExecutor.scheduleAtFixedRate(
+                    timeOutHandler, 0, LoadBalancerConstants.DEFAULT_TIMEOUT_TIMER_PERIOD, TimeUnit.MILLISECONDS);
+            threadPoolExecutor.scheduleAtFixedRate(
+                    activeHealthCheckHandler, 0, context.getHealthycheckInterval(), TimeUnit.MILLISECONDS);
+            threadPoolExecutor.scheduleAtFixedRate(
+                    backToHealthyHandler, 0, context.getHealthycheckInterval(), TimeUnit.MILLISECONDS);
+            //This is a good practise.
+            threadPoolExecutor.shutdown();
+
+        } else {
+            // DEFAULT or PASSIVE
+            //In this case, both TimeoutHandler and BackToHealthyHandler are to be started.
+            threadPoolExecutor = new ScheduledThreadPoolExecutor(2);
 
             TimeoutHandler timeOutHandler = new TimeoutHandler(this.context, this.lbAlgorithm, this.configName);
 
             BackToHealthyHandler backToHealthyHandler = new BackToHealthyHandler(this.context,
                     this.lbAlgorithm, this.configName);
 
+            //We will be shutting down executor, but this ensures scheduled tasks will be running even after shutdown.
+            threadPoolExecutor.setContinueExistingPeriodicTasksAfterShutdownPolicy(true);
             threadPoolExecutor.scheduleAtFixedRate(
                     timeOutHandler, 0, LoadBalancerConstants.DEFAULT_TIMEOUT_TIMER_PERIOD, TimeUnit.MILLISECONDS);
             threadPoolExecutor.scheduleAtFixedRate(
                     backToHealthyHandler, 0, context.getHealthycheckInterval(), TimeUnit.MILLISECONDS);
             //This is a good practise.
             threadPoolExecutor.shutdown();
-
 
         }
 
