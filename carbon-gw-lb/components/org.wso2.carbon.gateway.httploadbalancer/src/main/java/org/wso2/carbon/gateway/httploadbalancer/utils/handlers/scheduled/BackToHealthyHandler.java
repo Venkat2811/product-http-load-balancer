@@ -87,14 +87,6 @@ public class BackToHealthyHandler implements Runnable {
         //Tf there is no content in list no need to process.
         if (hasContent) {
 
-            /**
-             * Here we will remove and endpoint from the list and do necessary processing.
-             * If it is back to healthy, we will not add it to the list again.
-             * Otherwise we will add it back to queue at the end.
-             *
-             * Since we are iterating through a for loop, once size limit is reached loop breaks.
-             * So it will not lead to infinite circular loop.
-             */
 
             List<LBOutboundEndpoint> list = new ArrayList<>(context.getUnHealthyLBEPQueue());
 
@@ -165,7 +157,12 @@ public class BackToHealthyHandler implements Runnable {
                                     /**
                                      * IMPORTANT: Removing endpoint from unHealthy Queue.
                                      */
-                                    context.getUnHealthyLBEPQueue().remove(lbOutboundEndpoint);
+                                    if (context.getUnHealthyLBEPQueue().contains(lbOutboundEndpoint)) {
+                                        context.getUnHealthyLBEPQueue().remove(lbOutboundEndpoint);
+                                    } else {
+                                        log.warn(lbOutboundEndpoint.getName() +
+                                                " already removed from unHealthy Queue..");
+                                    }
 
                                 } else {
                                     log.info("No of retries not yet reached...");
