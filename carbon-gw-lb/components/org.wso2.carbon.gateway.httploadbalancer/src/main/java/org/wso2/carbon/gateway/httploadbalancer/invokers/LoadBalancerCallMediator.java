@@ -6,7 +6,6 @@ import org.wso2.carbon.gateway.core.flow.AbstractMediator;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.simple.LeastResponseTime;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.weighted.WeightedRandom;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.weighted.WeightedRoundRobin;
-import org.wso2.carbon.gateway.httploadbalancer.callback.LBHealthCheckCallBack;
 import org.wso2.carbon.gateway.httploadbalancer.callback.LoadBalancerMediatorCallBack;
 import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
@@ -60,20 +59,11 @@ public class LoadBalancerCallMediator extends AbstractMediator {
          log.info(carbonMessage.getProperties().toString());
          **/
 
-        CarbonCallback callback;
-
-        if (carbonCallback instanceof LBHealthCheckCallBack) {
-
-            callback = carbonCallback;
-
-
-        } else {
-
             //Using separate LBMediatorCallBack because, we are handling headers in CallBack for session persistence.
-            callback = new LoadBalancerMediatorCallBack(carbonCallback, this,
+        CarbonCallback  callback = new LoadBalancerMediatorCallBack(carbonCallback, this,
                     this.context, this.lbOutboundEndpoint);
 
-        }
+
 
         // We are doing this because, in the following algorithms we are using WINDOW.
         if (context.getAlgorithmName().equals(LoadBalancerConstants.LEAST_RESPONSE_TIME)) {

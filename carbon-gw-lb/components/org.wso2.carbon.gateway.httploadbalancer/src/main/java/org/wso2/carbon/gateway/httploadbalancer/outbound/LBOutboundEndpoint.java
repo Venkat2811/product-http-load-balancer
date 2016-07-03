@@ -20,15 +20,6 @@ public class LBOutboundEndpoint {
     private final Object lock = new Object();
 
 
-
-    /**
-     * This ref to healthCheckCMsg will only be used for health Checking.
-     * <p>
-     * We will be trimming off all request related params from this carbonMessage.
-     * So don't worry.
-     */
-    private CarbonMessage healthCheckCMsg;
-
     // HTTP or HTTPS Endpoint.
     private OutboundEndpoint outboundEndpoint;
 
@@ -52,17 +43,6 @@ public class LBOutboundEndpoint {
 
     public Object getLock() {
         return this.lock;
-    }
-
-
-    public void setHealthCheckCMsg(CarbonMessage healthCheckCMsg) {
-        this.healthCheckCMsg = healthCheckCMsg;
-    }
-
-    public CarbonMessage getHealthCheckCMsg() {
-        synchronized (lock) {
-            return this.healthCheckCMsg;
-        }
     }
 
     public OutboundEndpoint getOutboundEndpoint() {
@@ -117,11 +97,6 @@ public class LBOutboundEndpoint {
 
         this.outboundEndpoint.receive(carbonMessage, carbonCallback);
 
-      /**  synchronized (lock) {
-
-            this.setHealthCheckCMsg(carbonMessage);
-
-        } **/
         //No need to synchronize as we are operating on concurrent HashMap.
         context.addToCallBackPool(carbonCallback);
 

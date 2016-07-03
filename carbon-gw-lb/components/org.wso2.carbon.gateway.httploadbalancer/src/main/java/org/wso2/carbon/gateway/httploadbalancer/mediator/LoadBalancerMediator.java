@@ -18,7 +18,7 @@ import org.wso2.carbon.gateway.httploadbalancer.invokers.LoadBalancerCallMediato
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 import org.wso2.carbon.gateway.httploadbalancer.utils.CommonUtil;
 import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.error.LBErrorHandler;
-import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.scheduled.BackToHealthyHandler1;
+import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.scheduled.BackToHealthyHandler;
 import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.scheduled.TimeoutHandler;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -142,8 +142,8 @@ public class LoadBalancerMediator extends AbstractMediator {
 
             TimeoutHandler timeOutHandler = new TimeoutHandler(this.context, this.lbAlgorithm, this.configName);
 
-            BackToHealthyHandler1 backToHealthyHandler1 = new BackToHealthyHandler1(this.context,
-                    this.lbAlgorithm, this.lbCallMediatorMap, this.configName);
+            BackToHealthyHandler backToHealthyHandler1 = new BackToHealthyHandler(this.context,
+                    this.lbAlgorithm, this.configName);
 
             threadPoolExecutor.scheduleAtFixedRate(
                     timeOutHandler, 0, LoadBalancerConstants.DEFAULT_TIMEOUT_TIMER_PERIOD, TimeUnit.MILLISECONDS);

@@ -14,15 +14,15 @@ import org.wso2.carbon.messaging.Constants;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import java.util.AbstractMap;
+
 import java.util.ArrayList;
-import java.util.HashSet;
+
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
 
 /**
  * A util class for LB specific operations.
@@ -30,46 +30,6 @@ import java.util.stream.Stream;
 public class CommonUtil {
 
     private static final Logger log = LoggerFactory.getLogger(CommonUtil.class);
-
-    /**
-     * This set contains only those carbonMessage properties that will be required for making
-     * healthCheck calls.
-     * <p>
-     * We are re-using incoming carbonMessage for making healthCheck.
-     * <p>
-     * If it contains parameters that would make any change to data on invoking endpoint, it is not good for us.
-     * <p>
-     * So we are trimming of other properties that are not required to know the health status of an endpoint.
-     */
-    private static final Set<String> healthCheckProperties = Stream.of
-            (org.wso2.carbon.transport.http.netty.common.Constants.SRC_HNDLR,
-                    Constants.PROTOCOL,
-                    org.wso2.carbon.transport.http.netty.common.Constants.DISRUPTOR,
-                    org.wso2.carbon.transport.http.netty.common.Constants.CHNL_HNDLR_CTX,
-                    org.wso2.carbon.transport.http.netty.common.Constants.HTTP_HOST,
-                    org.wso2.carbon.transport.http.netty.common.Constants.HTTP_METHOD,
-                    org.wso2.carbon.transport.http.netty.common.Constants.HTTP_VERSION,
-                    org.wso2.carbon.transport.http.netty.common.Constants.HTTP_CONNECTION,
-                    org.wso2.carbon.transport.http.netty.common.Constants.HTTP_CONTENT_ENCODING,
-                    org.wso2.carbon.transport.http.netty.common.Constants.HTTP_CONTENT_LENGTH,
-                    org.wso2.carbon.transport.http.netty.common.Constants.HTTP_TRANSFER_ENCODING,
-                    org.wso2.carbon.transport.http.netty.common.Constants.HTTP_CONTENT_TYPE,
-                    org.wso2.carbon.transport.http.netty.common.Constants.IS_DISRUPTOR_ENABLE
-            )
-            .collect(Collectors.toCollection(HashSet::new));
-
-    /**
-     * This map contains carbonMessage headers that will be required for making healthCheck calls.
-     * <p>
-     * The purpose is the same as it is mentioned above.
-     */
-
-    private static final Map<String, String> healthCheckHeader = Stream.of
-            (
-                    new AbstractMap.SimpleEntry<>("User-Agent", LoadBalancerConstants.USER_AGENT)
-            )
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
 
     /**
      * @param map LBOutboundEndpoint map.
@@ -398,19 +358,4 @@ public class CommonUtil {
 
     }
 
-    /**
-     * @param carbonMessage CarbonMessage that has user request.
-     * @return trimmed carbonMessage that is safe to be re-used for making healthCheck calls.
-     */
-    public static CarbonMessage getHealthCheckMessage(CarbonMessage carbonMessage) {
-
-        carbonMessage.setHeaders(healthCheckHeader);
-
-        Map<String, Object> properties = carbonMessage.getProperties();
-
-        properties.keySet().stream().
-                filter(key -> !healthCheckProperties.contains(key)).forEach(carbonMessage::removeProperty);
-
-        return carbonMessage;
-    }
 }
