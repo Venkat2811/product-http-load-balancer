@@ -49,7 +49,7 @@ public class BackToHealthyHandler implements Runnable {
 
     public String getName() {
 
-        return "BackToHealthyHandler1";
+        return "BackToHealthyHandler";
     }
 
     private String getHandlerName() {
