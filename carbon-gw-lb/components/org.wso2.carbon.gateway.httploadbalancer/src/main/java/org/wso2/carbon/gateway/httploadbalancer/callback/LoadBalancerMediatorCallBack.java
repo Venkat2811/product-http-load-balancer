@@ -172,11 +172,11 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
 
                     //Appending LB_COOKIE along with existing cookie.
                     carbonMessage.setHeader(
-                            (//Appending to appropriate header that is present.
+                            (//Appending to appropriate header that is present in response from BE.
                                     carbonMessage.getHeader(LoadBalancerConstants.SET_COOKIE_HEADER) != null ?
                                             LoadBalancerConstants.SET_COOKIE_HEADER :
-                                            LoadBalancerConstants.SET_COOKIE2_HEADER
-                            ),
+                                            LoadBalancerConstants.SET_COOKIE2_HEADER),
+                            //NOTE: Here we are appending our cooke to existing cookie's value from BE.
                             CommonUtil.addLBCookieToExistingCookie(
                                     carbonMessage.getHeader(LoadBalancerConstants.SET_COOKIE_HEADER),
                                     CommonUtil.getCookieValue(carbonMessage, this.context)));
@@ -191,7 +191,9 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
                     //i.e., we are only inserting cookie. So using Set-Cookie itself.
                     carbonMessage.setHeader(LoadBalancerConstants.SET_COOKIE_HEADER,
                             CommonUtil.getSessionCookie(//here we are finding endpoint to insert appropriate cookie.
-                                    CommonUtil.getCookieValue(carbonMessage, this.context), false));
+                                    CommonUtil.getCookieValue(carbonMessage, this.context),
+                                    //IF SSL type is other than NO_SSL, Cookie should also be secure.
+                                    !context.getSslType().equals(LoadBalancerConstants.NO_SSL)));
 
                 }
 
@@ -233,7 +235,9 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
                 //Adding LB specific cookie.
                 carbonMessage.setHeader(LoadBalancerConstants.SET_COOKIE_HEADER,
                         CommonUtil.getSessionCookie(//here we are finding endpoint to insert appropriate cookie.
-                                CommonUtil.getCookieValue(carbonMessage, this.context), false));
+                                CommonUtil.getCookieValue(carbonMessage, this.context),
+                                //IF SSL type is other than NO_SSL, Cookie should also be secure.
+                                !context.getSslType().equals(LoadBalancerConstants.NO_SSL)));
 
                 parentCallback.done(carbonMessage);
 
