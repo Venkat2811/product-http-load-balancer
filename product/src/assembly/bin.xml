@@ -74,6 +74,11 @@
             <fileMode>644</fileMode>
         </fileSet>
         <fileSet>
+            <directory>carbon-home/samples/conf/transports</directory>
+            <outputDirectory>samples/conf/transports</outputDirectory>
+            <fileMode>644</fileMode>
+        </fileSet>
+        <fileSet>
             <directory>carbon-home/deployment/integration-flows</directory>
             <outputDirectory>deployment/integration-flows</outputDirectory>
             <fileMode>644</fileMode>
