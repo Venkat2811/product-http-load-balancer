@@ -94,7 +94,7 @@ public class LBOutboundEndpoint {
          log.info("Properties...");
          log.info(healthCheckCMsg.getProperties().toString());
          **/
-
+        //TODO: Extract Client's IP and add it along with LB's IP in X-Forwarded-For header.
         this.outboundEndpoint.receive(carbonMessage, carbonCallback);
 
         //No need to synchronize as we are operating on concurrent HashMap.
