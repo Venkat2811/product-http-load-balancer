@@ -75,6 +75,16 @@ public class WeightedRandom implements WeightedAlgorithm {
         }
     }
 
+    /**
+     *
+     * @param carbonMessage      CarbonMessage
+     * @param carbonCallback     CarbonCallback
+     * @param context            LoadBalancerConfigContext
+     * @param lbOutboundEndpoint LBOutboundEndpoint
+     * @return
+     * @throws Exception
+     */
+    @Override
     public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback,
                            LoadBalancerConfigContext context,
                            LBOutboundEndpoint lbOutboundEndpoint) throws Exception {
