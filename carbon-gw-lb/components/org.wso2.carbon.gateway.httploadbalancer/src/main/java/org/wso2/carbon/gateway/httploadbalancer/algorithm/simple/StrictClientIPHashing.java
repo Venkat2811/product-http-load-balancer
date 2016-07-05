@@ -2,7 +2,6 @@ package org.wso2.carbon.gateway.httploadbalancer.algorithm.simple;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancingAlgorithm;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.hashing.ConsistentHash;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.hashing.Hash;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.hashing.hashcodegenerators.MD5;
@@ -35,7 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * This algorithm by-itself maintains persistence. So, while choosing this algorithm,
  * persistence should be specified as NO_PERSISTENCE.
  */
-public class StrictClientIPHashing implements LoadBalancingAlgorithm, Simple {
+public class StrictClientIPHashing implements SimpleAlgorithm {
 
     private static final Logger log = LoggerFactory.getLogger(StrictClientIPHashing.class);
     private final Object lock = new Object();

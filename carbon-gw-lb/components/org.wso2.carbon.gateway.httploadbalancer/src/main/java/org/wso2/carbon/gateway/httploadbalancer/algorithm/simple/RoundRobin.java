@@ -2,7 +2,6 @@ package org.wso2.carbon.gateway.httploadbalancer.algorithm.simple;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancingAlgorithm;
 import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
@@ -16,7 +15,7 @@ import java.util.List;
  * <p>
  * All Endpoints are assumed to have equal weights.
  */
-public class RoundRobin implements LoadBalancingAlgorithm, Simple {
+public class RoundRobin implements SimpleAlgorithm {
 
     private static final Logger log = LoggerFactory.getLogger(RoundRobin.class);
     private final Object lock = new Object();

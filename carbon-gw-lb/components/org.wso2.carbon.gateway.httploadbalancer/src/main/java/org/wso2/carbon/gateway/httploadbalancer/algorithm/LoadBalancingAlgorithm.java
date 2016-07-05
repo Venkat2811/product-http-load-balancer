@@ -8,7 +8,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
 
 
 /**
- * All LB algorithms must implement this interface.
+ * All types of LB algorithms must implement this interface.
  * Algorithm implementation MUST ensure that all the operations are THREAD SAFE.
  */
 public interface LoadBalancingAlgorithm {
