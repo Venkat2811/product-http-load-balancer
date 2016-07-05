@@ -2,7 +2,6 @@ package org.wso2.carbon.gateway.httploadbalancer.algorithm.weighted;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancingAlgorithm;
 import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
@@ -20,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>
  * User has to define weights for each endpoint. By default weight is 1.
  */
-public class WeightedRoundRobin implements LoadBalancingAlgorithm, Weighted {
+public class WeightedRoundRobin implements WeightedAlgorithm {
 
     private static final Logger log = LoggerFactory.getLogger(WeightedRoundRobin.class);
     private final Object lock = new Object();
