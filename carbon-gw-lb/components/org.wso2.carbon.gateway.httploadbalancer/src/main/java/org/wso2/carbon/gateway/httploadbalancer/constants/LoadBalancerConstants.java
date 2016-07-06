@@ -15,8 +15,6 @@ public class LoadBalancerConstants {
     public static final String ALGORITHM_NAME = "algorithmName";
     public static final String PERSISTENCE_TYPE = "persistenceType";
 
-    // As of now, this scheduled value will be used only with "LB_COOKIE" based persistence.
-    public static final String PERSISTENCE_SESSION_TIME_OUT = "sessionTimeOut";
 
     public static final String SSL_TYPE = "sslType";
 
@@ -154,6 +152,9 @@ public class LoadBalancerConstants {
 
     //Default grace period to be added to timeOut value (in milliseconds) while creating LBMediatorCallBack.
     public static final int DEFAULT_GRACE_PERIOD = 5; //5 ms
+
+    //TODO: Get IP address from carbon server. Check with mentor.
+    public static final String LB_IP_ADDR = "127.0.0.1";
 
 
 }
