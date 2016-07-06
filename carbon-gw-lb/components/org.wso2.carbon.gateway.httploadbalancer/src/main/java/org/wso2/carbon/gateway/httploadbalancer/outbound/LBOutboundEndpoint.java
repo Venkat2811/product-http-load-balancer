@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.core.outbound.OutboundEndpoint;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
+import org.wso2.carbon.gateway.httploadbalancer.utils.CommonUtil;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -94,7 +95,9 @@ public class LBOutboundEndpoint {
          log.info("Properties...");
          log.info(healthCheckCMsg.getProperties().toString());
          **/
-        //TODO: Extract Client's IP and add it along with LB's IP in X-Forwarded-For header.
+
+        carbonMessage = CommonUtil.appendLBIP(carbonMessage, true);
+
         this.outboundEndpoint.receive(carbonMessage, carbonCallback);
 
         //No need to synchronize as we are operating on concurrent HashMap.
@@ -150,5 +153,7 @@ public class LBOutboundEndpoint {
         this.healthyRetriesCount = 0;
 
     }
+
+
 
 }
