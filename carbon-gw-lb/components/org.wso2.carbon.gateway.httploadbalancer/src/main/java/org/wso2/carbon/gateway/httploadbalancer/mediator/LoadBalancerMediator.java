@@ -17,13 +17,12 @@ import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContex
 import org.wso2.carbon.gateway.httploadbalancer.invokers.LoadBalancerCallMediator;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 import org.wso2.carbon.gateway.httploadbalancer.utils.CommonUtil;
-import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.error.LBErrorHandler;
 import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.scheduled.ActiveHealthCheckHandler;
 import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.scheduled.BackToHealthyHandler;
 import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.scheduled.TimeoutHandler;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.DefaultCarbonMessage;
+
 
 import java.util.List;
 import java.util.Map;
@@ -479,14 +478,14 @@ public class LoadBalancerMediator extends AbstractMediator {
 
                             if (areAllEndpointsUnhealthy()) {
 
-                                sendResponse(carbonCallback, false);
+                                CommonUtil.sendErrorResponse(carbonCallback, false);
                                 return false;
                             }
                         }
 
                     } else { //If algorithm returns null, there is no endpoint available.
 
-                        sendResponse(carbonCallback, false);
+                        CommonUtil.sendErrorResponse(carbonCallback, false);
                         return false;
                     }
 
@@ -496,12 +495,12 @@ public class LoadBalancerMediator extends AbstractMediator {
 
             if (areAllEndpointsUnhealthy()) {
 
-                sendResponse(carbonCallback, false);
+                CommonUtil.sendErrorResponse(carbonCallback, false);
             } else {
 
                 log.error("Unable to choose endpoint for forwarding the request." +
                         " Check logs to see what went wrong.");
-                sendResponse(carbonCallback, true);
+                CommonUtil.sendErrorResponse(carbonCallback, true);
             }
             return false;
         }
@@ -525,24 +524,5 @@ public class LoadBalancerMediator extends AbstractMediator {
         }
 
     }
-
-    private void sendResponse(CarbonCallback carbonCallback, boolean isInternalError) throws Exception {
-
-        if (!isInternalError) {
-            log.error("All OutboundEndpoints are unHealthy..");
-            new LBErrorHandler().handleFault
-                    ("503", new Throwable("Service Unavailable.. " +
-                            "Kindly try after some time.."), new DefaultCarbonMessage(true), carbonCallback);
-        } else {
-
-            new LBErrorHandler().handleFault
-                    ("500", new Throwable("Internal Server Error.."),
-                            new DefaultCarbonMessage(true), carbonCallback);
-
-        }
-
-
-    }
-
 
 }
