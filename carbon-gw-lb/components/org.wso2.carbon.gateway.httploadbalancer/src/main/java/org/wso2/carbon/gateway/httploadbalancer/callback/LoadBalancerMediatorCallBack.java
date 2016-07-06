@@ -124,6 +124,8 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
 
                     callBack.getLbOutboundEndpoint().resetHealthPropertiesToDefault();
 
+                    //We are using running average technique for Least Response Time algorithm.
+                    //So, we are doing this.
                     if (context.getAlgorithmName().equals(LoadBalancerConstants.LEAST_RESPONSE_TIME)) {
 
                         ((LeastResponseTime) context.getLoadBalancingAlgorithm()).
@@ -197,10 +199,6 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
 
                 }
 
-
-                parentCallback.done(carbonMessage);
-
-
             } else if (this.context.getPersistence().equals(LoadBalancerConstants.LB_COOKIE)) {
 
                 /**
@@ -239,12 +237,14 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
                                 //IF SSL type is other than NO_SSL, Cookie should also be secure.
                                 !context.getSslType().equals(LoadBalancerConstants.NO_SSL)));
 
-                parentCallback.done(carbonMessage);
-
-            } else { //for NO_PERSISTENCE and CLIENT_IP_HASHING type.
-
-                parentCallback.done(carbonMessage);
             }
+
+            //In case of NO_PERSISTENCE and CLIENT_IP_HASHING type persistence type, we need
+            // not add anything to the response. So we'll simply send it back.
+            // For other type of persistence cases, necessary changes are made.
+            carbonMessage = CommonUtil.appendLBIP(carbonMessage, false);
+            parentCallback.done(carbonMessage);
+
 
         } else if (mediator.hasNext()) { // If Mediator has a sibling after this
 
@@ -252,6 +252,11 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
                 mediator.next(carbonMessage, parentCallback);
             } catch (Exception e) {
                 log.error("Error while mediating from Callback", e);
+                try {
+                    CommonUtil.sendErrorResponse(parentCallback, true);
+                } catch (Exception e1) {
+                    log.error(e1.toString());
+                }
             }
         }
 
