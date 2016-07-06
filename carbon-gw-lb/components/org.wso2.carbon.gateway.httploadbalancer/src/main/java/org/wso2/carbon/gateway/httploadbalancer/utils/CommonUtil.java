@@ -9,8 +9,11 @@ import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancingAlgorithm
 import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
+import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.error.LBErrorHandler;
+import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.Constants;
+import org.wso2.carbon.messaging.DefaultCarbonMessage;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -273,6 +276,9 @@ public class CommonUtil {
      * 1) X-Forwarded-For
      * 2) Client-IP
      * 3) Remote-Addr
+     * <p>
+     * NOTE: This method will be used to identify Client's IP in case of
+     * Client IP based hashing algorithms.
      */
     public static String getClientIP(CarbonMessage cMsg) {
 
@@ -300,6 +306,58 @@ public class CommonUtil {
         }
 
         return null;
+    }
+
+    /**
+     * @param cMsg Client's request.
+     * @return Client's entire IPAddress.
+     * <p>
+     * NOTE: This method is different from previous method.
+     * Here we are trying to retrieve entire IP address of client
+     * so that LB's IP can be appended to it.
+     */
+    private static String getEntireClientIP(CarbonMessage cMsg) {
+
+        //If client is behind proxy, we'll have list of IP's here.
+        if (cMsg.getHeader(LoadBalancerConstants.X_FORWARDED_FOR_HEADER) != null) {
+
+            return cMsg.getHeader(LoadBalancerConstants.X_FORWARDED_FOR_HEADER);
+
+        } else if (cMsg.getHeader(LoadBalancerConstants.CLIENT_IP_HEADER) != null) {
+
+            return cMsg.getHeader(LoadBalancerConstants.CLIENT_IP_HEADER);
+
+        } else if (cMsg.getHeader(LoadBalancerConstants.REMOTE_ADDR_HEADER) != null) {
+
+            return cMsg.getHeader(LoadBalancerConstants.REMOTE_ADDR_HEADER);
+        }
+
+        return null;
+    }
+
+    /**
+     * @param carbonMessage Client's request.
+     * @return CarbonMessage with LB's IP.
+     */
+    public static CarbonMessage appendLBIP(CarbonMessage carbonMessage, boolean isRequest) {
+
+        if (isRequest) {
+            String existingIP = CommonUtil.getEntireClientIP(carbonMessage);
+
+            if (existingIP != null) {
+                carbonMessage.setHeader(LoadBalancerConstants.X_FORWARDED_FOR_HEADER,
+                        existingIP.trim() +
+                                "," + LoadBalancerConstants.LB_IP_ADDR);
+
+            } else {
+                carbonMessage.setHeader(LoadBalancerConstants.X_FORWARDED_FOR_HEADER,
+                        LoadBalancerConstants.LB_IP_ADDR);
+            }
+        } else {
+            carbonMessage.setHeader(LoadBalancerConstants.X_FORWARDED_FOR_HEADER,
+                    LoadBalancerConstants.LB_IP_ADDR);
+        }
+        return carbonMessage;
     }
 
     /**
@@ -369,6 +427,24 @@ public class CommonUtil {
         if (!context.getUnHealthyLBEPQueue().
                 contains(lbOutboundEndpoint)) {
             context.getUnHealthyLBEPQueue().add(lbOutboundEndpoint);
+        }
+
+
+    }
+
+    public static void sendErrorResponse(CarbonCallback carbonCallback, boolean isInternalError) throws Exception {
+
+        if (!isInternalError) {
+            log.error("All OutboundEndpoints are unHealthy..");
+            new LBErrorHandler().handleFault
+                    ("503", new Throwable("Service Unavailable.. " +
+                            "Kindly try after some time.."), new DefaultCarbonMessage(true), carbonCallback);
+        } else {
+
+            new LBErrorHandler().handleFault
+                    ("500", new Throwable("Internal Server Error.."),
+                            new DefaultCarbonMessage(true), carbonCallback);
+
         }
 
 
