@@ -316,7 +316,7 @@ public class CommonUtil {
      * Here we are trying to retrieve entire IP address of client
      * so that LB's IP can be appended to it.
      */
-    private static String getEntireClientIP(CarbonMessage cMsg) {
+   /** private static String getEntireClientIP(CarbonMessage cMsg) {
 
         //If client is behind proxy, we'll have list of IP's here.
         if (cMsg.getHeader(LoadBalancerConstants.X_FORWARDED_FOR_HEADER) != null) {
@@ -333,32 +333,29 @@ public class CommonUtil {
         }
 
         return null;
-    }
+    }**/
 
     /**
      * @param carbonMessage Client's request.
      * @return CarbonMessage with LB's IP.
      */
-    public static CarbonMessage appendLBIP(CarbonMessage carbonMessage, boolean isRequest) {
+   /** public static CarbonMessage appendLBIP(CarbonMessage carbonMessage) {
 
-        if (isRequest) {
-            String existingIP = CommonUtil.getEntireClientIP(carbonMessage);
 
-            if (existingIP != null) {
-                carbonMessage.setHeader(LoadBalancerConstants.X_FORWARDED_FOR_HEADER,
-                        existingIP.trim() +
-                                "," + LoadBalancerConstants.LB_IP_ADDR);
+        String existingIP = CommonUtil.getEntireClientIP(carbonMessage);
 
-            } else {
-                carbonMessage.setHeader(LoadBalancerConstants.X_FORWARDED_FOR_HEADER,
-                        LoadBalancerConstants.LB_IP_ADDR);
-            }
+        if (existingIP != null) {
+            carbonMessage.setHeader(LoadBalancerConstants.X_FORWARDED_FOR_HEADER,
+                    existingIP.trim() +
+                            "," + LoadBalancerConstants.LB_IP_ADDR);
+
         } else {
             carbonMessage.setHeader(LoadBalancerConstants.X_FORWARDED_FOR_HEADER,
                     LoadBalancerConstants.LB_IP_ADDR);
         }
+
         return carbonMessage;
-    }
+    }**/
 
     /**
      * @param ipAddress IPAddress retrieved from Client's request.

@@ -242,7 +242,6 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
             //In case of NO_PERSISTENCE and CLIENT_IP_HASHING type persistence type, we need
             // not add anything to the response. So we'll simply send it back.
             // For other type of persistence cases, necessary changes are made.
-            carbonMessage = CommonUtil.appendLBIP(carbonMessage, false);
             parentCallback.done(carbonMessage);
 
 

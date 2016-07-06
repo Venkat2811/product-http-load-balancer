@@ -3,7 +3,6 @@ package org.wso2.carbon.gateway.httploadbalancer.utils.handlers.error;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.httploadbalancer.callback.LoadBalancerMediatorCallBack;
-import org.wso2.carbon.gateway.httploadbalancer.utils.CommonUtil;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.Constants;
@@ -60,8 +59,6 @@ public class LBErrorHandler implements FaultHandler {
         transportHeaders.put(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE, errorCode);
 
         response.setHeaders(transportHeaders);
-        response = CommonUtil.appendLBIP(response, false);
-
 
         if (carbonCallback instanceof LoadBalancerMediatorCallBack) {
 

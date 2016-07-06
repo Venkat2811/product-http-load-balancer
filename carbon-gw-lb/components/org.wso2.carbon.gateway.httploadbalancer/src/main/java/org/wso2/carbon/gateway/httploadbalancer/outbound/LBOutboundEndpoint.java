@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.core.outbound.OutboundEndpoint;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
-import org.wso2.carbon.gateway.httploadbalancer.utils.CommonUtil;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -96,7 +95,7 @@ public class LBOutboundEndpoint {
          log.info(healthCheckCMsg.getProperties().toString());
          **/
 
-        carbonMessage = CommonUtil.appendLBIP(carbonMessage, true);
+       // carbonMessage = CommonUtil.appendLBIP(carbonMessage, true);
 
         this.outboundEndpoint.receive(carbonMessage, carbonCallback);
 

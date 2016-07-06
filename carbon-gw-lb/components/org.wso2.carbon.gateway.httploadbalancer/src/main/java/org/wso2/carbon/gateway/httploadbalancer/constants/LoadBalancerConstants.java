@@ -154,7 +154,7 @@ public class LoadBalancerConstants {
     public static final int DEFAULT_GRACE_PERIOD = 5; //5 ms
 
     //TODO: Get IP address from carbon server. Check with mentor.
-    public static final String LB_IP_ADDR = "127.0.0.1";
+   // public static final String LB_IP_ADDR = "127.0.0.1";
 
 
 }
