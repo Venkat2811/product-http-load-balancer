@@ -31,9 +31,13 @@ import java.util.stream.Collectors;
 /**
  * A util class for LB specific operations.
  */
-public class CommonUtil {
+public final class CommonUtil {
 
     private static final Logger log = LoggerFactory.getLogger(CommonUtil.class);
+
+    private CommonUtil() {
+
+    }
 
     /**
      * @param map LBOutboundEndpoint map.
@@ -316,46 +320,46 @@ public class CommonUtil {
      * Here we are trying to retrieve entire IP address of client
      * so that LB's IP can be appended to it.
      */
-   /** private static String getEntireClientIP(CarbonMessage cMsg) {
+    /** private static String getEntireClientIP(CarbonMessage cMsg) {
 
-        //If client is behind proxy, we'll have list of IP's here.
-        if (cMsg.getHeader(LoadBalancerConstants.X_FORWARDED_FOR_HEADER) != null) {
+     //If client is behind proxy, we'll have list of IP's here.
+     if (cMsg.getHeader(LoadBalancerConstants.X_FORWARDED_FOR_HEADER) != null) {
 
-            return cMsg.getHeader(LoadBalancerConstants.X_FORWARDED_FOR_HEADER);
+     return cMsg.getHeader(LoadBalancerConstants.X_FORWARDED_FOR_HEADER);
 
-        } else if (cMsg.getHeader(LoadBalancerConstants.CLIENT_IP_HEADER) != null) {
+     } else if (cMsg.getHeader(LoadBalancerConstants.CLIENT_IP_HEADER) != null) {
 
-            return cMsg.getHeader(LoadBalancerConstants.CLIENT_IP_HEADER);
+     return cMsg.getHeader(LoadBalancerConstants.CLIENT_IP_HEADER);
 
-        } else if (cMsg.getHeader(LoadBalancerConstants.REMOTE_ADDR_HEADER) != null) {
+     } else if (cMsg.getHeader(LoadBalancerConstants.REMOTE_ADDR_HEADER) != null) {
 
-            return cMsg.getHeader(LoadBalancerConstants.REMOTE_ADDR_HEADER);
-        }
+     return cMsg.getHeader(LoadBalancerConstants.REMOTE_ADDR_HEADER);
+     }
 
-        return null;
-    }**/
+     return null;
+     }**/
 
     /**
      * @param carbonMessage Client's request.
      * @return CarbonMessage with LB's IP.
      */
-   /** public static CarbonMessage appendLBIP(CarbonMessage carbonMessage) {
+    /** public static CarbonMessage appendLBIP(CarbonMessage carbonMessage) {
 
 
-        String existingIP = CommonUtil.getEntireClientIP(carbonMessage);
+     String existingIP = CommonUtil.getEntireClientIP(carbonMessage);
 
-        if (existingIP != null) {
-            carbonMessage.setHeader(LoadBalancerConstants.X_FORWARDED_FOR_HEADER,
-                    existingIP.trim() +
-                            "," + LoadBalancerConstants.LB_IP_ADDR);
+     if (existingIP != null) {
+     carbonMessage.setHeader(LoadBalancerConstants.X_FORWARDED_FOR_HEADER,
+     existingIP.trim() +
+     "," + LoadBalancerConstants.LB_IP_ADDR);
 
-        } else {
-            carbonMessage.setHeader(LoadBalancerConstants.X_FORWARDED_FOR_HEADER,
-                    LoadBalancerConstants.LB_IP_ADDR);
-        }
+     } else {
+     carbonMessage.setHeader(LoadBalancerConstants.X_FORWARDED_FOR_HEADER,
+     LoadBalancerConstants.LB_IP_ADDR);
+     }
 
-        return carbonMessage;
-    }**/
+     return carbonMessage;
+     }**/
 
     /**
      * @param ipAddress IPAddress retrieved from Client's request.
