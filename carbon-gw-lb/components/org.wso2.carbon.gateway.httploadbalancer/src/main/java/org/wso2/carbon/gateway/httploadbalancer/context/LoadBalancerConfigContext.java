@@ -111,16 +111,6 @@ public class LoadBalancerConfigContext {
         this.persistence = persistence;
     }
 
-    /**
-     * public int getSessionPersistenceTimeout() {
-     * return sessionPersistenceTimeout;
-     * }
-     * <p>
-     * public void setSessionPersistenceTimeout(int sessionPersistenceTimeout) {
-     * this.sessionPersistenceTimeout = sessionPersistenceTimeout;
-     * }
-     **/
-
     public String getSslType() {
         return sslType;
     }
@@ -338,7 +328,7 @@ public class LoadBalancerConfigContext {
                 callback.toString().length());
 
         if (log.isDebugEnabled()) {
-            log.info("Removing from Pool  Key : " + name);
+            log.info("Removing from Pool Key : " + name);
         }
 
         this.callBackPool.remove(name);
