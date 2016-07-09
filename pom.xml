@@ -54,12 +54,6 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.wso2.carbon.gateway.httploadbalancer</groupId>
-                <artifactId>org.wso2.carbon.gateway.httploadbalancer</artifactId>
-                <version>${carbon.gw.lb.version}</version>
-                <type>zip</type>
-            </dependency>
-            <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.launcher</artifactId>
                 <version>${carbon.kernel.version}</version>
