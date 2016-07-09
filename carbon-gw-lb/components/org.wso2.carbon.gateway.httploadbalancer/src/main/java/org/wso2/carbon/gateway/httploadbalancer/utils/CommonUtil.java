@@ -372,11 +372,8 @@ public final class CommonUtil {
      */
     public static boolean isValidIP(String ipAddress) {
 
-        if (ipAddress != null) {
-            return InetAddressValidator.getInstance().isValid(ipAddress);
-        } else {
-            return false;
-        }
+        return ipAddress != null &&
+                InetAddressValidator.getInstance().isValid(ipAddress);
 
     }
 

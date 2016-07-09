@@ -20,6 +20,7 @@ import org.wso2.carbon.gateway.httploadbalancer.utils.CommonUtil;
 import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.scheduled.ActiveHealthCheckHandler;
 import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.scheduled.BackToHealthyHandler;
 import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.scheduled.TimeoutHandler;
+import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.statistics.LBStatisticsHandler;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -187,6 +188,7 @@ public class LoadBalancerMediator extends AbstractMediator {
     @Override
     public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback) throws Exception {
 
+        LBStatisticsHandler.getStatisticsHandler().invokeAtSourceRequestReceiving(carbonMessage);
         if (log.isDebugEnabled()) {
             String logMessage = "Message received at Load Balancer Mediator";
             log.debug(logMessage);
