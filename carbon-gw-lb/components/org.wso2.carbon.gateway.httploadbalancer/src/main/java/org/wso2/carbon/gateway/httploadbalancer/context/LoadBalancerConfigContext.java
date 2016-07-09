@@ -41,16 +41,12 @@ public class LoadBalancerConfigContext {
 
     private Map<String, LBOutboundEndpoint> lbOutboundEndpoints;
 
-    //TODO: Is this HashMap idea okay.?
     /**
      * Used to identify corresponding BackEnd Endpoint Key for a given cookie.
      * <p>
      * This map will be used when request comes from Client -> LB
      * and based on cookie, BE endpoint will be chosen.
      * Each cookie value will point to a BE endpoint. Eg: EP1,EP2 etc.,
-     * <p>
-     * TODO:If there is any security concern, any other meaningless string
-     * TODO:can be stored instead of EP1,EP2 etc.
      */
     private Map<String, String> cookieToEPKeyMap;
 
@@ -116,7 +112,6 @@ public class LoadBalancerConfigContext {
     }
 
     /**
-     * TODO:Discuss.
      * public int getSessionPersistenceTimeout() {
      * return sessionPersistenceTimeout;
      * }
@@ -196,9 +191,8 @@ public class LoadBalancerConfigContext {
     }
 
     /**
-     *
      * @param endpointName OutboundEndpoint's name
-     * @param weight OutboundEndpoint's weight.
+     * @param weight       OutboundEndpoint's weight.
      */
     public void addToWeightsMap(String endpointName, Integer weight) {
         this.weightsMap.putIfAbsent(endpointName, weight);
@@ -230,7 +224,7 @@ public class LoadBalancerConfigContext {
 
 
     /**
-     * @param endpoint of form <host:port>
+     * @param endpoint   of form <host:port>
      * @param cookieName Maps OutboundEP to a cookieName.
      */
     public void addToOutboundEPTOCookieMap(String endpoint, String cookieName) {
@@ -280,48 +274,6 @@ public class LoadBalancerConfigContext {
         return unHealthyLBEPQueue;
     }
 
-    /**
-     * @param lbOutboundEndpoint UnHealthyLBOutboundEndpoint to be added to the list.
-     *                           <p>
-     *                           NOTE: always access this method with having lock on
-     *                           unHealthyLBEPQueue object.
-     *                           Add to the list only after checking using
-     *                           isAlreadyInUnHealthyList() method
-     */
-    public void addToUnHealthyList(LBOutboundEndpoint lbOutboundEndpoint) {
-
-        this.unHealthyLBEPQueue.add(lbOutboundEndpoint);
-    }
-
-    /**
-     * @param lbOutboundEndpoint To check whether it is already in list or not.
-     *                           <p>
-     *                           NOTE: always access this method with having lock on
-     *                           unHealthyLBEPQueue  object.
-     * @return existing or not.
-     */
-    public boolean isAlreadyInUnHealthyList(LBOutboundEndpoint lbOutboundEndpoint) {
-
-        if (this.unHealthyLBEPQueue.contains(lbOutboundEndpoint)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * @param lbOutboundEndpoint UnHealthyLBOutboundEndpoint to be removed from list.
-     *                           <p>
-     *                           NOTE: always access this method with having lock on
-     *                           unHealthyLBEPQueue object.
-     *                           Remove from list only after checking using
-     *                           isAlreadyInUnHealthyList() method
-     */
-    public void removeFromUnhealthyList(LBOutboundEndpoint lbOutboundEndpoint) {
-
-        this.unHealthyLBEPQueue.remove(lbOutboundEndpoint);
-    }
-
 
     public Map<String, CarbonCallback> getCallBackPool() {
 
@@ -342,7 +294,9 @@ public class LoadBalancerConfigContext {
 
         this.callBackPool.putIfAbsent(name, callback);
 
-        //  log.info("Added to pool Key : " + name);
+        if (log.isDebugEnabled()) {
+            log.info("Added to pool Key : " + name);
+        }
 
     }
 
@@ -359,10 +313,14 @@ public class LoadBalancerConfigContext {
                 callback.toString().length());
 
         if (this.callBackPool.containsKey(name)) {
-            // log.info("Is in Pool : " + name);
+            if (log.isDebugEnabled()) {
+                log.info("Is in Pool : " + name);
+            }
             return true;
         } else {
-            // log.info("Is not in Pool : " + name);
+            if (log.isDebugEnabled()) {
+                log.info("Is not in Pool : " + name);
+            }
             return false;
         }
     }
@@ -379,7 +337,9 @@ public class LoadBalancerConfigContext {
         String name = callback.toString().substring(callback.toString().lastIndexOf(".") + 1,
                 callback.toString().length());
 
-        //   log.info("Removing from Pool  Key : " + name);
+        if (log.isDebugEnabled()) {
+            log.info("Removing from Pool  Key : " + name);
+        }
 
         this.callBackPool.remove(name);
 
