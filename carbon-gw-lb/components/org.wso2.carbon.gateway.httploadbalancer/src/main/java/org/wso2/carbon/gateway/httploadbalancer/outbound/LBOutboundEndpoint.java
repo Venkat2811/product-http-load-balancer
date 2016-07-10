@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.core.outbound.OutboundEndpoint;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
-import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.statistics.LBStatisticsHandler;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -99,7 +98,6 @@ public class LBOutboundEndpoint {
        // carbonMessage = CommonUtil.appendLBIP(carbonMessage, true);
 
         this.outboundEndpoint.receive(carbonMessage, carbonCallback);
-        LBStatisticsHandler.getStatisticsHandler().invokeAtSourceRequestSending(carbonMessage);
 
         //No need to synchronize as we are operating on concurrent HashMap.
         context.addToCallBackPool(carbonCallback);
