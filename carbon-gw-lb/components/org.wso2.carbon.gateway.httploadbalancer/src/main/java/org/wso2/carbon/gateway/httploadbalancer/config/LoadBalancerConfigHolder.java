@@ -328,24 +328,6 @@ public class LoadBalancerConfigHolder {
 
 
     /**
-     * SSL related validations.
-     **/
-
-    private void validateSSL() {
-
-        String sslConfig = this.getFromConfig(LoadBalancerConstants.SSL_TYPE).getValue();
-        if (sslConfig.equals(LoadBalancerConstants.NO_SSL) ||
-                sslConfig.equals(LoadBalancerConstants.SSL_OFFLOAD) ||
-                sslConfig.equals(LoadBalancerConstants.END_TO_END)) {
-
-            context.setSslType(sslConfig);
-            log.info("SSL Support : " + context.getSslType());
-
-        }
-
-    }
-
-    /**
      * HealthCheck related validations.
      */
 
@@ -488,7 +470,6 @@ public class LoadBalancerConfigHolder {
 
         validateAlgorithm();
         validatePersistence();
-        validateSSL();
         validateHealthCheck();
 
     }

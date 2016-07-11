@@ -24,7 +24,7 @@ listenerConfigurations:
   port: 9090
   bossThreadPoolSize: 4
   workerThreadPoolSize: 8
-  enableDisruptor: false
+  enableDisruptor: true
   parameters:
     -
      name: "executor.workerpool.size"

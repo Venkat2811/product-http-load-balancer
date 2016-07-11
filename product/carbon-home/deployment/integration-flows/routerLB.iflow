@@ -16,7 +16,7 @@ participant Endpoint5 : OutboundEndpoint(protocol("http"),host("http://localhost
 
 StocksInbound -> StocksPipeline : "client request"
 
-LoadBalancer(algorithm(name(ROUND_ROBIN)),persistence(type(NO_PERSISTENCE)),SSL(type(NO_SSL)),healthCheck(type(PASSIVE),requestTimeout(5s),unHealthyRetries(2times),healthyRetries(3times),healthyCheckInterval(1m)))
+LoadBalancer(algorithm(name(ROUND_ROBIN)),persistence(type(NO_PERSISTENCE)),healthCheck(type(PASSIVE),requestTimeout(5s),unHealthyRetries(2times),healthyRetries(3times),healthyCheckInterval(1m)))
 
 StocksPipeline -> StocksInbound : "Final Response"
 

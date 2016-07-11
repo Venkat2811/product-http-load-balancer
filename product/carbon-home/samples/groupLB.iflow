@@ -10,7 +10,7 @@ participant Endpoint2 : OutboundEndpoint(protocol("http"),host("http://localhost
 
 group name="nyse", path="/nyse", method="GET"
 StocksInbound -> StocksPipeline : "client request"
-LoadBalancer(algorithm(name(ROUND_ROBIN)),persistence(type(NO_PERSISTENCE)),SSL(type(NO_SSL)),healthCheck(type(PASSIVE),requestTimeout(1m),unHealthyRetries(5times),healthyRetries(1time),healthyCheckInterval(5m)))
+LoadBalancer(algorithm(name(ROUND_ROBIN)),persistence(type(NO_PERSISTENCE)),healthCheck(type(PASSIVE),requestTimeout(1m),unHealthyRetries(5times),healthyRetries(1time),healthyCheckInterval(5m)))
 StocksPipeline -> StocksInbound : "Final Response"   
 end
 

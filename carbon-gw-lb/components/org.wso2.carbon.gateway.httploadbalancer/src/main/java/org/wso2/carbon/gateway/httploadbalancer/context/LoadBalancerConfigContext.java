@@ -28,9 +28,6 @@ public class LoadBalancerConfigContext {
 
     private String persistence;
 
-
-    private String sslType;
-
     //There are the values as specified in config.
     private String healthCheck;
     private int reqTimeout;
@@ -109,14 +106,6 @@ public class LoadBalancerConfigContext {
 
     public void setPersistence(String persistence) {
         this.persistence = persistence;
-    }
-
-    public String getSslType() {
-        return sslType;
-    }
-
-    public void setSslType(String sslType) {
-        this.sslType = sslType;
     }
 
     public String getHealthCheck() {

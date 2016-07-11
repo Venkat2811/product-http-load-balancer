@@ -210,16 +210,12 @@ public final class CommonUtil {
      * <p>
      * //TODO: should we add path.?
      */
-    public static String getSessionCookie(String cookieValue, boolean isSecure) {
+    public static String getSessionCookie(String cookieValue) {
 
-        if (!isSecure) {
-            return LoadBalancerConstants.LB_COOKIE_NAME + "=" + cookieValue +
-                    "; " + LoadBalancerConstants.HTTP_ONLY;
-        } else {
-            return LoadBalancerConstants.LB_COOKIE_NAME + "=" + cookieValue +
-                    "; " + LoadBalancerConstants.HTTP_ONLY + "; "
-                    + LoadBalancerConstants.SECURE;
-        }
+        return LoadBalancerConstants.LB_COOKIE_NAME + "=" + cookieValue +
+                "; " + LoadBalancerConstants.HTTP_ONLY + "; "
+                + LoadBalancerConstants.SECURE;
+
     }
 
     /**

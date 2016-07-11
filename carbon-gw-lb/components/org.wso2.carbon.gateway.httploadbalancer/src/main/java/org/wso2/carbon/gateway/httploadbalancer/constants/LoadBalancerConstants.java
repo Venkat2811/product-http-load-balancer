@@ -7,16 +7,13 @@ import java.util.concurrent.TimeUnit;
  */
 public class LoadBalancerConstants {
 
-    public static final String USER_AGENT = "carbon-gw-LB";
+    //public static final String USER_AGENT = "carbon-gw-LB";
 
     /**
      * Config Keys.
      */
     public static final String ALGORITHM_NAME = "algorithmName";
     public static final String PERSISTENCE_TYPE = "persistenceType";
-
-
-    public static final String SSL_TYPE = "sslType";
 
     // As of now, only passive is supported.
     public static final String HEALTH_CHECK_TYPE = "healthCheckType";
@@ -119,13 +116,6 @@ public class LoadBalancerConstants {
     //Cookie Secure.
     public static final String SECURE = "secure";
 
-
-    /**
-     * SSL Support related Constants.
-     */
-    public static final String NO_SSL = "NO_SSL";
-    public static final String SSL_OFFLOAD = "SSL_OFFLOAD";
-    public static final String END_TO_END = "END_TO_END";
 
     /**
      * Health Checking related Constants.
