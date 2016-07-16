@@ -12,6 +12,7 @@ public class LoadBalancerConstants {
     /**
      * Config Keys.
      */
+    public static final String ENDPOINTS = "endpoints";
     public static final String ALGORITHM_NAME = "algorithmName";
     public static final String PERSISTENCE_TYPE = "persistenceType";
 

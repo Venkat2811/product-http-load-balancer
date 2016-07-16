@@ -14,6 +14,8 @@ import org.wso2.carbon.gateway.httploadbalancer.mediator.LoadBalancerMediatorBui
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 import org.wso2.carbon.gateway.httploadbalancer.utils.CommonUtil;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,6 +33,8 @@ public class LoadBalancerConfigHolder {
 
     private ParameterHolder loadbalancerConfigs;
 
+    private List<String> outboundEndpoints = null;
+
     private WUMLConfigurationBuilder.IntegrationFlow integrationFlow;
 
     private final LoadBalancerConfigContext context;
@@ -44,6 +48,19 @@ public class LoadBalancerConfigHolder {
         this.context = new LoadBalancerConfigContext();
 
     }
+
+    public void initializeOutboundEPList() {
+        outboundEndpoints = new ArrayList<>();
+    }
+
+    public boolean containsEndpoint(String endpoint) {
+        return outboundEndpoints.contains(endpoint);
+    }
+
+    public void addToOutboundEPList(String endpoint) {
+        this.outboundEndpoints.add(endpoint);
+    }
+
 
     /**
      * This method will be used to free loadbalancerConfigs.
@@ -149,11 +166,39 @@ public class LoadBalancerConfigHolder {
         releaseParamHolder();
     }
 
+    public void configureGroupLoadbalancerMediator(WUMLConfigurationBuilder.IntegrationFlow integrationFlow,
+                                                   String groupPath) {
+        this.integrationFlow = integrationFlow;
+
+        Set<Map.Entry<String, OutboundEndpoint>> entrySet = integrationFlow.
+                getGWConfigHolder().getOutboundEndpoints().entrySet();
+
+        Map<String, LBOutboundEndpoint> lbOutboundEndpointMap = new ConcurrentHashMap<>();
+
+        for (Map.Entry entry : entrySet) {
+
+            //Adding only those endpoints that are specified within group context.
+            if (outboundEndpoints.contains(entry.getKey().toString())) {
+                lbOutboundEndpointMap.put(entry.getKey().toString(),
+                        new LBOutboundEndpoint((OutboundEndpoint) entry.getValue()));
+            }
+        }
+
+        context.setLbOutboundEndpoints(lbOutboundEndpointMap);
+
+        validateConfig();
+
+        LoadBalancerMediatorBuilder.configureForGroup(this.integrationFlow.getGWConfigHolder(), context, groupPath);
+
+        releaseParamHolder();
+
+    }
+
     /**
      * @param timeOut
      * @return boolean
      * <p>
-     * This method is used to check whether scheduled is within limit or not.
+     * This method is used to check whether timeOut is within limit or not.
      */
     private boolean isWithInLimit(int timeOut) {
 

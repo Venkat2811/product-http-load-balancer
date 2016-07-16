@@ -188,8 +188,7 @@ public class LoadBalancerMediator extends AbstractMediator {
     public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback) throws Exception {
 
         if (log.isDebugEnabled()) {
-            String logMessage = "Message received at Load Balancer Mediator";
-            log.debug(logMessage);
+            log.debug("Message received at Load Balancer Mediator");
         }
 
 
