@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 
 baseDir=$(dirname "$0")
+service="$1"
+
 concLevels="1 25 50 100 200 400 800 1600 3200"
 #perTestTime=30
-testLoops=1000
+testLoops=1000000
 warmUpConc=200
 warmUpLoop=50000
 
@@ -12,8 +14,6 @@ resultsDir="$baseDir/results"
 timeStmp=$(date +%s)
 
 declare -A MAP
-
-service="$1"
 
 function warmUp(){
 echo "Warmup service.."
