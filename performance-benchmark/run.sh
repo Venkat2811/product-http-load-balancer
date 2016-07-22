@@ -19,7 +19,7 @@ then
 else
     cleanup
     echo $baseDir
-    $baseDir/excecute-tests.sh
+    $baseDir/excecute-tests.sh "$1"
 fi
 
 if [ ! "$?" = 0 ]

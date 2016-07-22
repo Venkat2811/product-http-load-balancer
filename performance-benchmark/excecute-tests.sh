@@ -1,20 +1,22 @@
 #!/usr/bin/env bash
 
 baseDir=$(dirname "$0")
-concLevels="1 25 50 100 200 400 800 1600 3200"
+concLevels="1 25 50 100 200 400 800"
+# 1600 3200"
 #perTestTime=30
 testLoops=1000
 warmUpConc=200
 warmUpLoop=50000
 
 tmpDir="$baseDir/tmpData"
+resultsDir="$baseDir/results"
 timeStmp=$(date +%s)
 
 declare -A MAP
 
 
 #For GW-LB
-service="http://localhost:8290/stocks"
+service="$1"
 #For Nginx
 #service="http://localhost/stockquote/all"
 
@@ -25,7 +27,7 @@ ab -k -c $warmUpConc -n $warmUpLoop $service #> /dev/null
 echo "Warmup service done"
 }
 
-function testConcLevel(){	
+function testConcLevel(){
 local concLevel=$1
 
 local resOut="$tmpDir/result-conc$concLevel-time$timeStmp-$(uuidgen)"
@@ -56,15 +58,86 @@ echo -e "\tPercentiles are $percents"
 echo "Testing Conc Level $concLevel is done"
 }
 
+function processResults(){
+    local metric=$1
+    local resultsFile=$2
+    local conc=""
+
+    rm -f "$resultsFile"
+
+    local isPrintH=true
+    for conc in $concLevels
+    do
+    	local header=""
+    	if "$isPrintH"
+     	then
+        	header="Concurrency"
+        fi
+        local line="$conc"
+
+        local tps=${MAP["$conc-$metric"]}
+        line+=", $tps"
+
+        if "$isPrintH"
+        then
+        	echo "$header" >> "$resultsFile"
+        isPrintH=false
+        fi
+        echo "$line" >> "$resultsFile"
+    done
+    echo "" >> "$resultsFile"
+
+    echo "==========================================="
+    echo "            Results ($metric)              "
+    echo "==========================================="
+    cat "$resultsFile"
+}
+
+function processPercentiles(){
+    local resultsFile=$1
+    local vendorI=0
+    local conc=""
+
+    rm -f "$resultsFile"
+
+    local header="Concurrency"
+    for hVal in $(seq 0 100)
+    do
+        header+=", $hVal"
+    done
+
+
+
+    for conc in $concLevels
+    do
+    	local isPrintH=true
+        local percents=${MAP["$conc-percents"]}
+        if "$isPrintH"
+        then
+        	echo "$header" >> "$resultsFile"
+            isPrintH=false
+        fi
+            echo "$percents" >> "$resultsFile"
+
+            echo "" >> "$resultsFile"
+    done
+
+    echo "==========================================="
+    echo "            Results (Percentiles)              "
+    echo "==========================================="
+    cat "$resultsFile"
+}
+
 function iterateConcLevels(){
-warmUp # Warming up 
+
+warmUp # Warming up
 
 if [ -d "$tmpDir" ]
 then
 	echo "$tmpDir exists."
 else
 	mkdir "$tmpDir"
-fi	
+fi
 
 local concLevel=""
 for concLevel in $concLevels
@@ -72,7 +145,20 @@ for concLevel in $concLevels
         testConcLevel $concLevel
     done
 
- 
+
+if [ -d "$resultsDir" ]
+then
+	echo "$resultsDir exists."
+else
+	mkdir "$resultsDir"
+fi
+
+processResults "tps" "$resultsDir/tps.csv"
+echo ""
+processResults "meanLat" "$resultsDir/latency.csv"
+echo ""
+processPercentiles "$resultsDir/percentiles.csv"
+echo ""
 
 }
 
