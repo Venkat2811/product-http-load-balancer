@@ -7,20 +7,10 @@ function cleanup() {
 echo "Inside Clean up.."
 }
 
-#For later implementation
-function buildSamples() {
-echo "Inside build samples.."
-}
+cleanup
+echo $baseDir
+$baseDir/excecute-tests.sh "$1"
 
-if [ "$1" = "build" ]
-then
-    cleanup
-    buildSamples
-else
-    cleanup
-    echo $baseDir
-    $baseDir/excecute-tests.sh "$1"
-fi
 
 if [ ! "$?" = 0 ]
 then
