@@ -9,11 +9,11 @@ Run all tests using the following command from [performance-benchmark](performan
 ./run.sh [load-balancer-endpoint]
 ```
 
-`Example : ./run.sh http://localhost:8290/stocks`
+`Example: ./run.sh http://localhost:8290/stocks`
  
 ## Reference  
 
 https://github.com/wso2/msf4j/tree/master/perf-benchmark
 
-Scripts available in that repo were customized for this project.
+Scripts available in the above mentioned repo were customized for this project.
 
