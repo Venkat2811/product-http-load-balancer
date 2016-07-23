@@ -5,8 +5,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancingAlgorithm;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.simple.StrictClientIPHashing;
+import org.wso2.carbon.gateway.httploadbalancer.callback.LoadBalancerMediatorCallBack;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
-import org.wso2.carbon.messaging.CarbonCallback;
+
 
 import java.util.List;
 import java.util.Map;
@@ -71,7 +72,7 @@ public class LoadBalancerConfigContext {
      * <p>
      * Accessing Pool objects MUST be synchronized.
      */
-    private final Map<String, CarbonCallback> callBackPool = new ConcurrentHashMap<>();
+    private final Map<LoadBalancerMediatorCallBack, String> callBackPool = new ConcurrentHashMap<>();
 
     /**
      * This map will be used in case of Weighted Algorithms.
@@ -254,7 +255,7 @@ public class LoadBalancerConfigContext {
     }
 
 
-    public Map<String, CarbonCallback> getCallBackPool() {
+    public Map<LoadBalancerMediatorCallBack, String> getCallBackPool() {
 
         return callBackPool;
     }
@@ -265,17 +266,11 @@ public class LoadBalancerConfigContext {
      *                 <p>
      *                 NOTE: This operation is always thread safe.
      */
-    public void addToCallBackPool(CarbonCallback callback) {
+    public void addToCallBackPool(LoadBalancerMediatorCallBack callback) {
 
 
-        String name = callback.toString().substring(callback.toString().lastIndexOf(".") + 1,
-                callback.toString().length());
+        this.callBackPool.putIfAbsent(callback, "");
 
-        this.callBackPool.putIfAbsent(name, callback);
-
-        if (log.isDebugEnabled()) {
-            log.info("Added to pool Key : " + name);
-        }
 
     }
 
@@ -286,20 +281,14 @@ public class LoadBalancerConfigContext {
      * <p>
      * NOTE: This operation is always thread safe.
      */
-    public boolean isInCallBackPool(CarbonCallback callback) {
+    public boolean isInCallBackPool(LoadBalancerMediatorCallBack callback) {
 
-        String name = callback.toString().substring(callback.toString().lastIndexOf(".") + 1,
-                callback.toString().length());
 
-        if (this.callBackPool.containsKey(name)) {
-            if (log.isDebugEnabled()) {
-                log.info("Is in Pool : " + name);
-            }
+        if (this.callBackPool.containsKey(callback)) {
+
             return true;
         } else {
-            if (log.isDebugEnabled()) {
-                log.info("Is not in Pool : " + name);
-            }
+
             return false;
         }
     }
@@ -310,17 +299,10 @@ public class LoadBalancerConfigContext {
      *                 <p>
      *                 NOTE: This operation is always thread safe.
      */
-    public void removeFromCallBackPool(CarbonCallback callback) {
+    public void removeFromCallBackPool(LoadBalancerMediatorCallBack callback) {
 
 
-        String name = callback.toString().substring(callback.toString().lastIndexOf(".") + 1,
-                callback.toString().length());
-
-        if (log.isDebugEnabled()) {
-            log.info("Removing from Pool Key : " + name);
-        }
-
-        this.callBackPool.remove(name);
+        this.callBackPool.remove(callback);
 
 
     }
