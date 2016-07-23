@@ -78,8 +78,6 @@ public class TimeoutHandler implements Runnable {
         if (hasContent) {
 
 
-            long currentTime = this.getCurrentTime();
-
             /**
              * Here also we are not locking callBackPool, because lock on concurrent HashMap will be overkill.
              * At this point 2 cases might occur.
@@ -94,94 +92,88 @@ public class TimeoutHandler implements Runnable {
              *     from our callBackPool.
              */
 
-            for (String key : context.getCallBackPool().keySet()) {
+            for (LoadBalancerMediatorCallBack callBack : context.getCallBackPool().keySet()) {
 
-                if (context.getCallBackPool().get(key) instanceof LoadBalancerMediatorCallBack) {
+                long currentTime = this.getCurrentTime();
 
+                /**
+                 * CallBack might be null because, we are iterating using keySet. So when getting keySet()
+                 * we will get keys of all objects present in pool at that point.
+                 *
+                 * Suppose a response arrives after getting keySet(), that callBack will be removed from
+                 * pool and it will also be reflected here because we are accessing callbackPool through
+                 * context.getCallBackPool(), instead of having a local reference to it.
+                 *
+                 * So doing null check is better.
+                 */
+                if (callBack != null) {
 
-                    LoadBalancerMediatorCallBack callBack = (LoadBalancerMediatorCallBack)
-                            context.getCallBackPool().get(key);
+                    if (((currentTime - (callBack.getCreatedTime()
+                            + LoadBalancerConstants.DEFAULT_GRACE_PERIOD)) > context.getReqTimeout())) {
+                        //This callBack is in pool after it has timedOut.
 
-                    /**
-                     * CallBack might be null because, we are iterating using keySet. So when getting keySet()
-                     * we will get keys of all objects present in pool at that point.
-                     *
-                     * Suppose a response arrives after getting keySet(), that callBack will be removed from
-                     * pool and it will also be reflected here because we are accessing callbackPool through
-                     * context.getCallBackPool(), instead of having a local reference to it.
-                     *
-                     * So doing null check is better.
-                     */
-                    if (callBack != null) {
-
-                        if (((currentTime - (callBack.getCreatedTime()
-                                + LoadBalancerConstants.DEFAULT_GRACE_PERIOD)) > context.getReqTimeout())) {
-                            //This callBack is in pool after it has timedOut.
-
-                            //This operation is on Concurrent HashMap, so no synchronization is required.
-                            if (!context.isInCallBackPool(callBack)) {
-                                //If response arrives at this point, callBack would have been removed from pool
-                                //and it would have been sent back to client. So break here.
-                                break;
-                            } else {
-                                context.removeFromCallBackPool(callBack);
-                                //From this point, this callback will not be available in pool.
-                                //So if response arrives it will be discarded.
+                        //This operation is on Concurrent HashMap, so no synchronization is required.
+                        if (!context.isInCallBackPool(callBack)) {
+                            //If response arrives at this point, callBack would have been removed from pool
+                            //and it would have been sent back to client. So break here.
+                            break;
+                        } else {
+                            context.removeFromCallBackPool(callBack);
+                            //From this point, this callback will not be available in pool.
+                            //So if response arrives it will be discarded.
 
 
-                                new LBErrorHandler().handleFault
-                                        ("504", new Throwable("Gateway TimeOut"),
-                                                new DefaultCarbonMessage(true), callBack);
+                            new LBErrorHandler().handleFault
+                                    ("504", new Throwable("Gateway TimeOut"),
+                                            new DefaultCarbonMessage(true), callBack);
 
 
-                            }
+                        }
 
 
-                            if (!this.context.getHealthCheck().equals(LoadBalancerConstants.NO_HEALTH_CHECK)) {
+                        if (!this.context.getHealthCheck().equals(LoadBalancerConstants.NO_HEALTH_CHECK)) {
+                            /**
+                             * But here we need synchronization because, this LBOutboundEndpoint might be
+                             * used in CallMediator and LoadBalancerMediatorCallBack.
+                             *
+                             * We will be changing LBOutboundEndpoint's properties here.
+                             *
+                             * If an LBOutboundEndpoint is unHealthy it should not be available else where.
+                             * So we are locking on it, till we remove it from all the places
+                             * where it is available.
+                             *
+                             * NOTE: The below code does only HealthCheck related activities.
+                             *
+                             * Locking here is MUST because we want the below operations
+                             * to happen without any interference.
+                             */
+                            synchronized (callBack.getLbOutboundEndpoint().getLock()) {
+
+                                callBack.getLbOutboundEndpoint().incrementUnHealthyRetries();
                                 /**
-                                 * But here we need synchronization because, this LBOutboundEndpoint might be
-                                 * used in CallMediator and LoadBalancerMediatorCallBack.
-                                 *
-                                 * We will be changing LBOutboundEndpoint's properties here.
-                                 *
-                                 * If an LBOutboundEndpoint is unHealthy it should not be available else where.
-                                 * So we are locking on it, till we remove it from all the places
-                                 * where it is available.
-                                 *
-                                 * NOTE: The below code does only HealthCheck related activities.
-                                 *
-                                 * Locking here is MUST because we want the below operations
-                                 * to happen without any interference.
+                                 * IMPORTANT: Here in case of LeastResponseTime algorithm,
+                                 * we are doing send response time as 0,
+                                 * other wise detection of unHealthyEndpoint will be late.
                                  */
-                                synchronized (callBack.getLbOutboundEndpoint().getLock()) {
+                                if (context.getAlgorithmName().equals(LoadBalancerConstants.LEAST_RESPONSE_TIME)) {
 
-                                    callBack.getLbOutboundEndpoint().incrementUnHealthyRetries();
-                                    /**
-                                     * IMPORTANT: Here in case of LeastResponseTime algorithm,
-                                     * we are doing send response time as 0,
-                                     * other wise detection of unHealthyEndpoint will be late.
-                                     */
-                                    if (context.getAlgorithmName().equals(LoadBalancerConstants.LEAST_RESPONSE_TIME)) {
+                                    ((LeastResponseTime) context.getLoadBalancingAlgorithm()).
+                                            setAvgResponseTime(callBack.getLbOutboundEndpoint(), 0);
 
-                                        ((LeastResponseTime) context.getLoadBalancingAlgorithm()).
-                                                setAvgResponseTime(callBack.getLbOutboundEndpoint(), 0);
-
-                                    }
-
-                                    if (this.reachedUnHealthyRetriesThreshold(callBack.getLbOutboundEndpoint())) {
-
-                                        CommonUtil.removeUnHealthyEndpoint(context, algorithm,
-                                                callBack.getLbOutboundEndpoint());
-                                    }
                                 }
 
+                                if (this.reachedUnHealthyRetriesThreshold(callBack.getLbOutboundEndpoint())) {
+
+                                    CommonUtil.removeUnHealthyEndpoint(context, algorithm,
+                                            callBack.getLbOutboundEndpoint());
+                                }
                             }
 
                         }
+
                     }
-                } else { // TODO: Remove this later.
-                    log.info(key + " Object is in callBackPool..");
                 }
+
             }
         }
 

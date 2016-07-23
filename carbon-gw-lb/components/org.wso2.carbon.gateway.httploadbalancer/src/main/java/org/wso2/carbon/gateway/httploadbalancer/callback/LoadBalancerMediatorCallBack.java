@@ -101,7 +101,7 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
         if (parentCallback instanceof LoadBalancerMediatorCallBack) {
 
             //Locking is not required as we are operating on ConcurrentHashMap.
-            if (this.context.isInCallBackPool((CarbonCallback)
+            if (this.context.isInCallBackPool((LoadBalancerMediatorCallBack)
                     carbonMessage.getProperty(Constants.CALL_BACK))) {
 
                 LoadBalancerMediatorCallBack callBack = (LoadBalancerMediatorCallBack)

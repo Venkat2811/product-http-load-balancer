@@ -187,10 +187,6 @@ public class LoadBalancerMediator extends AbstractMediator {
     @Override
     public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback) throws Exception {
 
-        if (log.isDebugEnabled()) {
-            log.debug("Message received at Load Balancer Mediator");
-        }
-
 
 /**
  log.info("Inside LB mediator...");
@@ -435,7 +431,7 @@ public class LoadBalancerMediator extends AbstractMediator {
 
                 // Calling chosen LBOutboundEndpoint's LoadBalancerCallMediator receive...
 
-                log.info("Chosen endpoint by LB is.." + nextLBOutboundEndpoint.getName());
+                //log.info("Chosen endpoint by LB is.." + nextLBOutboundEndpoint.getName());
 
                 lbCallMediatorMap.get(nextLBOutboundEndpoint.getName()).
                         receive(carbonMessage, new LoadBalancerMediatorCallBack(carbonCallback, this,
