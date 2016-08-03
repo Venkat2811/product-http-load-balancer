@@ -139,31 +139,13 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
             } else {
                 log.error("Response received after removing callback from pool.." +
                         "This response will be discarded. " +
-                        "You might have to adjust scheduled value to avoid this from happening.");
+                        "Either your BE is not performing as expected (or)" +
+                        " You might have to adjust request timeout value to avoid this from happening.");
                 return;
             }
 
 
             if (this.context.getPersistence().equals(LoadBalancerConstants.APPLICATION_COOKIE)) {
-
-                /**
-                 ///////////////////////////////////////////////////////////////////////////////////
-                 //TODO: Just for testing. Remove this block later.
-                 BasicClientCookie serverCookie = new BasicClientCookie("JSESSIONID", "ghsgsdgsg");
-
-                 Date expiration = new Date(new Date().getTime() + 3600 * 1000);
-
-                 serverCookie.setExpiryDate(expiration);
-
-                 String finalCookie =
-                 serverCookie.getName() + "=" + serverCookie.getValue()
-                 +
-                 "; expires =" + serverCookie.getExpiryDate() +
-                 "; HTTPOnly";
-                 carbonMessage.setHeader(LoadBalancerConstants.SET_COOKIE_HEADER, finalCookie);
-
-                 ///////////////////////////////////////////////////////////////////////////////////////
-                 **/
 
 
                 /**Checking if there is any cookie already available in response from BE. **/
@@ -199,24 +181,6 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
 
             } else if (this.context.getPersistence().equals(LoadBalancerConstants.LB_COOKIE)) {
 
-                /**
-                 ///////////////////////////////////////////////////////////////////////////////////
-                 //TODO: Just for testing. Remove this block later.
-                 BasicClientCookie serverCookie = new BasicClientCookie("JSESSIONID", "ghsgsdgsg");
-
-                 Date expiration = new Date(new Date().getTime() + 3600 * 1000);
-
-                 serverCookie.setExpiryDate(expiration);
-
-                 String finalCookie =
-                 serverCookie.getName() + "=" + serverCookie.getValue();
-                 // +
-                 //   "; expires =" + serverCookie.getExpiryDate() +
-                 //  "; HTTPOnly";
-                 carbonMessage.setHeader(LoadBalancerConstants.SET_COOKIE_HEADER, finalCookie);
-
-                 ///////////////////////////////////////////////////////////////////////////////////////
-                 **/
 
                 if (carbonMessage.getHeader(LoadBalancerConstants.SET_COOKIE_HEADER) != null ||
                         carbonMessage.getHeader(LoadBalancerConstants.SET_COOKIE2_HEADER) != null) {
