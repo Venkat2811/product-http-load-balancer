@@ -499,6 +499,29 @@ public class LoadBalancerConfigHolder {
 
             context.setHealthCheck(this.getFromConfig(LoadBalancerConstants.HEALTH_CHECK_TYPE).getValue());
 
+            if (this.getFromConfig(LoadBalancerConstants.HEALTH_CHECK_REQUEST_TIMEOUT) != null) {
+
+                String hcReqTimeOut = this.getFromConfig
+                        (LoadBalancerConstants.HEALTH_CHECK_REQUEST_TIMEOUT).getValue();
+
+                int timeout = CommonUtil.getTimeInMilliSeconds(hcReqTimeOut);
+
+                if (isWithInLimit(timeout)) {
+                    context.setReqTimeout(timeout);
+                    log.info("Request TIME_OUT : " + context.getReqTimeout());
+                } else {
+                    //TODO: Is this okay..?
+                    context.setReqTimeout(LoadBalancerConstants.DEFAULT_REQ_TIMEOUT);
+                    log.error("Exceeded TIMEOUT LIMIT. Loading DEFAULT value for " +
+                            "Request TIME_OUT : " + context.getReqTimeout());
+                }
+            } else {
+                //TODO: Is this okay..?
+                context.setReqTimeout(LoadBalancerConstants.DEFAULT_REQ_TIMEOUT);
+                log.error("LB_REQUEST_TIMEOUT NOT SPECIFIED. Loading DEFAULT value for " +
+                        "Request TIME_OUT : " + context.getReqTimeout());
+            }
+
         }
 
         log.info("HEALTH CHECK TYPE : " + context.getHealthCheck());
@@ -508,7 +531,7 @@ public class LoadBalancerConfigHolder {
 
     /**
      * This method validates a given configuration, if anything is missing default value will be added.
-     * TODO: check default values limit.
+     *
      */
 
     private void validateConfig() {
