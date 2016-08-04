@@ -428,16 +428,17 @@ public final class CommonUtil {
 
     public static void sendErrorResponse(CarbonCallback carbonCallback, boolean isInternalError) throws Exception {
 
-        if (!isInternalError) {
-            log.error("All OutboundEndpoints are unHealthy..");
-            new LBErrorHandler().handleFault
-                    ("503", new Throwable("Service Unavailable.. " +
-                            "Kindly try after some time.."), new DefaultCarbonMessage(true), carbonCallback);
-        } else {
+        if (isInternalError) {
 
             new LBErrorHandler().handleFault
                     ("500", new Throwable("Internal Server Error.."),
                             new DefaultCarbonMessage(true), carbonCallback);
+        } else {
+
+            log.error("All OutboundEndpoints are unHealthy..");
+            new LBErrorHandler().handleFault
+                    ("503", new Throwable("Service Unavailable.. " +
+                            "Kindly try after some time.."), new DefaultCarbonMessage(true), carbonCallback);
 
         }
 
