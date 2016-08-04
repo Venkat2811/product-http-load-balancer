@@ -7,10 +7,21 @@ This is a Google Summer of Code (GSoC 2016) Project.  It is under development.
  
  `Mid Term :` https://docs.google.com/document/d/1kEk706KkwjK3gFpjx56vNwAKzVQpa-G52MHIC_I7-0Y/edit?usp=sharing
  
-High Level Architecture
------------------------
+Architecture
+------------
+
+<br/>
+<b>High Level Architecture</b>
+<br/>
 
 ![alt tag] (docs/High Level Architecture.PNG)
+
+
+<br/><br/>
+<b>Engine Architecture</b>
+<br/>
+
+![alt tag](docs/Engine Architecture.png)
 
 
 Building Product
@@ -68,19 +79,15 @@ Traffic Flows
 ##### Simple HTTP
 Traffic between `Client -> LB -> Back-End` and `Back-End -> LB -> Client` are un-encrypted.
 
-![alt tag] (docs/Simple HTTP.PNG)
 
 ##### SSL Offload
  - Traffic from `Client -> LB` and `LB -> Client` are encrypted.
  - Traffic from `LB -> Back-End` and `Back-End -> LB` are un-encrypted.
 
-![alt tag] (docs/SSL Offload.PNG)
 
 ##### SSL Re-Encryption
 Traffic between `Client -> LB -> Back-End` and `Back-End -> LB -> Client` are encrypted.
 
-
-![alt tag] (docs/SSL ReEncrypt.PNG)
 
 
 
