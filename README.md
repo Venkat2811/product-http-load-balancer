@@ -12,14 +12,12 @@ Architecture
 
 <br/>
 <b>High Level Architecture</b>
-<br/>
 
 ![alt tag] (docs/High Level Architecture.PNG)
 
 
-<br/><br/>
-<b>Engine Architecture</b>
 <br/>
+<b>Engine Architecture</b>
 
 ![alt tag](docs/Engine Architecture.png)
 
