@@ -74,16 +74,16 @@ You can find more samples in `/product/carbon-home/samples/`.
 Traffic Flows
 -------------
 
-##### Simple HTTP
+#### Simple HTTP
 Traffic between `Client -> LB -> Back-End` and `Back-End -> LB -> Client` are un-encrypted.
 
 
-##### SSL Offload
+#### SSL Offload
  - Traffic from `Client -> LB` and `LB -> Client` are encrypted.
  - Traffic from `LB -> Back-End` and `Back-End -> LB` are un-encrypted.
 
 
-##### SSL Re-Encryption
+#### SSL Re-Encryption
 Traffic between `Client -> LB -> Back-End` and `Back-End -> LB -> Client` are encrypted.
 
 
