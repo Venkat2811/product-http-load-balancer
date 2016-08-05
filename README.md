@@ -55,9 +55,15 @@ participant Endpoint1 : OutboundEndpoint(protocol("http"),host("http://localhost
 
 participant Endpoint2 : OutboundEndpoint(protocol("http"),host("http://localhost:8082/stockquote/all"))
 
+participant Endpoint3 : OutboundEndpoint(protocol("http"),host("http://localhost:8084/stockquote/all"))
+
+participant Endpoint4 : OutboundEndpoint(protocol("http"),host("http://localhost:8086/stockquote/all"))
+
+participant Endpoint5 : OutboundEndpoint(protocol("http"),host("http://localhost:8088/stockquote/all"))
+
 StocksInbound -> StocksPipeline : "client request"
 
-LoadBalancer(algorithm(name(ROUND_ROBIN)),persistence(type(LB_COOKIE)),healthCheck(type(PASSIVE),requestTimeout(1m),unHealthyRetries(5times),healthyRetries(1time),healthyCheckInterval(5m)))
+LoadBalancer(algorithm(name(ROUND_ROBIN)),persistence(type(NO_PERSISTENCE)),healthCheck(type(PASSIVE),requestTimeout(5s),unHealthyRetries(2times),healthyRetries(3times),healthyCheckInterval(1m)))
 
 StocksPipeline -> StocksInbound : "Final Response"
 
