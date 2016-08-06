@@ -1,3 +1,23 @@
+/*
+ * Copyright (c) 2016, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * <p>
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+
+
 package org.wso2.carbon.gateway.httploadbalancer.algorithm.simple;
 
 import org.slf4j.Logger;
@@ -18,7 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
      * =====================================IMPLEMENTATION LOGIC==================================================== *
      *                                                                                                               *
      * FACT : If there is more load on a server, response time will be more & also a newly started server will       *
-     *        have high response time initially because of its warm-up time. So till initial WINDOW no of requests   *
+     *        have high response time initially because of its warm-up time. So till initial WINDOW no of requests,  *
      *        it'll be ROUND-ROBIN.                                                                                  *
      *                                                                                                               *
      * EXPLANATION: See the below example to understand how this algorithm works. Below are the factors that         *
@@ -26,7 +46,8 @@ import java.util.concurrent.ConcurrentHashMap;
      *                                                                                                               *
      *              1) Average Response Time - This is calculated as "Running-Average" (i.e) at any point            *
      *                                         average-response time attribute of an LBOutbound endpoint gives       *
-     *                                         the average of all its response time                                  *
+     *                                         the average of response time of all the requests served               *
+     *                                         by that endpoint.                                                     *
      *                                                                                                               *
      *              2) WINDOW - This attribute defined below determines the number of requests after which           *
      *                          we should perform computation to find out load distribution.                         *
@@ -40,8 +61,8 @@ import java.util.concurrent.ConcurrentHashMap;
      *          policy.                                                                                              *
      *                                                                                                               *
      *    EXAMPLE: Assume that we are having 4 endpoints A,B,C,D with their averageResponseTime (running average)    *
-     *             2,2,8,8 (milli seconds) respectively.  This running average value is after WINDOW number of       *
-     *             requests are being processed.                                                                     *
+     *             2,2,8,8 (milli seconds) respectively.  This running average value is after processing             *
+     *             WINDOW number of requests.                                                                        *
      *                                                                                                               *
      *             The below calculations will be performed once if (windowTracker > WINDOW).  windowTracker will be *
      *             reset to 0 each and every time it satisfies this condition.                                       *
@@ -69,7 +90,7 @@ import java.util.concurrent.ConcurrentHashMap;
      *                       Kindly note that this is maxReq.                                                        *
      *                                                                                                               *
      *                       So when any new requests without any persistence policy arrives,                        *
-     *                       this algorithm will choose endpoint that have not exceeded this                         *
+     *                       this algorithm will choose endpoint that has not exceeded this                         *
      *                       maxReqPerWindow in ROUND-ROBIN manner.  Thus load distribution                          *
      *                       is done.                                                                                *
      *                                                                                                               *

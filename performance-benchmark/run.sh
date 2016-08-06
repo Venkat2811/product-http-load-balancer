@@ -2,7 +2,7 @@
 
 baseDir=$(dirname "$0")
 
-#For later implementation
+#For later implementation, if necessary
 function cleanup() {
 echo "Inside Clean up.."
 }
