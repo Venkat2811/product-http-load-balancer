@@ -94,11 +94,10 @@ public class LBOutboundEndpoint {
 
 
         // carbonMessage = CommonUtil.appendLBIP(carbonMessage, true);
-
-        this.outboundEndpoint.receive(carbonMessage, carbonCallback);
-
         //No need to synchronize as we are operating on concurrent HashMap.
         context.addToCallBackPool((LoadBalancerMediatorCallBack) carbonCallback);
+
+        this.outboundEndpoint.receive(carbonMessage, carbonCallback);
 
         return false;
     }
