@@ -32,7 +32,7 @@ import org.wso2.carbon.gateway.httploadbalancer.algorithm.weighted.WeightedRound
 import org.wso2.carbon.gateway.httploadbalancer.callback.LoadBalancerMediatorCallBack;
 import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
-import org.wso2.carbon.gateway.httploadbalancer.invokers.LoadBalancerCallMediator;
+import org.wso2.carbon.gateway.httploadbalancer.invokers.LBEndpointCallMediator;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 import org.wso2.carbon.gateway.httploadbalancer.utils.CommonUtil;
 import org.wso2.carbon.gateway.httploadbalancer.utils.handlers.scheduled.ActiveHealthCheckHandler;
@@ -65,7 +65,7 @@ public class LoadBalancerMediator extends AbstractMediator {
 
     private static final Logger log = LoggerFactory.getLogger(LoadBalancerMediator.class);
 
-    private Map<String, LoadBalancerCallMediator> lbCallMediatorMap;
+    private Map<String, LBEndpointCallMediator> lbCallMediatorMap; //Make it hashmap
 
     private final LoadBalancingAlgorithm lbAlgorithm;
     private final LoadBalancerConfigContext context;
@@ -133,7 +133,7 @@ public class LoadBalancerMediator extends AbstractMediator {
 
         // Creating LoadBalancerCallMediators for OutboundEndpoints...
         for (LBOutboundEndpoint lbOutboundEP : lbOutboundEndpoints) {
-            lbCallMediatorMap.put(lbOutboundEP.getName(), new LoadBalancerCallMediator(lbOutboundEP, context));
+            lbCallMediatorMap.put(lbOutboundEP.getName(), new LBEndpointCallMediator(lbOutboundEP, context));
         }
         //At this point everything is initialized.
 
@@ -427,83 +427,19 @@ public class LoadBalancerMediator extends AbstractMediator {
 
         if (nextLBOutboundEndpoint != null) {
 
+            // Chosen Endpoint is healthy.
+            // If there is any persistence, it will be maintained.
 
-            /**
-             *  NOTE: The places where LBOutboundEndpoint's properties will be changed are:
-             *  1) LoadBalancerMediatorCallBack
-             *  2) TimeoutHandler
-             *
-             *  We are acquiring lock on respective LBOutboundEndpoint object in the above mentioned
-             *  classes when the properties are being changed. So here we need not worry about locking
-             *  here because here we are just reading them.
-             *
-             *  NOTE: In case of NO_HEALTH_CHECK, endpoints will always be healthy but timeOut checking will happen.
-             *  So, if condition will always be true.
-             *
-             *  The returned endpoint by algorithm will always be healthy, but we are making the below
-             *  check just to be safe.
-             */
-            if (nextLBOutboundEndpoint.isHealthy()) {
-                // Chosen Endpoint is healthy.
-                // If there is any persistence, it will be maintained.
+            // Calling chosen LBOutboundEndpoint's LBEndpointCallMediator receive...
 
-                // Calling chosen LBOutboundEndpoint's LoadBalancerCallMediator receive...
+            //log.info("Chosen endpoint by LB is.." + nextLBOutboundEndpoint.getName());
 
-                //log.info("Chosen endpoint by LB is.." + nextLBOutboundEndpoint.getName());
+            lbCallMediatorMap.get(nextLBOutboundEndpoint.getName()).
+                    receive(carbonMessage, new LoadBalancerMediatorCallBack(carbonCallback, this,
+                            this.context, nextLBOutboundEndpoint));
+            return true;
 
-                lbCallMediatorMap.get(nextLBOutboundEndpoint.getName()).
-                        receive(carbonMessage, new LoadBalancerMediatorCallBack(carbonCallback, this,
-                                this.context, nextLBOutboundEndpoint));
-                return true;
 
-            } else {
-
-                while (true) {
-                    /**
-                     * Here we are trying to fetch healthy endpoint.
-                     *
-                     * This loop also handles if there is no healthy endpoint available.
-                     *
-                     * Adding and removing unHealthyEndpoint to the UnHealthyList happens in TimeoutHandler not here.
-                     *
-                     * If there is any persistence, it WILL NOT BE MAINTAINED because the already chosen endpoint
-                     * with persistence is unHealthy and we again don't want to chose it.
-                     */
-
-                    //Fetching endpoint according to algorithm.
-                    nextLBOutboundEndpoint = lbAlgorithm.getNextLBOutboundEndpoint(carbonMessage, context);
-
-                    //Here null pointer test is must.
-                    if (nextLBOutboundEndpoint != null) {
-
-                        if (nextLBOutboundEndpoint.isHealthy()) { //The new Chosen Endpoint is healthy.
-
-                            log.info("Previously chosen endpoint is unHealthy.. Now, Chosen endpoint is : " +
-                                    nextLBOutboundEndpoint.getName());
-
-                            // Calling chosen LBOutboundEndpoint's LoadBalancerCallMediator receive...
-                            lbCallMediatorMap.get(nextLBOutboundEndpoint.getName()).
-                                    receive(carbonMessage, new LoadBalancerMediatorCallBack(carbonCallback, this,
-                                            this.context, nextLBOutboundEndpoint));
-                            return true;
-
-                        } else {
-
-                            if (areAllEndpointsUnhealthy()) {
-
-                                CommonUtil.sendErrorResponse(carbonCallback, false);
-                                return false;
-                            }
-                        }
-
-                    } else { //If algorithm returns null, there is no endpoint available.
-
-                        CommonUtil.sendErrorResponse(carbonCallback, false);
-                        return false;
-                    }
-
-                }
-            }
         } else {
 
             if (areAllEndpointsUnhealthy()) {
@@ -525,10 +461,9 @@ public class LoadBalancerMediator extends AbstractMediator {
 
         int unHealthyListSize;
 
-        // Here locking is required as we are fetching size.
-        synchronized (this.context.getUnHealthyLBEPQueue()) {
-            unHealthyListSize = context.getUnHealthyEPQueueSize();
-        }
+
+        unHealthyListSize = context.getUnHealthyEPQueueSize();
+
 
         if (context.getLbOutboundEndpoints().size() == unHealthyListSize) {
             return true;
