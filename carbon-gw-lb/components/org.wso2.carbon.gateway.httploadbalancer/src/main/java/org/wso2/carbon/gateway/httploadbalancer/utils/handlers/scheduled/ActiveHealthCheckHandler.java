@@ -155,9 +155,7 @@ public class ActiveHealthCheckHandler implements Runnable {
 
                         log.error(e.toString());
 
-                        synchronized (lbOutboundEndpoint.getLock()) {
-                            lbOutboundEndpoint.incrementUnHealthyRetries();
-                        }
+                        lbOutboundEndpoint.incrementUnHealthyRetries();
 
                         if (reachedUnHealthyRetriesThreshold(lbOutboundEndpoint)) {
 

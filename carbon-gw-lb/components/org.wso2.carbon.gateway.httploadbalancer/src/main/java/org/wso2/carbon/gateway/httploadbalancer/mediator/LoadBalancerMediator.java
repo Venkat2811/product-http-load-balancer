@@ -42,9 +42,9 @@ import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -65,7 +65,7 @@ public class LoadBalancerMediator extends AbstractMediator {
 
     private static final Logger log = LoggerFactory.getLogger(LoadBalancerMediator.class);
 
-    private Map<String, LBEndpointCallMediator> lbCallMediatorMap; //Make it hashmap
+    private Map<String, LBEndpointCallMediator> lbCallMediatorMap;
 
     private final LoadBalancingAlgorithm lbAlgorithm;
     private final LoadBalancerConfigContext context;
@@ -97,7 +97,7 @@ public class LoadBalancerMediator extends AbstractMediator {
 
         this.context = context;
         this.configName = configName;
-        lbCallMediatorMap = new ConcurrentHashMap<>();
+        lbCallMediatorMap = new HashMap<>();
 
         if (context.getAlgorithmName().equals(LoadBalancerConstants.ROUND_ROBIN)) {
 
@@ -442,10 +442,14 @@ public class LoadBalancerMediator extends AbstractMediator {
 
         } else {
 
+            /**
+             * Algorithm returns null if no endpoints are available.
+             * In that case, we have to check if all endpoints are unHealthy
+             */
             if (areAllEndpointsUnhealthy()) {
 
                 CommonUtil.sendErrorResponse(carbonCallback, false);
-            } else {
+            } else { //Something has gone wrong.
 
                 log.error("Unable to choose endpoint for forwarding the request." +
                         " Check logs to see what went wrong.");
@@ -460,17 +464,13 @@ public class LoadBalancerMediator extends AbstractMediator {
     private boolean areAllEndpointsUnhealthy() {
 
         int unHealthyListSize;
-
-
         unHealthyListSize = context.getUnHealthyEPQueueSize();
-
 
         if (context.getLbOutboundEndpoints().size() == unHealthyListSize) {
             return true;
         } else {
             return false;
         }
-
     }
 
 }

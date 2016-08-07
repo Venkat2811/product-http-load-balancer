@@ -162,30 +162,28 @@ public class TimeoutHandler implements Runnable {
                              *
                              * NOTE: The below code does only HealthCheck related activities.
                              *
-                             * Locking here is MUST because we want the below operations
-                             * to happen without any interference.
                              */
-                            synchronized (callBack.getLbOutboundEndpoint().getLock()) {
 
-                                callBack.getLbOutboundEndpoint().incrementUnHealthyRetries();
-                                /**
-                                 * IMPORTANT: Here in case of LeastResponseTime algorithm,
-                                 * we are doing send response time as 0,
-                                 * other wise detection of unHealthyEndpoint will be late.
-                                 */
-                                if (context.getAlgorithmName().equals(LoadBalancerConstants.LEAST_RESPONSE_TIME)) {
 
-                                    ((LeastResponseTime) context.getLoadBalancingAlgorithm()).
-                                            setAvgResponseTime(callBack.getLbOutboundEndpoint(), 0);
+                            callBack.getLbOutboundEndpoint().incrementUnHealthyRetries();
+                            /**
+                             * IMPORTANT: Here in case of LeastResponseTime algorithm,
+                             * we are doing send response time as 0,
+                             * other wise detection of unHealthyEndpoint will be late.
+                             */
+                            if (context.getAlgorithmName().equals(LoadBalancerConstants.LEAST_RESPONSE_TIME)) {
 
-                                }
+                                ((LeastResponseTime) context.getLoadBalancingAlgorithm()).
+                                        setAvgResponseTime(callBack.getLbOutboundEndpoint(), 0);
 
-                                if (this.reachedUnHealthyRetriesThreshold(callBack.getLbOutboundEndpoint())) {
-
-                                    CommonUtil.removeUnHealthyEndpoint(context, algorithm,
-                                            callBack.getLbOutboundEndpoint());
-                                }
                             }
+
+                            if (this.reachedUnHealthyRetriesThreshold(callBack.getLbOutboundEndpoint())) {
+
+                                CommonUtil.removeUnHealthyEndpoint(context, algorithm,
+                                        callBack.getLbOutboundEndpoint());
+                            }
+
 
                         }
 

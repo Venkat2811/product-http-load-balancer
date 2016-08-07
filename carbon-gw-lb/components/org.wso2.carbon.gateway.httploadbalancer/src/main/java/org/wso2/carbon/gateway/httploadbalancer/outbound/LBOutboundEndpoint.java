@@ -26,6 +26,9 @@ import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContex
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+
 
 /**
  * An instance of this class has a reference to an OutboundEndpoint.
@@ -36,32 +39,22 @@ import org.wso2.carbon.messaging.CarbonMessage;
 public class LBOutboundEndpoint {
 
     private static final Logger log = LoggerFactory.getLogger(LBOutboundEndpoint.class);
-    private final Object lock = new Object();
-
 
     // HTTP or HTTPS Endpoint.
     private OutboundEndpoint outboundEndpoint;
 
     // Healthy or not.
-    private boolean isHealthy = true;
+    private AtomicBoolean isHealthy = new AtomicBoolean(true);
 
     // No of retries to be done to see whether it is alive again.
-    private int healthyRetriesCount = 0;
+    private AtomicInteger healthyRetriesCount = new AtomicInteger(0);
 
     // No of retries to be done to mark an endpoint as unHealthy.
-    private int unHealthyRetriesCount = 0;
+    private AtomicInteger unHealthyRetriesCount = new AtomicInteger(0);
 
 
     public LBOutboundEndpoint(OutboundEndpoint outboundEndpoint) {
         this.outboundEndpoint = outboundEndpoint;
-        this.isHealthy = true;
-        this.healthyRetriesCount = 0;
-        this.unHealthyRetriesCount = 0;
-    }
-
-
-    public Object getLock() {
-        return this.lock;
     }
 
     public OutboundEndpoint getOutboundEndpoint() {
@@ -69,32 +62,26 @@ public class LBOutboundEndpoint {
     }
 
     public boolean isHealthy() {
-        synchronized (lock) {
-            return isHealthy;
-        }
-    }
 
+        return isHealthy.get();
+
+    }
 
     public int getHealthyRetriesCount() {
-        synchronized (lock) {
-            return healthyRetriesCount;
-        }
+
+        return healthyRetriesCount.get();
+
     }
 
-    /**
-     * NOTE: This method MUST be accessed after acquiring lock on lock Object.
-     */
     public void setHealthyRetriesCount(int healthyRetriesCount) {
 
-        this.healthyRetriesCount = healthyRetriesCount;
+        this.healthyRetriesCount.set(healthyRetriesCount);
     }
 
-    /**
-     * NOTE: This method MUST be accessed after acquiring lock on lock Object.
-     */
+
     public int getUnHealthyRetriesCount() {
 
-        return unHealthyRetriesCount;
+        return unHealthyRetriesCount.get();
 
     }
 
@@ -105,16 +92,8 @@ public class LBOutboundEndpoint {
     public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback,
                            LoadBalancerConfigContext context) throws Exception {
 
-        /**  log.info("Inside LBOutboundEndpoint...");
 
-         log.info("Transport Headers...");
-         log.info(healthCheckCMsg.getHeaders().toString());
-
-         log.info("Properties...");
-         log.info(healthCheckCMsg.getProperties().toString());
-         **/
-
-       // carbonMessage = CommonUtil.appendLBIP(carbonMessage, true);
+        // carbonMessage = CommonUtil.appendLBIP(carbonMessage, true);
 
         this.outboundEndpoint.receive(carbonMessage, carbonCallback);
 
@@ -124,34 +103,25 @@ public class LBOutboundEndpoint {
         return false;
     }
 
-    /**
-     * NOTE: This method MUST be accessed after acquiring lock on lock Object.
-     */
     public void incrementUnHealthyRetries() {
 
-        this.unHealthyRetriesCount++;
+        this.unHealthyRetriesCount.incrementAndGet();
 
         log.warn("Incremented UnHealthyRetries count for endPoint : " + this.getName());
     }
 
-    /**
-     * NOTE: This method MUST be accessed after acquiring lock on lock Object.
-     */
     public void incrementHealthyRetries() {
 
-        this.healthyRetriesCount++;
+        this.healthyRetriesCount.incrementAndGet();
 
         if (log.isDebugEnabled()) {
             log.info("Incremented HealthyRetries count for endPoint : " + this.getName());
         }
     }
 
-    /**
-     * NOTE: This method MUST be accessed after acquiring lock on lock Object.
-     */
     public void markAsUnHealthy() {
 
-        isHealthy = false;
+        isHealthy.set(false);
 
         log.warn(this.getName() + " is unHealthy");
     }
@@ -161,17 +131,19 @@ public class LBOutboundEndpoint {
      * and also when when we receive a successful response from backend
      * so that we can avoid any false alarms (i.e when unHealthy endpoint is
      * incremented due to some timeOut but the actual endpoint is actually healthy).
-     * <p>
-     * NOTE: This method MUST be accessed after acquiring lock on lock Object.
      */
     public void resetHealthPropertiesToDefault() {
 
-        this.isHealthy = true;
-        this.unHealthyRetriesCount = 0;
-        this.healthyRetriesCount = 0;
-
+        this.isHealthy.set(true);
+        this.unHealthyRetriesCount.set(0);
+        this.healthyRetriesCount.set(0);
     }
 
-
+    public void resetUnhealthyRetriesCount() {
+        // Since it is atomic integer, setting it to 0 without checking would be costly.
+        if (this.unHealthyRetriesCount.get() > 0) {
+            this.unHealthyRetriesCount.set(0);
+        }
+    }
 
 }

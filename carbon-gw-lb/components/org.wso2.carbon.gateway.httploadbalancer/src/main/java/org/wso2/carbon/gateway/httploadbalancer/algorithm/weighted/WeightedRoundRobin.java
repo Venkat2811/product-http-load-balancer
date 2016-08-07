@@ -134,7 +134,7 @@ public class WeightedRoundRobin implements WeightedAlgorithm {
                 if (this.weightedLBOutboundEndpoints.contains(map.get(lbOutboundEndpoint.getName()))) {
                     log.info(lbOutboundEndpoint.getName() + " already exists in list..");
                 } else {
-                    map.get(lbOutboundEndpoint.getName()).resetWeight(); //This is MUST.
+                    map.get(lbOutboundEndpoint.getName()).resetCurrentWeight(); //This is MUST.
                     this.weightedLBOutboundEndpoints.add(map.get(lbOutboundEndpoint.getName()));
                 }
 
@@ -178,7 +178,7 @@ public class WeightedRoundRobin implements WeightedAlgorithm {
 
     private void resetAllCurrentWeights() {
 
-        this.weightedLBOutboundEndpoints.forEach(WeightedLBOutboundEndpoint::resetWeight);
+        this.weightedLBOutboundEndpoints.forEach(WeightedLBOutboundEndpoint::resetCurrentWeight);
 
     }
 

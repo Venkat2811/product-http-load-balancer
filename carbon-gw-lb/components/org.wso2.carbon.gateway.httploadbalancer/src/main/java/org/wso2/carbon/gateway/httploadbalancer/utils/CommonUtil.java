@@ -395,9 +395,8 @@ public final class CommonUtil {
                                                LoadBalancingAlgorithm algorithm,
                                                LBOutboundEndpoint lbOutboundEndpoint) {
 
-        synchronized (lbOutboundEndpoint.getLock()) {
-            lbOutboundEndpoint.markAsUnHealthy();
-        }
+
+        lbOutboundEndpoint.markAsUnHealthy();
 
         /**
          * When request is received at LoadBalancerMediator,

@@ -129,28 +129,17 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
                 //From this point, this callback will not be available in pool.
 
                 /**
-                 * We are locking on this LBOutboundEndpoint object because,
-                 * this might be used in LoadBalancerMediator and in TimeoutHandler.
-                 *
-                 * Since we are resetting the properties lock is must.
-                 *
-                 * We are doing reset because, due to some delay though an endpoint is healthy,
-                 * we might have got request timeout. But the we would have got the other response
-                 * within createdTime. In such cases resetting has to be done.
+                 * Resetting unHealthyRetries count, to avoid any false detection.
                  */
-                synchronized (callBack.getLbOutboundEndpoint().getLock()) {
+                callBack.getLbOutboundEndpoint().resetUnhealthyRetriesCount();
 
-                    callBack.getLbOutboundEndpoint().resetHealthPropertiesToDefault();
+                //We are using running average technique for Least Response Time algorithm.
+                //So, we are doing this.
+                if (context.getAlgorithmName().equals(LoadBalancerConstants.LEAST_RESPONSE_TIME)) {
 
-                    //We are using running average technique for Least Response Time algorithm.
-                    //So, we are doing this.
-                    if (context.getAlgorithmName().equals(LoadBalancerConstants.LEAST_RESPONSE_TIME)) {
-
-                        ((LeastResponseTime) context.getLoadBalancingAlgorithm()).
-                                setAvgResponseTime(callBack.getLbOutboundEndpoint(), (int)
-                                        (this.getCurrentTime() - callBack.getCreatedTime()));
-
-                    }
+                    ((LeastResponseTime) context.getLoadBalancingAlgorithm()).
+                            setAvgResponseTime(callBack.getLbOutboundEndpoint(), (int)
+                                    (this.getCurrentTime() - callBack.getCreatedTime()));
 
                 }
 
