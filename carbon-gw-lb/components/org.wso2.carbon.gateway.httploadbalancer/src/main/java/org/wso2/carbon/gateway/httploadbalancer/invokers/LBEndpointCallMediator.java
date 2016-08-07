@@ -35,12 +35,12 @@ import org.wso2.carbon.messaging.CarbonMessage;
 /**
  * CallMediator for LoadBalancer.
  */
-public class LoadBalancerCallMediator extends AbstractMediator {
+public class LBEndpointCallMediator extends AbstractMediator {
 
 
     private LBOutboundEndpoint lbOutboundEndpoint;
 
-    private static final Logger log = LoggerFactory.getLogger(LoadBalancerCallMediator.class);
+    private static final Logger log = LoggerFactory.getLogger(LBEndpointCallMediator.class);
 
     private final LoadBalancerConfigContext context;
 
@@ -49,8 +49,8 @@ public class LoadBalancerCallMediator extends AbstractMediator {
      * @param lbOutboundEndpoint LBOutboundEndpoint.
      * @param context            LoadBalancerConfigContext.
      */
-    public LoadBalancerCallMediator(LBOutboundEndpoint lbOutboundEndpoint,
-                                    LoadBalancerConfigContext context) {
+    public LBEndpointCallMediator(LBOutboundEndpoint lbOutboundEndpoint,
+                                  LoadBalancerConfigContext context) {
 
 
         this.lbOutboundEndpoint = lbOutboundEndpoint;
@@ -60,7 +60,7 @@ public class LoadBalancerCallMediator extends AbstractMediator {
 
     @Override
     public String getName() {
-        return "LoadBalancerCallMediator";
+        return "LBEndpointCallMediator";
     }
 
     @Override
