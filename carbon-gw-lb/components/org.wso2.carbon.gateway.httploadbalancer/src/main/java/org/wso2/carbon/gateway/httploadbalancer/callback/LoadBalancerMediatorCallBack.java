@@ -131,7 +131,10 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
                 /**
                  * Resetting unHealthyRetries count, to avoid any false detection.
                  */
-                callBack.getLbOutboundEndpoint().resetUnhealthyRetriesCount();
+                if (callBack.getLbOutboundEndpoint().isHealthy()
+                        && callBack.getLbOutboundEndpoint().getUnHealthyRetriesCount() > 0) {
+                    callBack.getLbOutboundEndpoint().resetUnhealthyRetriesCount();
+                }
 
                 //We are using running average technique for Least Response Time algorithm.
                 //So, we are doing this.

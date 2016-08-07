@@ -140,10 +140,9 @@ public class LBOutboundEndpoint {
     }
 
     public void resetUnhealthyRetriesCount() {
-        // Since it is atomic integer, setting it to 0 without checking would be costly.
-        if (this.unHealthyRetriesCount.get() > 0) {
-            this.unHealthyRetriesCount.set(0);
-        }
+
+        this.unHealthyRetriesCount.set(0);
+
     }
 
 }
