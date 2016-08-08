@@ -127,7 +127,7 @@ public class TimeoutHandler implements Runnable {
                 if (callBack != null) {
 
                     if (((currentTime - (callBack.getCreatedTime()
-                            + LoadBalancerConstants.DEFAULT_GRACE_PERIOD)) > context.getReqTimeout())) {
+                            - LoadBalancerConstants.DEFAULT_GRACE_PERIOD)) > context.getReqTimeout())) {
                         //This callBack is in pool after it has timedOut.
 
                         //This operation is on Concurrent HashMap, so no synchronization is required.
