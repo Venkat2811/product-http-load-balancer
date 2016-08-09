@@ -162,6 +162,9 @@ public class LoadBalancerConstants {
     //Default grace period to be added to timeOut value (in milliseconds) while creating LBMediatorCallBack.
     public static final int DEFAULT_GRACE_PERIOD = 5; //5 ms
 
+    //This value will be used in ACTIVE and PASSIVE health check handlers
+    public static final int DEFAULT_CONN_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(5); //5 sec
+
     //TODO: Get IP address from carbon server. Check with mentor.
    // public static final String LB_IP_ADDR = "127.0.0.1";
 

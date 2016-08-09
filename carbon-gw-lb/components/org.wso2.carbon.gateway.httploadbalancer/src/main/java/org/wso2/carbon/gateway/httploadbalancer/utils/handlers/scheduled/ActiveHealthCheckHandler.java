@@ -21,6 +21,7 @@ package org.wso2.carbon.gateway.httploadbalancer.utils.handlers.scheduled;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.httploadbalancer.algorithm.LoadBalancingAlgorithm;
+import org.wso2.carbon.gateway.httploadbalancer.constants.LoadBalancerConstants;
 import org.wso2.carbon.gateway.httploadbalancer.context.LoadBalancerConfigContext;
 import org.wso2.carbon.gateway.httploadbalancer.outbound.LBOutboundEndpoint;
 import org.wso2.carbon.gateway.httploadbalancer.utils.CommonUtil;
@@ -131,9 +132,9 @@ public class ActiveHealthCheckHandler implements Runnable {
                             SocketAddress socketAddr = new InetSocketAddress(inetAddr,
                                     Integer.parseInt(hostAndPort.split(":")[1].trim()));
 
-                            connectionSock.connect(socketAddr, context.getReqTimeout());
+                            connectionSock.connect(socketAddr, LoadBalancerConstants.DEFAULT_CONN_TIMEOUT);
                             //Waiting till timeOut..
-                            Thread.sleep(context.getReqTimeout());
+                            Thread.sleep(LoadBalancerConstants.DEFAULT_CONN_TIMEOUT);
 
                             if (connectionSock.isConnected()) {
 
