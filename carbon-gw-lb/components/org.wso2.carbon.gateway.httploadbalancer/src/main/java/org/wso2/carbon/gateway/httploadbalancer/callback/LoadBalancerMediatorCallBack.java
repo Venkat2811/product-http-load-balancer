@@ -131,7 +131,8 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
                 /**
                  * Resetting unHealthyRetries count, to avoid any false detection.
                  */
-                if (callBack.getLbOutboundEndpoint().isHealthy()
+                if (!context.getHealthCheck().equals(LoadBalancerConstants.NO_HEALTH_CHECK)
+                        && callBack.getLbOutboundEndpoint().isHealthy()
                         && callBack.getLbOutboundEndpoint().getUnHealthyRetriesCount() > 0) {
                     callBack.getLbOutboundEndpoint().resetUnhealthyRetriesCount();
                 }
