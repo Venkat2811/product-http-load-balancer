@@ -137,6 +137,7 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
                     callBack.getLbOutboundEndpoint().resetUnhealthyRetriesCount();
                 }
 
+
                 //We are using running average technique for Least Response Time algorithm.
                 //So, we are doing this.
                 if (context.getAlgorithmName().equals(LoadBalancerConstants.LEAST_RESPONSE_TIME)) {
@@ -149,9 +150,7 @@ public class LoadBalancerMediatorCallBack implements CarbonCallback {
 
             } else {
                 log.error("Response received after removing callback from pool.." +
-                        "This response will be discarded. " +
-                        "Either your BE is not performing as expected (or)" +
-                        " You might have to adjust request timeout value to avoid this from happening.");
+                        "This response will be discarded. ");
                 return;
             }
 
