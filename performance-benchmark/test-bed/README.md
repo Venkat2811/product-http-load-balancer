@@ -3,16 +3,16 @@ These are the configurations used during bench-marking.
 
 #### VM Details
 
-- `Guest OS`    : Ubuntu 64-bit 16.04 VM
-- `RAM`         : 8 GB
-- `CPU cores`   : 4
+- `Guest OS    :` Ubuntu 64-bit 16.04 VM
+- `RAM         :` 8 GB
+- `CPU cores   :` 4
 
 #### Host Machine Details
 
-- `Host OS`     : OS X EI Captain Version 10.11.5 (15F34) MacBook Pro (Mid 2015)
-- `Hypervisor`  : VMware Fusion Professional Version 8.1.1 (3771013)
-- `Processor`   : 2.5 GHz Core i7
-- `Memory`      : 16 GB 1600 MHz DDR3
+- `Host OS     :` OS X EI Captain Version 10.11.5 (15F34) MacBook Pro (Mid 2015)
+- `Hypervisor  :` VMware Fusion Professional Version 8.1.1 (3771013)
+- `Processor   :` 2.5 GHz Core i7
+- `Memory      :` 16 GB 1600 MHz DDR3
 
 ## Configuration Changes in Ubuntu
 
