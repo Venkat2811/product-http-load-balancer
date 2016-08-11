@@ -1,7 +1,7 @@
 # Test Bed
 These are the configurations used during bench-marking.
 
-##### VM Details
+#### VM Details
 
 - Guest OS    : Ubuntu 64-bit 16.04 VM
 - RAM         : 8 GB
