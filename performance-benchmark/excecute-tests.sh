@@ -3,8 +3,8 @@
 baseDir=$(dirname "$0")
 service="$1"
 
-concLevels="1 25 50 100 200 400 800 1600 3200"
-#perTestTime=30
+concLevels="500 1000 2000 3000 4000 5000 6000 7000 8000 9000 10000 11000 12000"
+perTestTime=80
 testLoops=1000000
 warmUpConc=200
 warmUpLoop=50000
@@ -17,7 +17,7 @@ declare -A MAP
 
 function warmUp(){
 echo "Warmup service.."
-ab -k -c $warmUpConc -n $warmUpLoop -r $service #> /dev/null
+ab -t $perTestTime -k -s 30 -c $warmUpConc -n $warmUpLoop -r $service #> /dev/null
 echo "Warmup service done"
 }
 
@@ -29,7 +29,7 @@ local percentOut="$tmpDir/percentile-conc$concLevel-time$timeStmp-$(uuidgen)"
 
 echo "Testing Conc Level : $concLevel"
 
-ab -k -c $concLevel -n $testLoops -e "$percentOut" -r $service > "$resOut"
+ab -t $perTestTime -k -c $concLevel -n $testLoops -e "$percentOut" -r $service > "$resOut"
 
 local tps=$(cat "$resOut" | grep -Eo "Requests per second.*" | grep -Eo "[0-9]+" | head -1)
 
