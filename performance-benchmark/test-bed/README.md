@@ -6,7 +6,7 @@ These are the configurations used during bench-marking.
 - Guest OS    : Ubuntu 64-bit 16.04 VM
 - RAM         : 8 GB
 - CPU cores   : 4
-- 
+
 #### Host Machine Details
 
 - Host OS     : OS X EI Captain Version 10.11.5 (15F34) MacBook Pro (Mid 2015)
