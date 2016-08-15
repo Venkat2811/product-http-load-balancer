@@ -431,7 +431,7 @@ public final class CommonUtil {
         }
 
         /**
-         * Adding to unHealthy List if it is not already in least.
+         * Adding to unHealthy List if it is not already in list.
          * Synchronization is not necessary because, it is ConcurrentLinkedQueue.
          **/
 
