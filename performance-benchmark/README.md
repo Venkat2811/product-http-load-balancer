@@ -4,6 +4,7 @@ In this performance test, five instances of simple service created using Netty f
 See [netty backend] (services/Netty) for more details.  
 
 Performance bench-marks were done between [open source Nginx load balancer] (nginx) and [GW-LB] (gw-lb) on [Ubuntu VM] (test-bed).
+
 **One Million(1,000,000) requests** were sent at different **concurrency levels (500 to 12,000)** to Netty backend, Nginx and GW-LB using apache bench via this [automated script] (excecute-tests.sh).
 
 ## Prerequisite
