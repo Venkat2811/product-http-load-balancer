@@ -1,8 +1,10 @@
 ## Performance Test using High Performance Netty Back-End
 
 In this performance test, five instances of simple service created using Netty framework were used.  Each instance is a fast backend (0s delay) with response of size 1KB.
-See [netty backend] (services/Netty) for more details.  Performance bench-marks were done between [open source Nginx load balancer] (nginx) and [this LB] (gw-lb) on [Ubuntu VM] (test-bed).
-1,000,000 requests were sent at different concurrency levels (500 to 12,000) to Netty backend, Nginx and load balancer using apache bench via this [automated script] (excecute-tests.sh).
+See [netty backend] (services/Netty) for more details.  
+
+Performance bench-marks were done between [open source Nginx load balancer] (nginx) and [GW-LB] (gw-lb) on [Ubuntu VM] (test-bed).
+1,000,000 requests were sent at different concurrency levels (500 to 12,000) to Netty backend, Nginx and GW-LB using apache bench via this [automated script] (excecute-tests.sh).
 
 ## Prerequisite
 * **apache2-utils** - This performance tests are executed using ApacheBench. Therefore in order to run the tests, apache2-utils
@@ -18,7 +20,8 @@ Run all tests using the following command from [performance-benchmark](performan
 
 ## Throughput Test
 
-Tests were done twice.  Average of 'Average throughput' for each concurrency level is calculated and plotted.  
+Tests were done twice.  Average of 'Average throughput' for each concurrency level is calculated and plotted.  First graph shows throughput comparision between Open Source Nginx and GW-LB.
+Second graph shows throughput comparision with Netty backend.
 
 ![Throughput] (graphs/throughput_without_netty.png)
 
