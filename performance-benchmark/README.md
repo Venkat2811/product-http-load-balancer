@@ -7,6 +7,11 @@ Performance bench-marks were done between [open source Nginx load balancer] (ngi
 
 **One Million(1,000,000) requests** were sent at different **concurrency levels (500 to 12,000)** to Netty backend, Nginx and GW-LB using apache bench via this [automated script] (excecute-tests.sh).
 
+Benchmarks were conducted in Round-Robin algorithm mode with no persistence policies.
+
+- See [Nginx config] (nginx) for more configuration details.
+- See [GW-LB config] (gw-lb) for more configuration details.  
+
 ## Prerequisite
 * **apache2-utils** - This performance tests are executed using ApacheBench. Therefore in order to run the tests, apache2-utils
 should be installed in the machine.
