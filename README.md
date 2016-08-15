@@ -24,7 +24,7 @@ Architecture
 <br/>
 <b>Message Flow</b>
 
-![LogicalMessageFlow](docs/Logical Message Flow.png)
+![LogicalMessageFlow](docs/Message Flow.png)
 
 
 Performance Benchmarks
