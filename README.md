@@ -22,8 +22,8 @@ Architecture
 ![alt tag](docs/Engine Architecture.png)
 
 
-Performance Test using High Performance Netty Back-End
-------------------------------------------------------
+Performance Benchmarks
+----------------------
 **One Million(1,000,000) requests** were sent at different **concurrency levels (500 to 12,000)** to Netty backend, Nginx and GW-LB using apache bench via this [automated script] (performance-benchmark/excecute-tests.sh).
 
 More details can be found [here](performance-benchmark).
