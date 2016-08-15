@@ -21,6 +21,28 @@ Architecture
 
 ![alt tag](docs/Engine Architecture.png)
 
+Performance Test using High Performance Netty Back-End
+------------------------------------------------------
+**One Million(1,000,000) requests** were sent at different **concurrency levels (500 to 12,000)** to Netty backend, Nginx and GW-LB using apache bench via this [automated script] (performance-benchmark/excecute-tests.sh).
+
+More details can be found [here](performance-benchmark).
+
+## Throughput Test
+
+Tests were done twice.  Average of 'Average throughput' for each concurrency level is calculated and plotted.  
+
+First graph shows throughput comparision between Open Source Nginx and GW-LB.  Second graph shows throughput comparision with Netty backend.
+
+![Throughput] (performance-benchmark)/graphs/throughput_without_netty.png)
+
+![ThroughputWithNetty] (performance-benchmark)/graphs/throughput_with_netty.png)
+
+## Latency Test
+
+Tests were done twice.  Average of 'Mean Latency' for each concurrency level is calculated and plotted.
+
+![MeanLatency] (performance-benchmark)/graphs/mean_latency.png)
+
 
 Building Product
 ----------------
