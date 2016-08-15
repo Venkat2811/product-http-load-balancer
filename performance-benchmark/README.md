@@ -1,6 +1,6 @@
 ## Performance Test using High Performance Netty Back-End
 
-In this performance test, five instances of simple service created using Netty framework were used.  Each instance is a fast backend (0s delay) with response of size 1KB.
+In this performance test, five instances of simple service created using Netty framework were used.  Each instance is a fast backend (0s delay) with response of size 1KB.  
 See [netty backend] (services/Netty) for more details.  
 
 Performance bench-marks were done between [open source Nginx load balancer] (nginx) and [GW-LB] (gw-lb) on [Ubuntu VM] (test-bed).
