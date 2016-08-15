@@ -3,9 +3,12 @@ These are the configurations used during bench-marking.
 
 #### VM Details
 
-- `Guest OS    :` Ubuntu 64-bit 16.04 VM
-- `RAM         :` 8 GB
-- `CPU cores   :` 4
+- `Guest OS     :` Ubuntu 64-bit 16.04 VM
+- `RAM          :` 8 GB
+- `CPU cores    :` 4
+- `JVM Version  :` 1.8.0_91
+- `Java Runtime :` Java(TM) SE Runtime Environment (build 1.8.0_91-b14)
+- `Java HotSpot :` Java HotSpot(TM) 64-Bit Server VM (build 25.91-b14, mixed mode)
 
 #### Host Machine Details
 
