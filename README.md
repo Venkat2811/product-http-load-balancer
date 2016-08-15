@@ -28,7 +28,8 @@ Performance Benchmarks
 
 More details can be found [here](performance-benchmark).
 
-### Throughput Test
+<br/>
+<b>Throughput Test</b>
 
 Tests were done twice.  Average of 'Average throughput' for each concurrency level is calculated and plotted.  
 
@@ -38,7 +39,8 @@ First graph shows throughput comparision between Open Source Nginx and GW-LB.  S
 
 ![ThroughputWithNetty] (performance-benchmark/graphs/throughput_with_netty.png)
 
-### Latency Test
+<br/>
+<b>Latency Test</b>
 
 Tests were done twice.  Average of 'Mean Latency' for each concurrency level is calculated and plotted.
 
