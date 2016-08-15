@@ -22,7 +22,7 @@ Tests were done twice.  Average of 'Average throughput' for each concurrency lev
 
 ![Throughput] (graphs/throughput_without_netty.png)
 
-![ThroughputWithNetty] (graphs/throughput_without_netty.png)
+![ThroughputWithNetty] (graphs/throughput_with_netty.png)
 
 ## Latency Test
 
