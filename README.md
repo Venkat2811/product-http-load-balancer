@@ -21,6 +21,11 @@ Architecture
 
 ![alt tag](docs/Engine Architecture.png)
 
+<br/>
+<b>Message Flow</b>
+
+![LogicalMessageFlow](docs/Logical Message Flow.png)
+
 
 Performance Benchmarks
 ----------------------
@@ -47,12 +52,6 @@ First graph shows throughput comparision between Open Source Nginx and GW-LB.  S
 Tests were done twice.  Average of 'Mean Latency' for each concurrency level is calculated and plotted.
 
 ![MeanLatency] (performance-benchmark/graphs/mean_latency.png)
-
-
-Logical Message Flow
---------------------
-![LogicalMessageFlow](docs/Logical Message Flow.png)
-
 
 
 Building Product
