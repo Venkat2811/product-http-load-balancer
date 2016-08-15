@@ -49,6 +49,12 @@ Tests were done twice.  Average of 'Mean Latency' for each concurrency level is 
 ![MeanLatency] (performance-benchmark/graphs/mean_latency.png)
 
 
+Logical Message Flow
+--------------------
+![LogicalMessageFlow](docs/Logical Message Flow.png)
+
+
+
 Building Product
 ----------------
 
