@@ -142,6 +142,7 @@ Traffic between `Client -> LB -> Back-End` and `Back-End -> LB -> Client` are un
 Traffic between `Client -> LB -> Back-End` and `Back-End -> LB -> Client` are encrypted.
 
  In this mode, when request reaches WSO2-Netty Listener, it gets decrypted and LB mediates requests to appropriate Outbound Endpoints.  When requests reach WSO2-Netty sender it gets encrypted again and is sent to backend.
+ 
  It works similarly when response arrives.
 
 
