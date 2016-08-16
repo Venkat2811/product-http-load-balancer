@@ -123,6 +123,8 @@ You can find more samples in `/product/carbon-home/samples/`.
 Traffic Flows
 -------------
 
+Carbon Gateway Framework provides abstraction on HTTP/HTTPs traffic.  By configuring Inbound and Outbound endpoints with appropriate protocol the following three modes of operation can be achieved.
+
 #### Simple HTTP
 Traffic between `Client -> LB -> Back-End` and `Back-End -> LB -> Client` are un-encrypted.
 
@@ -130,10 +132,16 @@ Traffic between `Client -> LB -> Back-End` and `Back-End -> LB -> Client` are un
 #### SSL Offload
  - Traffic from `Client -> LB` and `LB -> Client` are encrypted.
  - Traffic from `LB -> Back-End` and `Back-End -> LB` are un-encrypted.
+ 
+ In this mode, when request reaches WSO2-Netty Listener, it gets decrypted and LB mediates requests to appropriate Outbound Endpoints. 
+ When response reaches LB, it forwards it to appropriate client.  When response reaches WSO2-Netty Listener it is encrypted and sent to client.
 
 
 #### SSL Re-Encryption
 Traffic between `Client -> LB -> Back-End` and `Back-End -> LB -> Client` are encrypted.
+
+In this mode, when request reaches WSO2-Netty Listener, it gets decrypted and LB mediates requests to appropriate Outbound Endpoints.  When requests reach WSO2-Netty sender it gets encrypted again and is sent to backend.
+It works similarly when response arrives.
 
 
 
