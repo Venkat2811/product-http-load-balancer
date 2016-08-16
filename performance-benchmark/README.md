@@ -28,7 +28,7 @@ Run all tests using the following command from [performance-benchmark](performan
 
 Tests were done twice.  Average of 'Average throughput' for each concurrency level is calculated and plotted.  
 
-First graph shows throughput comparision between Open Source Nginx and GW-LB.  Second graph shows throughput comparision with Netty backend.
+First graph shows throughput comparison between Open Source Nginx and GW-LB.  Second graph shows throughput comparison with Netty backend.
 
 ![Throughput] (graphs/throughput_without_netty.png)
 
