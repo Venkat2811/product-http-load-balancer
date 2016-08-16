@@ -39,6 +39,14 @@ First graph shows throughput comparision between Open Source Nginx and GW-LB.  S
 Tests were done twice.  Average of 'Mean Latency' for each concurrency level is calculated and plotted.
 
 ![MeanLatency] (graphs/mean_latency.png)
+
+## Memory Test</b>
+
+Java Flight Recorder (JFR) is enabled while starting LB server and recording is stopped after load test ends.  The obtained JFR recording has memory usage details.
+
+This graph shows committed, reserved and used heap values.
+
+![UsedMemory] (graphs/memory_using_jfr.png)
  
 ## Reference  
 
