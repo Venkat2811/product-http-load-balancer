@@ -73,7 +73,7 @@ Building Product
 
 - Then do `mvn install` on this product.
 
-- Now Clone and do `mvn install` on https://github.com/Venkat2811/carbon-gateway-framework.git as it 
+- Now Clone and do `mvn install` on https://github.com/Venkat2811/carbon-gateway-framework-with-LB.git as it 
   has support for LB.
 
 - Again do `mvn install` on this product.
