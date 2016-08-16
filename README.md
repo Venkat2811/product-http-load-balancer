@@ -33,7 +33,7 @@ In this performance test, five instances of simple service created using Netty f
 
 **One Million (1,000,000) requests** were sent at different **concurrency levels (500 to 12,000)** to Netty backend, Nginx and GW-LB using apache bench via this [automated script] (performance-benchmark/excecute-tests.sh).
 
-More details can be found [here](performance-benchmark).
+Benchmarks were conducted in Round-Robin algorithm mode with no persistence policies.  More details can be found [here](performance-benchmark).
 
 <br/>
 <b>Throughput Test</b>
