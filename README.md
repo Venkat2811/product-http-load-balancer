@@ -134,14 +134,15 @@ Traffic between `Client -> LB -> Back-End` and `Back-End -> LB -> Client` are un
  - Traffic from `LB -> Back-End` and `Back-End -> LB` are un-encrypted.
  
  In this mode, when request reaches WSO2-Netty Listener, it gets decrypted and LB mediates requests to appropriate Outbound Endpoints. 
- When response reaches LB, it forwards it to appropriate client.  When response reaches WSO2-Netty Listener it is encrypted and sent to client.
+ 
+ When response from back-end reaches LB, it forwards it to appropriate client.  When response reaches WSO2-Netty Listener it is encrypted and is forwarded to client.
 
 
 #### SSL Re-Encryption
 Traffic between `Client -> LB -> Back-End` and `Back-End -> LB -> Client` are encrypted.
 
-In this mode, when request reaches WSO2-Netty Listener, it gets decrypted and LB mediates requests to appropriate Outbound Endpoints.  When requests reach WSO2-Netty sender it gets encrypted again and is sent to backend.
-It works similarly when response arrives.
+ In this mode, when request reaches WSO2-Netty Listener, it gets decrypted and LB mediates requests to appropriate Outbound Endpoints.  When requests reach WSO2-Netty sender it gets encrypted again and is sent to backend.
+ It works similarly when response arrives.
 
 
 
