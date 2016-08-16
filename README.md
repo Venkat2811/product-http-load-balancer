@@ -56,7 +56,7 @@ Tests were done twice.  Average of 'Mean Latency' for each concurrency level is 
 <br/>
 <b>Memory Test</b>
 
-Java Flight Recorder (JFR) is enabled while starting LB server and recording is stopped after load test ends.  The obtained JFR recording has memory usage details.
+**Java Flight Recorder (JFR)** is enabled while starting LB server and recording is stopped after load test ends.  The obtained JFR recording has memory usage details.
 
 This graph shows **Committed, Reserved and Used Heap** values.
 
