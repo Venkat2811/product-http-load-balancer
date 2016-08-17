@@ -63,15 +63,17 @@ Then add the following lines in between "-Dfile.encoding=UTF8 \" and "org.wso2.c
 ```
 
 
+
+
 ![UsedMemory] (graphs/memory_using_jfr.png)
  
 ## Reference  
 
 - https://github.com/wso2/msf4j/tree/master/perf-benchmark
 
-Scripts available in the above mentioned repo were customized for this project.
+  Scripts available in the above mentioned repo were customized for this project.
 
 - http://isuru-perera.blogspot.in/2015/02/java-flight-recorder-continuous-recordings.html
 
-Detailed post on enabling JFR in Carbon servers and setting up Cron job for the same. 
+  Detailed post on enabling JFR in Carbon servers and setting up Cron job for the same. 
 

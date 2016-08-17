@@ -76,6 +76,8 @@ Then add the following lines in between "-Dfile.encoding=UTF8 \" and "org.wso2.c
 -XX:FlightRecorderOptions=defaultrecording=true,disk=true,maxage=0,repository=./tmp,dumponexit=true,dumponexitpath=./ \
 ```
 
+
+
 ![UsedMemory] (performance-benchmark/graphs/memory_using_jfr.png)
 
 
