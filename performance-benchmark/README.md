@@ -46,11 +46,32 @@ Tests were done twice.  Average of 'Mean Latency' for each concurrency level is 
 
 This graph shows **Committed, Reserved and Used Heap** values.
 
+#### Enabling JFR in WSO2-Carbon Server
+
+```
+cd CARBON_HOME/bin
+
+Open carbon.sh in any text editor
+```
+
+Then add the following lines in between "-Dfile.encoding=UTF8 \" and "org.wso2.carbon.bootstrap.Bootstrap $*"
+
+```
+-XX:+UnlockCommercialFeatures \
+-XX:+FlightRecorder \
+-XX:FlightRecorderOptions=defaultrecording=true,disk=true,maxage=0,repository=./tmp,dumponexit=true,dumponexitpath=./ \
+```
+
+
 ![UsedMemory] (graphs/memory_using_jfr.png)
  
 ## Reference  
 
-https://github.com/wso2/msf4j/tree/master/perf-benchmark
+- https://github.com/wso2/msf4j/tree/master/perf-benchmark
 
 Scripts available in the above mentioned repo were customized for this project.
+
+- http://isuru-perera.blogspot.in/2015/02/java-flight-recorder-continuous-recordings.html
+
+Detailed post on enabling JFR in Carbon servers and setting up Cron job for the same. 
 
