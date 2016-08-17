@@ -85,6 +85,7 @@ Then add the following lines in between "-Dfile.encoding=UTF8 \" and "org.wso2.c
 
 Building Product
 ----------------
+- JDK 1.8 is required.
 
 - Clone and do `mvn install` on https://github.com/wso2/carbon-gateway-framework.git as this product
   is dependent on it.
