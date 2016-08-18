@@ -9,8 +9,8 @@ Performance bench-marks were done between [open source Nginx load balancer] (ngi
 
 Benchmarks were conducted in Round-Robin algorithm mode with no persistence policies.
 
-- See [Nginx config] (nginx) for more configuration details.
-- See [GW-LB config] (gw-lb) for more configuration details.  
+- See [Nginx config] (nginx/nginx.conf) for configuration details.
+- See [GW-LB config] (gw-lb/gwLB.iflow) for configuration details.  
 
 ## Prerequisite
 * **apache2-utils** - This performance tests are executed using ApacheBench. Therefore in order to run the tests, apache2-utils
