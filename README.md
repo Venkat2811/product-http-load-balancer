@@ -97,10 +97,12 @@ Building Product
 
 - Again do `mvn install` on this product.
 
-- Goto `<CARBON_HOME>\product-http-load-balancer\product\target\` and 
-  extract `wso2gwlbserver-1.0.0-SNAPSHOT.zip`.
+- Once build is successful, extract product zip file at `<CARBON_HOME>\product\target\`
 
-- Then goto `<CARBON_HOME>\product-http-load-balancer\product\target\wso2gwlbserver-1.0.0-SNAPSHOT\wso2gwlbserver-1.0.0-SNAPSHOT\bin` and start `carbon.bat` or `carbon.sh` accordingly. 
+- Add configuration `(.iflow)` file in `<EXTRACTED_PRODUCT>\deployment\integration-flows`
+  **NOTE:** As of now, Carbon Gateway Framework supports only one configuration file.
+
+- Then goto `<EXTRACTED_PRODUCT>\bin` and start `carbon.bat` or `carbon.sh` accordingly. 
 
 
 Sample Configuration
