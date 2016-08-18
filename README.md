@@ -142,7 +142,7 @@ You can find more samples in `/product/carbon-home/samples/`.
 Traffic Flows
 -------------
 
-Carbon Gateway Framework provides abstraction on HTTP/HTTPs traffic.  By configuring Inbound and Outbound endpoints with appropriate protocol the following three modes of operation can be achieved.
+Carbon Gateway Framework provides abstraction on HTTP/HTTPs traffic.  By configuring Inbound and Outbound endpoints with appropriate protocol, the following three modes of operation can be achieved.
 
 #### Simple HTTP
 Traffic between `Client -> LB -> Back-End` and `Back-End -> LB -> Client` are un-encrypted.
