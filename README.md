@@ -7,6 +7,21 @@ This is a Google Summer of Code (GSoC 2016) Project.  It is under development.
  
  `Status Updates :` https://docs.google.com/document/d/1kEk706KkwjK3gFpjx56vNwAKzVQpa-G52MHIC_I7-0Y/edit?usp=sharing
  
+
+WSO2 Incubator
+--------------
+This project has been added to WSO2 Incubator.
+
+https://github.com/wso2-incubator/HTTP-Load-balancer
+
+
+Blog
+----
+Here is a blog post on Engine Architecture.
+
+https://venkat2811.blogspot.in/2016/08/http-load-balancer-on-top-of-wso2.html
+
+
 Architecture
 ------------
 
