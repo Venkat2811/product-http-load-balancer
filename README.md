@@ -100,6 +100,7 @@ Building Product
 - Once build is successful, extract product zip file at `<CARBON_HOME>\product\target\`
 
 - Add configuration `(.iflow)` file in `<EXTRACTED_PRODUCT>\deployment\integration-flows`
+  
   **NOTE:** As of now, Carbon Gateway Framework supports only one configuration file.
 
 - Then goto `<EXTRACTED_PRODUCT>\bin` and start `carbon.bat` or `carbon.sh` accordingly. 
