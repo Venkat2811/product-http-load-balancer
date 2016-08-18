@@ -137,8 +137,8 @@ StocksPipeline -> StocksInbound : "Final Response"
 ```
 
 
-Folder Structure
-----------------
+Directory Structure
+-------------------
 
 - `carbon-gw-lb:` Contains source code for LB.
 
