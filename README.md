@@ -146,7 +146,7 @@ Folder Structure
 
 - `performance-benchmark:` Contains graphs, sample configuration used for benchmarking, sample back-end services, test bed related details and scripts used for benchmarking.
 
-- `product:` Contains carbon server related.  Once product is built successfully, zip file will be available here.
+- `product:` Contains carbon server related config.  Once product is built successfully, zip file will be available here.
 
 More Samples
 ------------
