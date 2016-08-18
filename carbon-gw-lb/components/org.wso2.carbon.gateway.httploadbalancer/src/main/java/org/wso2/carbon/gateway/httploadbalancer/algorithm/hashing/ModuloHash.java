@@ -33,7 +33,7 @@ public class ModuloHash implements Hash {
     private List<String> endpoints;
 
     /**
-     * @param endpoints List of OutboundEndpoints of form <hostname:port>.
+     * @param endpoints List of OutboundEndpoints of form (hostname:port).
      */
     public ModuloHash(List<String> endpoints) {
 
@@ -41,7 +41,7 @@ public class ModuloHash implements Hash {
     }
 
     /**
-     * @param endpoint add an endpoint of form <hostname:port>.
+     * @param endpoint add an endpoint of form (hostname:port).
      */
     @Override
     public void addEndpoint(String endpoint) {
@@ -51,7 +51,7 @@ public class ModuloHash implements Hash {
 
     /**
      *
-     * @param endpoints List of Endpoints of form <hostname:port> to be added.
+     * @param endpoints List of Endpoints of form (hostname:port) to be added.
      */
     @Override
     public void addEndpoints(List<String> endpoints) {
@@ -59,7 +59,7 @@ public class ModuloHash implements Hash {
     }
 
     /**
-     * @param endpoint remove an endpoint of form <hostname:port>.
+     * @param endpoint remove an endpoint of form (hostname:port).
      */
     @Override
     public void removeEndpoint(String endpoint) {
@@ -69,7 +69,7 @@ public class ModuloHash implements Hash {
 
     /**
      *
-     * @param endpoints List of Endpoint of form <hostname:port> to be removed.
+     * @param endpoints List of Endpoint of form (hostname:port) to be removed.
      */
     @Override
     public void removeAllEndpoints(List<String> endpoints) {
@@ -79,7 +79,7 @@ public class ModuloHash implements Hash {
 
     /**
      * @param ipAddress Client IP Address.
-     * @return Chosen Endpoint of form <hostname:port> based on Modulo Hash implementation.
+     * @return Chosen Endpoint of form (hostname:port) based on Modulo Hash implementation.
      */
     @Override
     public String get(String ipAddress) {

@@ -60,7 +60,7 @@ public class LoadBalancerConfigContext {
     /**
      * Used to identify corresponding BackEnd Endpoint Key for a given cookie.
      * <p>
-     * This map will be used when request comes from Client -> LB
+     * This map will be used when request comes from Client to LB
      * and based on cookie, BE endpoint will be chosen.
      * Each cookie value will point to a BE endpoint. Eg: EP1,EP2 etc.,
      */
@@ -72,7 +72,7 @@ public class LoadBalancerConfigContext {
      * This map will be used once response arrives from BE and
      * to use appropriate cookie for the endpoint.
      * <p>
-     * NOTE: EndpointName will be of the form <hostName:port>
+     * NOTE: EndpointName will be of the form (hostName:port)
      */
     private Map<String, String> endpointToCookieMap;
 
@@ -220,7 +220,7 @@ public class LoadBalancerConfigContext {
 
 
     /**
-     * @param endpoint   of form <host:port>
+     * @param endpoint   of form (host:port)
      * @param cookieName Maps OutboundEP to a cookieName.
      */
     public void addToOutboundEPTOCookieMap(String endpoint, String cookieName) {

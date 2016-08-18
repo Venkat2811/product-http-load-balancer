@@ -97,8 +97,8 @@ public final class CommonUtil {
      **/
 
     /**
-     * @param retries a string of form '<integer>times'.
-     * @return <integer>.
+     * @param retries a string of form '(some_integer)times'.
+     * @return retries count.
      */
     public static int getRetriesCount(String retries) {
         int val;
@@ -109,8 +109,8 @@ public final class CommonUtil {
     }
 
     /**
-     * @param time time in string '<integer>( h | m | s | ms )'.
-     * @return <integer> in milli seconds.
+     * @param time time in string '(some_integer)( h | m | s | ms )'.
+     * @return time in milli seconds.
      */
     public static int getTimeInMilliSeconds(String time) {
         int val = 0;
@@ -142,7 +142,7 @@ public final class CommonUtil {
 
     /**
      * @param inputUri LBOutboundEndpoint's Uri.
-     * @return <String> of form 'hostname:port' if uri is valid. Otherwise, null.
+     * @return String of form 'hostname:port' if uri is valid. Otherwise, null.
      */
     public static String getHostAndPort(String inputUri) {
 
@@ -206,7 +206,7 @@ public final class CommonUtil {
     /**
      * @param carbonMessage Response from which host and port are to be identified.
      * @param context       LoadBalancerConfigContext
-     * @return <host:port>
+     * @return String of form 'hostname:port'
      */
     public static String getCookieValue(CarbonMessage carbonMessage, LoadBalancerConfigContext context) {
         //Extracting host and port from response to identify appropriate cookie.
@@ -218,7 +218,7 @@ public final class CommonUtil {
 
 
     /**
-     * @param cookieValue eg: EP1,EP2 etc.,
+     * @param cookieValue Inserted cookie value
      * @return LB specific cookie.
      * <p>
      * NOTE: This will be used when there is no cookie from BE.
@@ -238,7 +238,7 @@ public final class CommonUtil {
 
     /**
      * @param existingCookie existing cookie from BE.
-     * @param lbCookieValue  eg: EP1,EP2 etc.,
+     * @param lbCookieValue  generated cookie
      * @return BE cookie value appended with LB specific cookie.
      * <p>
      * The nature of this cookie (like HttpOnly, Age) is purely dependant on BE application server.
