@@ -10,10 +10,11 @@ This is a Google Summer of Code (GSoC 2016) Project.  It is under development.
 
 WSO2 Incubator
 --------------
-This project has been added to WSO2 Incubator.
+This project has been moved to WSO2 Incubator.
 
 https://github.com/wso2-incubator/HTTP-Load-balancer
 
+From now, it will be actively developed and managed as part WSO2 Incubator.
 
 Blog
 ----
